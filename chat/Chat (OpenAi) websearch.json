@@ -94,13 +94,13 @@
     },
     {
       "parameters": {
-        "sendTo": "kangjooleng@gmail.com",
+        "sendTo": "receiver email",
         "subject": "={{ $now.toFormat('dd-MMM-yyyy') }}, Top 10 US and SG Financial News (OpenAI) Websearch",
         "emailType": "text",
         "message": "={{ $json.output }}",
         "options": {
           "appendAttribution": false,
-          "bccList": "kangjooleng@yahoo.com,jooleng.kang@gmail.com"
+          "bccList": "receiver email"
         }
       },
       "type": "n8n-nodes-base.gmail",
@@ -115,7 +115,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "WuF8gx0H2ToxxTJJ",
-          "name": "jooleng.kang@gmail.com"
+          "name": "sender email"
         }
       }
     },
