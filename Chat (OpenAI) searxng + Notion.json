@@ -1,0 +1,448 @@
+{
+  "name": "Chat (OpenAI) searxng + Notion",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is JL. How can I assist you today?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1104,
+        752
+      ],
+      "id": "c68b449f-3963-43cc-a7af-7cd6b468a962",
+      "name": "When chat message received",
+      "webhookId": "9498a8b2-c4fd-49a9-a861-eba729ac5baa"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Use mcp client to generate all responses"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -816,
+        640
+      ],
+      "id": "8428b324-1ed4-4c39-a11e-82344985b589",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -752,
+        864
+      ],
+      "id": "66fe2979-0dc7-4b32-bb91-370d15859935",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://searxng-mcp:3000/mcp",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        864
+      ],
+      "id": "5f236eb3-872b-4912-b9c4-9db9dbba2889",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -880,
+        864
+      ],
+      "id": "3a6c0960-3f39-41cb-87c0-1b0261a4fb01",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "Bmo2ApctUQnemnbB",
+          "name": "GPT5 nano"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@gmail.com",
+        "subject": "={{ $now.format('dd-MMM-yyyy') }}, Top 10 US and SG Financial News (OpenAI) Searxng",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false,
+          "bccList": "kangjooleng@yahoo.com,jooleng.kang@gmail.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -336,
+        848
+      ],
+      "id": "8cb96654-9120-421e-810f-0a86d1585ca3",
+      "name": "Top 10 Finance News US and SG",
+      "webhookId": "acc4cba2-22e4-441f-8d2e-9df7ae759cce",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WuF8gx0H2ToxxTJJ",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// n8n Code Node: Recursive Character Text Splitter for Notion\n// ============================================================\n// Reads:  items[0].json.text  (AI Agent output)\n// Writes: array of { json: { chunkIndex, totalChunks, text } }\n// ============================================================\n\n\n//const inputText = items[0].json.text || \"\";\nconst inputText = $input.first().json.output || \"\";\n\n// Target chunk size in characters.\n// Notion API hard limit is 2,000 chars per rich text block.\n// ~1,800 chars ≈ ~450 tokens (GPT-style, 1 token ≈ 4 chars).\n// Adjust CHUNK_SIZE to match your token target:\n//   1,500 tokens × 4 chars/token = 6,000 chars  (if Notion limit is not a concern)\n//   For Notion safety:  use 1,800 chars\nconst CHUNK_SIZE = 1800;\nconst CHUNK_OVERLAP = 0; // characters of overlap between consecutive chunks\n\n// Separators tried in order (most to least preferred boundary)\nconst SEPARATORS = [\"\\n\\n\", \"\\n\", \" \", \"\"];\n\n// ── Core recursive splitter ──────────────────────────────────\nfunction splitText(text, separators, chunkSize) {\n  const results = [];\n  const sep = separators[0];\n  const nextSeps = separators.slice(1);\n\n  // Split on the current separator\n  const splits = sep === \"\" ? text.split(\"\") : text.split(sep);\n\n  let currentBatch = [];\n  let currentLength = 0;\n\n  for (const s of splits) {\n    if (s.trim() === \"\") continue; // skip empty segments\n\n    if (s.length >= chunkSize) {\n      // Flush current batch first\n      if (currentBatch.length > 0) {\n        results.push(currentBatch.join(sep));\n        currentBatch = [];\n        currentLength = 0;\n      }\n      // Recursively split the oversized segment\n      if (nextSeps.length > 0) {\n        const subChunks = splitText(s, nextSeps, chunkSize);\n        results.push(...subChunks);\n      } else {\n        // Last resort: hard character split\n        for (let i = 0; i < s.length; i += chunkSize) {\n          results.push(s.substring(i, i + chunkSize));\n        }\n      }\n    } else {\n      // Would adding this segment exceed the limit?\n      const addedLength = currentLength + (currentBatch.length > 0 ? sep.length : 0) + s.length;\n      if (addedLength > chunkSize && currentBatch.length > 0) {\n        results.push(currentBatch.join(sep));\n        // Carry-over overlap: keep the last segment(s) that fit within CHUNK_OVERLAP\n        currentBatch = currentBatch.filter((_, i, arr) => {\n          const tail = arr.slice(i).join(sep);\n          return tail.length <= CHUNK_OVERLAP;\n        });\n        currentLength = currentBatch.join(sep).length;\n      }\n      currentBatch.push(s);\n      currentLength = currentBatch.join(sep).length;\n    }\n  }\n\n  // Flush remaining\n  if (currentBatch.length > 0) {\n    results.push(currentBatch.join(sep));\n  }\n\n  return results;\n}\n\n// ── Run the splitter ─────────────────────────────────────────\nconst chunks = splitText(inputText, SEPARATORS, CHUNK_SIZE);\n\n// ── Build output items ───────────────────────────────────────\nreturn chunks.map((chunk, index) => ({\n  json: {\n    chunkIndex: index + 1,\n    totalChunks: chunks.length,\n    text: chunk.trim(),\n    firstBlock: index == 0,\n  },\n}));\n"
+      },
+      "name": "Recursive Text Splitter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        624
+      ],
+      "id": "c08fdcd5-4c40-4e63-bf10-9bba4c5b5e8c"
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "=31b30e12316d80988831d2c858191759",
+          "mode": "id"
+        },
+        "title": "={{ $now.toFormat('yyyy-MMM-dd') }}, Top10 Finance News US & SG (OpenAi) Searxng",
+        "simple": false,
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        608
+      ],
+      "id": "18f5d8bf-18d4-481f-99ab-fa9ab372d9c2",
+      "name": "Create a page",
+      "credentials": {
+        "notionApi": {
+          "id": "RcXxxyOa0ZFv1cQa",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "048f5aad-7673-4b65-9d5c-c621359989d8",
+              "leftValue": "={{ $json.output.length() }}",
+              "rightValue": 2000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -352,
+        640
+      ],
+      "id": "95913cbc-f1bf-4c31-87fd-5741bc7d1b76",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "521ae610-0c9b-487f-bd3f-60b5d6ec76bf",
+              "leftValue": "={{ $json.firstBlock }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        16,
+        624
+      ],
+      "id": "cc60ff1d-f3c6-40e9-b4b5-19ad980dd1f8",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "261006af-e0d7-4428-aecb-30aa7a1c2c68",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        608
+      ],
+      "id": "4a18e2df-b235-437d-b632-17f37806cb16",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        496,
+        624
+      ],
+      "id": "52b27918-2f15-4a35-988d-1e349dcbe1cf",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $json.url }}",
+          "mode": "url"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        624
+      ],
+      "id": "0dc6f560-a1ee-4b3b-88ad-204826e4abb8",
+      "name": "Append a block",
+      "credentials": {
+        "notionApi": {
+          "id": "RcXxxyOa0ZFv1cQa",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Top 10 Finance News US and SG": {
+      "main": [
+        []
+      ]
+    },
+    "Recursive Text Splitter": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a page": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Recursive Text Splitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Create a page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Append a block",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b7f5ae53-471a-4d79-a0d8-0dfb3100cc1d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bb38ed4bebab4522f63b13e5dd4b25d28fdfbf53fcaabb6b82ba356bbf1e787a"
+  },
+  "id": "LoO7XsjzUHqUcO75",
+  "tags": []
+}
