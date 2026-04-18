@@ -1,0 +1,373 @@
+{
+  "name": "Chat (OpenAi) websearch",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is JL. How can I assist you today?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -2016,
+        1904
+      ],
+      "id": "2defac69-12cf-40c4-bf66-de3baa3ac1dd",
+      "name": "When chat message received",
+      "webhookId": "8c939f4c-7cb4-4a6b-ba69-1ab95fbab5c9"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Use mcp client to generate all responses. ",
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1728,
+        1904
+      ],
+      "id": "4dc6ff86-6b86-459c-92aa-31a9cd12bf24",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1664,
+        2128
+      ],
+      "id": "679fec5a-76f3-4741-98ad-f13790c1ec9d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://web-search:3000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "search"
+        ],
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -1536,
+        2128
+      ],
+      "id": "3e162d1b-03f6-4299-b5b5-06d392918626",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1792,
+        2128
+      ],
+      "id": "5cbc90cc-8294-4935-ac0f-8cac6518c86e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "Bmo2ApctUQnemnbB",
+          "name": "GPT5 nano"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@gmail.com",
+        "subject": "={{ $now.toFormat('dd-MMM-yyyy') }}, Top 10 US and SG Financial News (OpenAI) Websearch",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false,
+          "bccList": "kangjooleng@yahoo.com,jooleng.kang@gmail.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1136,
+        1840
+      ],
+      "id": "e06c8008-bfd0-4612-8f58-c7cf0e7519f4",
+      "name": "Send a message",
+      "webhookId": "fd3148eb-59f6-4525-b41b-d90e788b1749",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WuF8gx0H2ToxxTJJ",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ====================================================================\n// n8n Code Node: Recursive Text Splitter → Notion Blocks Array\n// Version: 8.0  —  NO require(), NO fetch(), NO helpers\n//\n// This node ONLY splits text and builds the Notion blocks payload.\n// The actual API call is made by the HTTP Request node that follows.\n//\n// OUTPUT: One item with json.blocks — an array of Notion paragraph\n//         block objects ready to POST to the Notion API.\n//\n// Change items[0].json.text below if your input field has a different name.\n// ====================================================================\n\n// Text from the previous node (AI Agent output)\n//$input.first().json.output\n//var inputText = items[0].json.text || \"\";\n//var inputText = $input.first().json.output || \"\";\nvar inputText = $input.first().json.output || \"\";\n\n// Max characters per Notion block (hard limit = 2,000 chars).\n// 1,800 chars ≈ 450 GPT-style tokens — safe buffer below the limit.\nvar CHUNK_SIZE = 1800;\n\n// Separators tried in order: paragraph → line → word → character\nvar SEPARATORS = [\"\\n\\n\", \"\\n\", \" \", \"\"];\n\n// ── RECURSIVE CHARACTER TEXT SPLITTER ─────────────────────────────\n\nfunction splitText(text, separators, chunkSize) {\n  var results = [];\n  if (!text) return results;\n\n  var sep      = separators[0];\n  var nextSeps = separators.slice(1);\n  var splits   = text.split(sep);\n  var current  = \"\";\n\n  for (var i = 0; i < splits.length; i++) {\n    var part = splits[i];\n    if (!part) continue;\n\n    if (part.length > chunkSize) {\n      if (current) { results.push(current); current = \"\"; }\n      if (nextSeps.length > 0) {\n        var sub = splitText(part, nextSeps, chunkSize);\n        for (var j = 0; j < sub.length; j++) results.push(sub[j]);\n      } else {\n        for (var k = 0; k < part.length; k += chunkSize) {\n          results.push(part.substring(k, k + chunkSize));\n        }\n      }\n    } else if ((current + sep + part).length > chunkSize) {\n      if (current) results.push(current);\n      current = part;\n    } else {\n      current += (current ? sep : \"\") + part;\n    }\n  }\n\n  if (current) results.push(current);\n  return results;\n}\n\n// ── SPLIT AND BUILD NOTION BLOCKS ─────────────────────────────────\n\nvar chunks = splitText(inputText, SEPARATORS, CHUNK_SIZE);\nvar notionBlocks = [];\n\nfor (var b = 0; b < chunks.length; b++) {\n  notionBlocks.push({\n    object: \"block\",\n    type: \"paragraph\",\n    paragraph: {\n      rich_text: [\n        {\n          type: \"text\",\n          text: { content: chunks[b].trim() }\n        }\n      ]\n    }\n  });\n}\n\n// ── OUTPUT ─────────────────────────────────────────────────────────\n// Returns ONE item. The HTTP Request node reads json.blocks directly.\n\nreturn [\n  {\n    json: {\n      blocks: notionBlocks,\n      chunksTotal: notionBlocks.length\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1328,
+        2064
+      ],
+      "id": "54cd15d5-489f-46a8-9b1c-9e1a0b6f3639",
+      "name": "Text Split"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "simple": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -1104,
+        2064
+      ],
+      "id": "01cb3201-1e8d-435f-8b8b-47f925a5a610",
+      "name": "Search a page",
+      "credentials": {
+        "notionApi": {
+          "id": "RcXxxyOa0ZFv1cQa",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "title": "={{ $now.toFormat('yyyy-MMM-dd') }}, Top10 Finance News US & SG (OpenAi) Websearch",
+        "simple": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -880,
+        2064
+      ],
+      "id": "5c590ed4-37d8-4cfc-8c3c-6d7ce22f37c4",
+      "name": "Create a page",
+      "credentials": {
+        "notionApi": {
+          "id": "RcXxxyOa0ZFv1cQa",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/blocks/{{ $json.id }}/children",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ children: $json.blocks }) }}",
+        "options": {}
+      },
+      "id": "d5efce82-ec2a-4b2b-9ef7-5a100df43bf9",
+      "name": "Append Blocks to Notion Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -800,
+        1840
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "JFqPqR447KryGRTC",
+          "name": "Notion API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $('Text Split').item.json.blocks[0].paragraph.rich_text[0].text.content }}"
+            },
+            {
+              "textContent": "={{ $('Text Split').item.json.blocks[1].paragraph.rich_text[0].text.content }}"
+            },
+            {
+              "textContent": "={{ $('Text Split').item.json.blocks[2].paragraph.rich_text[0].text.content }}"
+            },
+            {
+              "textContent": "={{ $('Text Split').item.json.blocks[3].paragraph.rich_text[0].text.content }}"
+            },
+            {
+              "textContent": "={{ $('Text Split').item.json.blocks[4].paragraph.rich_text[0].text.content }}"
+            },
+            {
+              "textContent": "={{ $('Text Split').item.json.blocks[5].paragraph.rich_text[0].text.content }}"
+            },
+            {
+              "textContent": "={{ $('Text Split').item.json.blocks[6].paragraph.rich_text[0].text.content }}"
+            },
+            {
+              "textContent": "={{ $('Text Split').item.json.blocks[7].paragraph.rich_text[0].text.content }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -672,
+        2064
+      ],
+      "id": "4e427042-3a92-46d7-81be-0a57d8b5a2f4",
+      "name": "Append a block",
+      "credentials": {
+        "notionApi": {
+          "id": "RcXxxyOa0ZFv1cQa",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Text Split": {
+      "main": [
+        [
+          {
+            "node": "Search a page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search a page": {
+      "main": [
+        [
+          {
+            "node": "Create a page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a page": {
+      "main": [
+        [
+          {
+            "node": "Append a block",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a5bc0702-dabf-4d8f-bf4a-08f2aa284f86",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bb38ed4bebab4522f63b13e5dd4b25d28fdfbf53fcaabb6b82ba356bbf1e787a"
+  },
+  "id": "WjU6kfRCQK2dUssx",
+  "tags": []
+}
