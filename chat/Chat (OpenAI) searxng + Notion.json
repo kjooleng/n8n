@@ -87,13 +87,13 @@
     },
     {
       "parameters": {
-        "sendTo": "kangjooleng@gmail.com",
+        "sendTo": "receiver email",
         "subject": "={{ $now.format('dd-MMM-yyyy') }}, Top 10 US and SG Financial News (OpenAI) Searxng",
         "emailType": "text",
         "message": "={{ $json.output }}",
         "options": {
           "appendAttribution": false,
-          "bccList": "kangjooleng@yahoo.com,jooleng.kang@gmail.com"
+          "bccList": "receiver email"
         }
       },
       "type": "n8n-nodes-base.gmail",
@@ -108,7 +108,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "WuF8gx0H2ToxxTJJ",
-          "name": "jooleng.kang@gmail.com"
+          "name": "sender email"
         }
       }
     },
