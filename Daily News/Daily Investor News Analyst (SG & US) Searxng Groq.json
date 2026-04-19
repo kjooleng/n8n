@@ -1,0 +1,579 @@
+{
+  "name": "Daily Investor News Analyst (SG & US) Searxng Groq",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0
+              ],
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -400,
+        0
+      ],
+      "id": "7260d923-1830-493e-8d6f-03712e3586b9",
+      "name": "Schedule Trigger (Daily 7AM SGT)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const topics = [\n  { pair: 1, topic1: \"Singapore economy financial news today\", topic2: \"US Federal Reserve interest rates 2026\" },\n  { pair: 2, topic1: \"Singapore STI stock market today\", topic2: \"US S&P 500 Nasdaq market today\" },\n  { pair: 3, topic1: \"Singapore MAS monetary policy 2026\", topic2: \"US inflation CPI data 2026\" },\n  { pair: 4, topic1: \"China economy Singapore impact 2026\", topic2: \"Oil price commodities market today\" },\n  { pair: 5, topic1: \"Singapore property real estate market 2026\", topic2: \"US earnings corporate results 2026\" }\n];\nreturn topics.map(t => ({ json: t }));"
+      },
+      "id": "97dee7cd-860e-49c0-a511-e07f65f946e6",
+      "name": "Set Topics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -208,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "e21b3bcb-0834-4ba7-bd60-c926e071725e",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        64,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ `Search for the latest news on these two topics and write ONE structured news brief for EACH topic.\\n\\nTopic 1: ${$json.topic1}\\nTopic 2: ${$json.topic2}\\n\\nFor EACH topic, write a brief using EXACTLY this format:\\n\\n---\\n**Headline:** [One punchy headline summarising the key development]\\n**Core Thesis:** [1-2 sentences: what happened and why it matters to investors]\\n**Key Insights:**\\n* [Specific data point or development]\\n* [Specific data point or development]\\n* [Specific data point or development]\\n**Key Definitions:** *[Term]* - [Brief definition relevant to the story]\\n**Direct Statements & Statistics:** [Direct quote or key statistic from a source]\\n**Macro Linkages:** [How this connects to Singapore or US markets]\\n**Source URL:** [URL of the most relevant article found]\\n---\\n\\nWrite both briefs one after the other. Do not add any other text outside the format.` }}",
+        "options": {
+          "systemMessage": "You are a senior financial news analyst writing for sophisticated investors. Use the searxng_web_search tool to find the latest news. IMPORTANT: Only pass the 'query' parameter to searxng_web_search — never include pageno, safesearch, or any other parameters. Always write in the exact structured format specified. Be factual and precise.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        304,
+        -256
+      ],
+      "id": "f24b0282-9cc7-41d8-9f2b-846c2da16e15",
+      "name": "AI Agent — Daily Investor Analyst"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        192,
+        224
+      ],
+      "id": "6972a228-c828-4e90-a13c-24a7a2170313",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "HDlyJWDfgJYTOcww",
+          "name": "kangjooleng@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://searxng-mcp:3000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "searxng_web_search"
+        ],
+        "options": {}
+      },
+      "id": "6f71ec95-80ee-4381-b421-29e25e3e0da3",
+      "name": "searxng_web_search",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        464,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Collect all agent outputs and combine into the daily brief\nconst items = $input.all();\nlet brief = '';\n\nfor (const item of items) {\n  const output = item.json.output || '';\n  brief += output.trim() + '\\n\\n---\\n\\n';\n}\n\n// Remove trailing separator\nbrief = brief.replace(/\\n\\n---\\n\\n$/, '');\n\n// Add header\nconst today = new Date().toLocaleDateString('en-SG', { \n  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',\n  timeZone: 'Asia/Singapore'\n});\n\nconst finalBrief = `Daily Investor Brief — ${today}\\n\\n${brief.trim()}`;\n\n// Return single item - downstream nodes handle routing\nreturn [{ json: { output: finalBrief, charCount: finalBrief.length } }];\n"
+      },
+      "id": "30d414c8-d7c3-4790-acd0-a6853b3d98ab",
+      "name": "Aggregate Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@gmail.com",
+        "subject": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 10 SG & US Financial Headlines (Searxng Groq)",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false,
+          "bccList": "jooleng.kang@gmail.com,kangjooleng@yahoo.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        -160
+      ],
+      "id": "2f5e5754-27b2-4fd8-8314-78f94ca6588a",
+      "name": "Send Daily Brief via Gmail",
+      "webhookId": "a4c6dc9d-2acd-4f69-b21f-6f3a51491e0c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WuF8gx0H2ToxxTJJ",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-output-length",
+              "leftValue": "={{ $json.output.length() }}",
+              "rightValue": 2000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        992,
+        80
+      ],
+      "id": "d2553831-7657-4ffe-8e25-21fad118db38",
+      "name": "Output > 2000 chars?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recursive Text Splitter for Notion page blocks\nconst CHUNK_SIZE = 1900;\nconst SEPARATORS = ['\\n\\n', '\\n', '. ', ' '];\n\nconst inputText = $input.first().json.output || '';\n\nfunction splitText(text, separators, chunkSize) {\n  if (text.length <= chunkSize) return [text];\n  const results = [];\n  let remaining = text;\n  while (remaining.length > chunkSize) {\n    let splitAt = -1;\n    for (const sep of separators) {\n      const idx = remaining.lastIndexOf(sep, chunkSize);\n      if (idx > 0) { splitAt = idx + sep.length; break; }\n    }\n    if (splitAt <= 0) splitAt = chunkSize;\n    results.push(remaining.slice(0, splitAt));\n    remaining = remaining.slice(splitAt);\n  }\n  if (remaining.length > 0) results.push(remaining);\n  return results;\n}\n\nconst chunks = splitText(inputText, SEPARATORS, CHUNK_SIZE);\nreturn chunks.map((chunk, index) => ({\n  json: {\n    chunkIndex: index + 1,\n    totalChunks: chunks.length,\n    text: chunk.trim(),\n    firstBlock: index === 0\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        80
+      ],
+      "id": "b06e6208-c99d-4521-ba85-ce6c7792df7c",
+      "name": "Recursive Text Splitter"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-first-block",
+              "leftValue": "={{ $json.firstBlock }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1392,
+        80
+      ],
+      "id": "87642c8a-606f-4220-b15b-aed415dd7332",
+      "name": "Is First Block?"
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "31b30e12316d80988831d2c858191759",
+          "mode": "id"
+        },
+        "title": "={{ $today.toFormat('dd-MMM-yyyy') }} | Daily Investor Brief — Top 10 SG & US Financial Headlines (Searxng Groq)",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1552,
+        -48
+      ],
+      "id": "4f9f8cd9-aa73-476c-9725-beff967a0794",
+      "name": "Create Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "RcXxxyOa0ZFv1cQa",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-url",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1712,
+        -48
+      ],
+      "id": "1c907130-f025-4133-b32e-563e77490f44",
+      "name": "Store Page URL"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1712,
+        160
+      ],
+      "id": "9c597cbe-1088-4d84-8d83-d4080ad8b517",
+      "name": "Merge Chunks"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $json.url }}",
+          "mode": "url"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1872,
+        160
+      ],
+      "id": "b4a1945a-5e17-4a5f-9aa0-1b3184524672",
+      "name": "Append Block to Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "RcXxxyOa0ZFv1cQa",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "31b30e12316d80988831d2c858191759",
+          "mode": "id"
+        },
+        "title": "={{ $today.toFormat('dd-MMM-yyyy') }} | Daily Investor Brief — Top 10 SG & US Financial Headlines (Searxng Groq)",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $('AI Agent — Daily Investor Analyst').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1232,
+        -160
+      ],
+      "id": "7bd3261e-c41b-4eb6-aa32-77f4f92a5b95",
+      "name": "Create Notion Page (Short Output)",
+      "credentials": {
+        "notionApi": {
+          "id": "RcXxxyOa0ZFv1cQa",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 45
+      },
+      "id": "wait-node-01",
+      "name": "Wait 45s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        304,
+        96
+      ],
+      "webhookId": "wait-webhook-01"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger (Daily 7AM SGT)": {
+      "main": [
+        [
+          {
+            "node": "Set Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Topics": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent — Daily Investor Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent — Daily Investor Analyst": {
+      "main": [
+        [
+          {
+            "node": "Wait 45s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent — Daily Investor Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "searxng_web_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent — Daily Investor Analyst",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Results": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Brief via Gmail",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Output > 2000 chars?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output > 2000 chars?": {
+      "main": [
+        [
+          {
+            "node": "Recursive Text Splitter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Notion Page (Short Output)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Text Splitter": {
+      "main": [
+        [
+          {
+            "node": "Is First Block?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is First Block?": {
+      "main": [
+        [
+          {
+            "node": "Create Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create Notion Page": {
+      "main": [
+        [
+          {
+            "node": "Store Page URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Page URL": {
+      "main": [
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Chunks": {
+      "main": [
+        [
+          {
+            "node": "Append Block to Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 45s": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "c8d772e2-5096-4cc2-ab1d-a18d204e07f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bb38ed4bebab4522f63b13e5dd4b25d28fdfbf53fcaabb6b82ba356bbf1e787a"
+  },
+  "id": "TSqPG47MbI5wEsYs",
+  "tags": []
+}

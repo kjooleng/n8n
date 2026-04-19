@@ -1,0 +1,477 @@
+{
+  "name": "Daily Investor News Analyst (SG & US) Bright Data",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0
+              ],
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -400,
+        0
+      ],
+      "id": "schedule-trigger-001",
+      "name": "Schedule Trigger (Daily 7AM SGT)"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a **Daily Investor News Analyst** running as a fully automated n8n workflow. There is NO human user. Produce the complete 10-item brief autonomously without asking any questions.\n\n---\n\n### ⚠️ CRITICAL: VERIFIED MCP TOOL PARAMETER SCHEMAS\n\n**search_engine_batch** — queries is an array of OBJECTS (max 5 per call):\n✅ CORRECT: `{\"queries\": [{\"query\": \"Singapore economy news\", \"engine\": \"google\"}, {\"query\": \"US Fed rates 2026\", \"engine\": \"google\"}]}`\n❌ WRONG: `{\"queries\": [\"Singapore economy news\", \"US Fed rates 2026\"]}`\nEach object MUST have a \"query\" key with a string value. \"engine\" is optional (default: google).\n\n**scrape_batch** — urls is an array of plain STRINGS (max 10 per call):\n✅ CORRECT: `{\"urls\": [\"https://reuters.com/article1\", \"https://bloomberg.com/article2\"]}`\n❌ WRONG: `{\"urls\": [{\"url\": \"https://reuters.com/article1\"}, {\"url\": \"https://bloomberg.com/article2\"}]}`\n\n**search_engine** (single search) — query is a plain string:\n✅ CORRECT: `{\"query\": \"Singapore economy news today\", \"engine\": \"google\"}`\n\n**scrape_as_markdown** (single page) — url is a plain string:\n✅ CORRECT: `{\"url\": \"https://reuters.com/article1\"}`\n\n---\n\n### ⚠️ ABSOLUTE BEHAVIOUR RULES\n- NEVER ask the user to choose between options.\n- NEVER present \"Option A / Option B\" choices.\n- NEVER deliver a partial brief and stop.\n- NEVER stall or wait for input.\n- If articles are from the past 48 hours rather than 24 hours, use them and note the date.\n- Always output all 10 items in one complete response.\n\n---\n\n### 🎯 Your Task\nGenerate the **top 10 most important financial and economic news headlines** from the most recent available data (past 24–48 hours, Singapore time UTC+8). Focus on developments impacting **Singapore** and **U.S.** economies, stock markets, currencies, or investor sentiment.\n\n### 🔍 Search Strategy\n\n**Step 1 — First batch (max 5 query objects):**\n`{\"queries\": [{\"query\": \"Singapore economy financial news today\", \"engine\": \"google\"}, {\"query\": \"US Federal Reserve interest rates 2026\", \"engine\": \"google\"}, {\"query\": \"Singapore STI stock market today\", \"engine\": \"google\"}, {\"query\": \"US S&P 500 Nasdaq market today\", \"engine\": \"google\"}, {\"query\": \"Singapore MAS monetary policy 2026\", \"engine\": \"google\"}]}`\n\n**Step 2 — Second batch (max 5 query objects):**\n`{\"queries\": [{\"query\": \"US inflation CPI data 2026\", \"engine\": \"google\"}, {\"query\": \"China economy Singapore impact 2026\", \"engine\": \"google\"}, {\"query\": \"oil price commodities market today\", \"engine\": \"google\"}, {\"query\": \"AI technology stocks earnings 2026\", \"engine\": \"google\"}, {\"query\": \"US Singapore trade tariffs 2026\", \"engine\": \"google\"}]}`\n\n**Step 3 — Scrape top articles** using scrape_batch with plain string URLs:\n`{\"urls\": [\"https://url1.com/article\", \"https://url2.com/article\", \"https://url3.com/article\"]}`\n\n**Step 4 — Write the complete 10-item brief immediately.**\n\n---\n\n### 📰 News Scope\n- Prioritise **Singapore** and **United States** market developments.\n- Include international stories only if they materially affect SG or US markets.\n- Use only credible outlets: Bloomberg, Reuters, WSJ, CNBC, CNA, The Edge Singapore, Business Times, Nikkei Asia.\n- Neutral, factual, analytical tone.\n\n---\n\n### 📈 Output Format — use exactly for all 10 items\n\nBegin with:\n**📰 Daily Investor Brief — [dd-MMM-yyyy], Singapore Time**\n\nFor each of the 10 items:\n\n---\n**[N]. 1⃣ Headline**\nShort, factual, impactful title.\n\n**2⃣ Core Thesis**\nOne concise paragraph on the event and its relevance to SG or US investors.\n\n**3⃣ Key Insights**\n- 2–4 bullet points on financial or economic implications.\n\n**4⃣ Key Definitions**\nDefine any financial/economic/technical terms used (e.g. CPI, GDP, PMI, Fed Funds Rate).\n\n**5⃣ Direct Statements & Statistics**\nNotable quotes, figures, or data points from the article or official sources.\n\n**6⃣ Macro Linkages**\nHow this connects to broader macro themes (inflation, rates, trade, commodities, AI/tech, geopolitics) and likely market impact.\n\n**7⃣ Source URL**\nOriginal article link. If paywalled, note it and provide the URL anyway.\n\n---\n\n### 🧩 Final Rules\n- Complete all 10 items. No partial output.\n- If a source is blocked, use the next available one — do not stop.\n- Emphasise **Singapore–U.S. economic interlinkages**.\n- This is an automated pipeline. Produce the output now.",
+        "options": {
+          "systemMessage": "You are a fully automated workflow with no human user. CRITICAL MCP SCHEMAS (verified): (1) search_engine_batch: queries = array of OBJECTS: [{\"query\":\"str\",\"engine\":\"google\"}], max 5 per call. (2) scrape_batch: urls = array of plain STRINGS: [\"https://...\"], max 10 per call. (3) search_engine: {\"query\":\"str\",\"engine\":\"google\"}. (4) scrape_as_markdown: {\"url\":\"https://...\"}. Never ask questions. Always produce the complete 10-item brief.",
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ai-agent-001",
+      "name": "AI Agent — Daily Investor Analyst"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        224
+      ],
+      "id": "openai-model-001",
+      "name": "OpenAI Chat Model (GPT-5 Nano)",
+      "credentials": {
+        "openAiApi": {
+          "id": "Bmo2ApctUQnemnbB",
+          "name": "GPT5 nano"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://mcp.brightdata.com/mcp?token=ddfc1485-25b8-4fa3-b9a6-278b5e73bf0e",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        128,
+        224
+      ],
+      "id": "mcp-client-001",
+      "name": "MCP Client (Bright Data Web Search)"
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@gmail.com",
+        "subject": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 10 SG & US Financial Headlines (Bright Data)",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false,
+          "bccList": "jooleng.kang@gmail.com,kangjooleng@yahoo.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        -160
+      ],
+      "id": "gmail-send-001",
+      "name": "Send Daily Brief via Gmail",
+      "webhookId": "98138ea3-d0d5-4b20-ba0b-9beb7e979040",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WuF8gx0H2ToxxTJJ",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-output-length",
+              "leftValue": "={{ $json.output.length() }}",
+              "rightValue": 2000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        400,
+        80
+      ],
+      "id": "if-length-check-001",
+      "name": "Output > 2000 chars?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recursive Text Splitter for Notion page blocks\nconst CHUNK_SIZE = 1900;\nconst SEPARATORS = ['\\n\\n', '\\n', '. ', ' '];\n\nconst inputText = $input.first().json.output || '';\n\nfunction splitText(text, separators, chunkSize) {\n  if (text.length <= chunkSize) return [text];\n  const results = [];\n  let remaining = text;\n  while (remaining.length > chunkSize) {\n    let splitAt = -1;\n    for (const sep of separators) {\n      const idx = remaining.lastIndexOf(sep, chunkSize);\n      if (idx > 0) { splitAt = idx + sep.length; break; }\n    }\n    if (splitAt <= 0) splitAt = chunkSize;\n    results.push(remaining.slice(0, splitAt));\n    remaining = remaining.slice(splitAt);\n  }\n  if (remaining.length > 0) results.push(remaining);\n  return results;\n}\n\nconst chunks = splitText(inputText, SEPARATORS, CHUNK_SIZE);\nreturn chunks.map((chunk, index) => ({\n  json: {\n    chunkIndex: index + 1,\n    totalChunks: chunks.length,\n    text: chunk.trim(),\n    firstBlock: index === 0\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        80
+      ],
+      "id": "text-splitter-001",
+      "name": "Recursive Text Splitter"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-first-block",
+              "leftValue": "={{ $json.firstBlock }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        800,
+        80
+      ],
+      "id": "if-first-block-001",
+      "name": "Is First Block?"
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "31b30e12316d80988831d2c858191759",
+          "mode": "id"
+        },
+        "title": "={{ $today.toFormat('dd-MMM-yyyy') }} | Daily Investor Brief — Top 10 SG & US Financial Headlines (Bright Data)",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        -48
+      ],
+      "id": "notion-create-page-001",
+      "name": "Create Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "RcXxxyOa0ZFv1cQa",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-url",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        -48
+      ],
+      "id": "set-url-001",
+      "name": "Store Page URL"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1120,
+        160
+      ],
+      "id": "merge-001",
+      "name": "Merge Chunks"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $json.url }}",
+          "mode": "url"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        160
+      ],
+      "id": "notion-append-block-001",
+      "name": "Append Block to Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "RcXxxyOa0ZFv1cQa",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "31b30e12316d80988831d2c858191759",
+          "mode": "id"
+        },
+        "title": "={{ $today.toFormat('dd-MMM-yyyy') }} | Daily Investor Brief — Top 10 SG & US Financial Headlines (Bright Data)",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $('AI Agent — Daily Investor Analyst').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        -160
+      ],
+      "id": "notion-create-short-001",
+      "name": "Create Notion Page (Short Output)",
+      "credentials": {
+        "notionApi": {
+          "id": "RcXxxyOa0ZFv1cQa",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger (Daily 7AM SGT)": {
+      "main": [
+        [
+          {
+            "node": "AI Agent — Daily Investor Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (GPT-5 Nano)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent — Daily Investor Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client (Bright Data Web Search)": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent — Daily Investor Analyst",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent — Daily Investor Analyst": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Brief via Gmail",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Output > 2000 chars?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output > 2000 chars?": {
+      "main": [
+        [
+          {
+            "node": "Recursive Text Splitter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Notion Page (Short Output)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Text Splitter": {
+      "main": [
+        [
+          {
+            "node": "Is First Block?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is First Block?": {
+      "main": [
+        [
+          {
+            "node": "Create Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create Notion Page": {
+      "main": [
+        [
+          {
+            "node": "Store Page URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Page URL": {
+      "main": [
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Chunks": {
+      "main": [
+        [
+          {
+            "node": "Append Block to Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "1753dce4-4433-4a8e-b4ec-ce91dc6ae22e",
+  "meta": {
+    "instanceId": "bb38ed4bebab4522f63b13e5dd4b25d28fdfbf53fcaabb6b82ba356bbf1e787a"
+  },
+  "id": "ipEmj5kat9WaoFLU",
+  "tags": []
+}

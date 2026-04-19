@@ -1,0 +1,566 @@
+{
+  "name": "Daily Investor News Analyst (SG & US) Searxng",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -928,
+        320
+      ],
+      "id": "55d4ad1d-cd3f-4678-9f71-43d1540cf779",
+      "name": "OpenAI Chat Model (GPT-5 Nano)",
+      "credentials": {
+        "openAiApi": {
+          "id": "vLkg0PjM3ortjsoW",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@gmail.com",
+        "subject": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 10 SG & US Financial Headlines (Searxng)",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false,
+          "bccList": "jooleng.kang@gmail.com,kangjooleng@yahoo.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -304,
+        -48
+      ],
+      "id": "cdd6d779-b39d-41df-b147-e9bc5b41e18a",
+      "name": "Send Daily Brief via Gmail",
+      "webhookId": "a7a87fec-857d-4679-8c3c-3bf9792d0a25",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jOBiXZAKYqgJ4UPv",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-output-length",
+              "leftValue": "={{ $json.output.length() }}",
+              "rightValue": 2000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -80,
+        192
+      ],
+      "id": "c7685ded-4195-4cfd-8b52-d73ddd662647",
+      "name": "Output > 2000 chars?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recursive Text Splitter for Notion page blocks\nconst CHUNK_SIZE = 1900;\nconst SEPARATORS = ['\\n\\n', '\\n', '. ', ' '];\n\nconst inputText = $input.first().json.output || '';\n\nfunction splitText(text, separators, chunkSize) {\n  if (text.length <= chunkSize) return [text];\n  const results = [];\n  let remaining = text;\n  while (remaining.length > chunkSize) {\n    let splitAt = -1;\n    for (const sep of separators) {\n      const idx = remaining.lastIndexOf(sep, chunkSize);\n      if (idx > 0) { splitAt = idx + sep.length; break; }\n    }\n    if (splitAt <= 0) splitAt = chunkSize;\n    results.push(remaining.slice(0, splitAt));\n    remaining = remaining.slice(splitAt);\n  }\n  if (remaining.length > 0) results.push(remaining);\n  return results;\n}\n\nconst chunks = splitText(inputText, SEPARATORS, CHUNK_SIZE);\nreturn chunks.map((chunk, index) => ({\n  json: {\n    chunkIndex: index + 1,\n    totalChunks: chunks.length,\n    text: chunk.trim(),\n    firstBlock: index === 0\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        80
+      ],
+      "id": "1bf889c7-f7da-4789-a4e9-5af6d525ca68",
+      "name": "Recursive Text Splitter"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-first-block",
+              "leftValue": "={{ $json.firstBlock }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        288,
+        80
+      ],
+      "id": "77675786-f73f-44d0-b217-360d53e289da",
+      "name": "Is First Block?"
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "31b30e12316d80988831d2c858191759",
+          "mode": "id"
+        },
+        "title": "={{ $today.toFormat('dd-MMM-yyyy') }} | Daily Investor Brief — Top 10 SG & US Financial Headlines (Searxng)",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        -48
+      ],
+      "id": "9b5b5584-ffb8-4e98-bdba-7e7d91a78217",
+      "name": "Create Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "fvFzKGRSY6OQkW4c",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-url",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        -48
+      ],
+      "id": "f003421e-8cab-49ad-9212-040a3f2cfcc4",
+      "name": "Store Page URL"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        576,
+        320
+      ],
+      "id": "22cd7563-fd61-48d7-80e5-1b629773d754",
+      "name": "Merge Chunks"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $json.url }}",
+          "mode": "url"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        320
+      ],
+      "id": "95aa7a04-ae87-436e-b8f9-7f77caa47646",
+      "name": "Append Block to Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "fvFzKGRSY6OQkW4c",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "31b30e12316d80988831d2c858191759",
+          "mode": "id"
+        },
+        "title": "={{ $today.toFormat('dd-MMM-yyyy') }} | Daily Investor Brief — Top 10 SG & US Financial Headlines (Searxng)",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $('Agent 2 — Batch 2 + Compile Brief').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        448
+      ],
+      "id": "7c67b605-8d6e-4115-ab3b-e8f4c554d693",
+      "name": "Create Notion Page (Short Output)",
+      "credentials": {
+        "notionApi": {
+          "id": "fvFzKGRSY6OQkW4c",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://searxng-mcp:3000/mcp",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -800,
+        320
+      ],
+      "id": "eefe52cb-c28c-428e-a852-a1a080762383",
+      "name": "MCP Client (Searxng) — Agent 1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0
+              ],
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1152,
+        96
+      ],
+      "id": "30037f6d-9539-483e-859e-0093764c121e",
+      "name": "Schedule Trigger (Daily 6PM SGT)"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a search data collector running as a fully automated n8n workflow. There is NO human user.\n\n### YOUR ONLY JOB\nRun exactly the 5 searches below using searxng_web_search, one at a time. After all 5 are done, output ALL results as a single plain-text block labelled \"BATCH 1 SEARCH RESULTS\". Do NOT write a brief. Do NOT read any URLs. Do NOT ask questions.\n\n### ⚠️ MANDATORY SEARCH FORMAT\nEvery search call MUST include \"language\": \"all\" — this prevents bot-detection errors.\n\n### SEARCHES TO RUN (run one at a time, in order):\n1. {\"query\": \"Singapore economy financial news today\", \"time_range\": \"day\", \"language\": \"all\"}\n2. {\"query\": \"US Federal Reserve interest rates 2026\", \"time_range\": \"day\", \"language\": \"all\"}\n3. {\"query\": \"Singapore STI stock market today\", \"time_range\": \"day\", \"language\": \"all\"}\n4. {\"query\": \"US S&P 500 Nasdaq market today\", \"time_range\": \"day\", \"language\": \"all\"}\n5. {\"query\": \"Singapore MAS monetary policy 2026\", \"time_range\": \"day\", \"language\": \"all\"}\n\n### ⚠️ ERROR HANDLING (CRITICAL)\nIf any search returns a 403, CAPTCHA, bot-detection, or MCP -32603 error:\n- Record \"SKIPPED: [query name]\" in your output\n- Move immediately to the next query\n- Do NOT stop, do NOT retry\n\n### OUTPUT FORMAT\nAfter completing all 5 searches (or skipping failed ones), output:\n\nBATCH 1 SEARCH RESULTS\n======================\n[All search result snippets here, labelled by query number. Mark any skipped queries as SKIPPED.]\n\nDo NOT produce a brief. Do NOT call web_url_read. Stop after outputting the raw results.",
+        "options": {
+          "systemMessage": "You are a fully automated search data collector. No human user.\n\nCRITICAL MCP TOOL SCHEMA:\n  searxng_web_search: {\"query\": \"str\", \"time_range\": \"day\", \"language\": \"all\"}\n  — ALWAYS include \"language\": \"all\" in every call. This is mandatory.\n\nERROR HANDLING (CRITICAL):\n  - If searxng_web_search returns MCP error -32603, a 403 error, a CAPTCHA error, or any bot-detection error:\n    → SKIP that query immediately. Do NOT retry it. Record \"SKIPPED: [query]\" in your output.\n    → Continue to the next query without stopping.\n  - Never stop the workflow due to a search error.\n\nRun all 5 searches one at a time. Output raw results only. Do NOT write a news brief.",
+          "maxIterations": 12
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -928,
+        96
+      ],
+      "id": "c7bd0525-db4c-4233-8cea-d00572e115ff",
+      "name": "Agent 1 — Batch 1 Searches"
+    },
+    {
+      "parameters": {
+        "amount": 180
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -576,
+        96
+      ],
+      "id": "54609c52-4ac1-4003-8358-ed3b60f9e1e0",
+      "name": "Wait 180s (SearXNG Cooldown)",
+      "webhookId": "wait-180s-searxng-cooldown"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a **Daily Investor News Analyst** running as a fully automated n8n workflow. There is NO human user. Produce the complete 10-item brief autonomously without asking any questions.\n\n---\n### ⚠️ ABSOLUTE BEHAVIOUR RULES\n- NEVER ask the user to choose between options.\n- NEVER present \"Option A / Option B\" choices.\n- NEVER deliver a partial brief and stop.\n- NEVER stall or wait for input.\n- If articles are from the past 48 hours rather than 24 hours, use them and note the date.\n- Always output all 10 items in one complete response.\n- If web_url_read returns any error (401, 403, 404, timeout), SKIP that URL and continue immediately.\n\n---\n### 📥 Batch 1 Results Already Collected\nThe previous step already ran 5 searches. Their results are available in the input:\n`{{ $json.output }}`\n\nUse these directly — do NOT re-run those 5 queries.\n\n---\n### 🔍 Step 2 — Run these 5 additional searches one at a time:\n⚠️ MANDATORY: Always include \"language\": \"all\" in every search call.\n\n1. {\"query\": \"US inflation CPI data 2026\", \"time_range\": \"day\", \"language\": \"all\"}\n2. {\"query\": \"China economy Singapore impact 2026\", \"time_range\": \"day\", \"language\": \"all\"}\n3. {\"query\": \"oil price commodities market today\", \"time_range\": \"day\", \"language\": \"all\"}\n4. {\"query\": \"AI technology stocks earnings 2026\", \"time_range\": \"day\", \"language\": \"all\"}\n5. {\"query\": \"US Singapore trade tariffs 2026\", \"time_range\": \"day\", \"language\": \"all\"}\n\n⚠️ ERROR HANDLING: If any search returns a 404, 403, CAPTCHA, bot-detection, or MCP -32603 error:\n- Record \"SKIPPED: [query]\" and move to the next query immediately\n- Do NOT stop or retry\n\n---\n### 🌐 Step 3 — Read articles (OPEN-ACCESS ONLY) using web_url_read:\n- ONLY attempt web_url_read on: channelnewsasia.com, businesstimes.com.sg, cnbc.com, marketwatch.com, straitstimes.com, nikkei.com\n- DO NOT call web_url_read on: bloomberg.com, wsj.com, ft.com, reuters.com\n- If web_url_read returns ANY error → skip immediately, use search snippet instead\n\n---\n### ✍️ Step 4 — Write the complete 10-item brief using:\n- Batch 1 results (from input)\n- Batch 2 search results (just collected)\n- Any successfully scraped article content\n\n---\n### 📰 News Scope\n- Prioritise **Singapore** and **United States** market developments.\n- Include international stories only if they materially affect SG or US markets.\n- Use only credible outlets: Bloomberg, Reuters, WSJ, CNBC, CNA, The Edge Singapore, Business Times, Nikkei Asia.\n- Neutral, factual, analytical tone.\n- It is acceptable to write items based on search result snippets alone if scraping fails.\n\n---\n### 📈 Output Format — use exactly for all 10 items\n\nBegin with:\n**📰 Daily Investor Brief — [dd-MMM-yyyy], Singapore Time**\n\nFor each of the 10 items:\n\n---\n**[N]. 1⃣ Headline**\nShort, factual, impactful title.\n\n**2⃣ Core Thesis**\nOne concise paragraph on the event and its relevance to SG or US investors.\n\n**3⃣ Key Insights**\n- 2–4 bullet points on financial or economic implications.\n\n**4⃣ Key Definitions**\nDefine any financial/economic/technical terms used (e.g. CPI, GDP, PMI, Fed Funds Rate).\n\n**5⃣ Direct Statements & Statistics**\nNotable quotes, figures, or data points from the article or official sources.\n\n**6⃣ Macro Linkages**\nHow this connects to broader macro themes (inflation, rates, trade, commodities, AI/tech, geopolitics) and likely market impact.\n\n**7⃣ Source URL**\nOriginal article link. If paywalled, note it and provide the URL anyway.\n\n---\n### 🧩 Final Rules\n- Complete all 10 items. No partial output.\n- If a source is blocked or returns an error, use the next available one — do not stop.\n- Emphasise **Singapore–U.S. economic interlinkages**.\n- This is an automated pipeline. Produce the output now.",
+        "options": {
+          "systemMessage": "You are a fully automated Daily Investor News Analyst. No human user.\n\nCRITICAL MCP TOOL SCHEMAS:\n  (1) searxng_web_search: {\"query\": \"str\", \"time_range\": \"day\", \"language\": \"all\"}\n      — ALWAYS include \"language\": \"all\". This prevents DuckDuckGo CAPTCHA/bot-detection errors.\n  (2) web_url_read: {\"url\": \"https://...\"}\n\nSEARCH ERROR HANDLING (CRITICAL):\n  - If searxng_web_search returns MCP error -32603, 401, 404, 403, CAPTCHA, or bot-detection error:\n    → SKIP that query. Record \"SKIPPED: [query]\". Continue to next query immediately.\n    → Do NOT retry. Do NOT stop the workflow.\n  - If ALL searches in a batch fail, use any available snippets from Batch 1 results.\n\nWEB_URL_READ RULES:\n  - NEVER call web_url_read on: bloomberg.com, wsj.com, ft.com, reuters.com (paywalled — causes errors)\n  - Only use: channelnewsasia.com, businesstimes.com.sg, straitstimes.com, nikkei.com, cnbc.com, marketwatch.com\n  - If web_url_read returns ANY error → SKIP immediately, use search snippet instead\n\nNever ask questions. Always produce the complete 10-item brief.",
+          "maxIterations": 22
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -432,
+        192
+      ],
+      "id": "0e53b26e-145f-4457-9976-109643b563e5",
+      "name": "Agent 2 — Batch 2 + Compile Brief"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://searxng-mcp:3000/mcp",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -288,
+        432
+      ],
+      "id": "1458fedb-7030-4946-a722-e389a93bd807",
+      "name": "MCP Client (Searxng) — Agent 2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Output > 2000 chars?": {
+      "main": [
+        [
+          {
+            "node": "Recursive Text Splitter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Notion Page (Short Output)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Text Splitter": {
+      "main": [
+        [
+          {
+            "node": "Is First Block?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is First Block?": {
+      "main": [
+        [
+          {
+            "node": "Create Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create Notion Page": {
+      "main": [
+        [
+          {
+            "node": "Store Page URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Page URL": {
+      "main": [
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Chunks": {
+      "main": [
+        [
+          {
+            "node": "Append Block to Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger (Daily 6PM SGT)": {
+      "main": [
+        [
+          {
+            "node": "Agent 1 — Batch 1 Searches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 1 — Batch 1 Searches": {
+      "main": [
+        [
+          {
+            "node": "Wait 180s (SearXNG Cooldown)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 180s (SearXNG Cooldown)": {
+      "main": [
+        [
+          {
+            "node": "Agent 2 — Batch 2 + Compile Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 2 — Batch 2 + Compile Brief": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Brief via Gmail",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Output > 2000 chars?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (GPT-5 Nano)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent 1 — Batch 1 Searches",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Agent 2 — Batch 2 + Compile Brief",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client (Searxng) — Agent 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent 1 — Batch 1 Searches",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client (Searxng) — Agent 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent 2 — Batch 2 + Compile Brief",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "X1sEUmuWIyr2vFvT"
+  },
+  "versionId": "4c88d8e8-c967-4153-bb79-a1ae503304ad",
+  "meta": {
+    "instanceId": "48cd71dbb48103e54ab73e035407f795fa313947739d28b6bb459bcad38062c8"
+  },
+  "id": "DDVmq9L00L3AO4PA",
+  "tags": []
+}
