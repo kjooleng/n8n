@@ -32,7 +32,7 @@
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "e55xS7OEjjQ9yEpY",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -57,7 +57,7 @@
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "e55xS7OEjjQ9yEpY",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -159,7 +159,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "4w6mOKpuRQrD8wSD",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -180,7 +180,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "4w6mOKpuRQrD8wSD",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -297,7 +297,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "4w6mOKpuRQrD8wSD",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     }
@@ -335,7 +335,7 @@
           ],
           "From": "Kang Joo Leng <kangjooleng@gmail.com>",
           "Subject": "Working Hours",
-          "To": "jooleng.kang@gmail.com"
+          "To": "Source email"
         },
         "pairedItem": {
           "item": 0
