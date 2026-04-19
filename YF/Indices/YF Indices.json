@@ -75,7 +75,7 @@
     },
     {
       "parameters": {
-        "sendTo": "kangjooleng@yahoo.com,kangjooleng@gmail.com",
+        "sendTo": "receiver email",
         "subject": "={{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }} YF Indices EOD",
         "message": "=Attached YF Indices EOD for {{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }}",
         "options": {
@@ -101,7 +101,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "jOBiXZAKYqgJ4UPv",
-          "name": "jooleng.kang@gmail.com"
+          "name": "sender email"
         }
       }
     }
