@@ -1,0 +1,116 @@
+{
+  "name": "merge",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "name",
+              "field2": "name"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c9315dbb-891e-4029-b13a-bf482795b578",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        128
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "e95d51c1-ae4d-400b-947a-dc3f1c686dca",
+      "name": "When clicking \"Execute workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAllPeople"
+      },
+      "id": "4a535c73-3b2f-442c-8e2a-9d1836c539da",
+      "name": "Customer Datastore (n8n training)",
+      "type": "n8n-nodes-base.n8nTrainingCustomerDatastore",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    'name': 'Jay Gatsby',\n    'language': 'English',\n    'country': {\n      'code': 'US',\n      'name': 'United States'\n    }\n    \n  }\n  \n];"
+      },
+      "id": "6bbb892f-28a7-426f-88e2-bd9fa2b715ff",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        272
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \"Execute workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Customer Datastore (n8n training)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Datastore (n8n training)": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f3166307-1383-4f88-972c-0a9aee56d8d8",
+  "meta": {
+    "instanceId": "48cd71dbb48103e54ab73e035407f795fa313947739d28b6bb459bcad38062c8"
+  },
+  "id": "XXVGOwiW3B5SjXfB",
+  "tags": []
+}
