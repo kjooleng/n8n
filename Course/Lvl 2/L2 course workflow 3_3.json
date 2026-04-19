@@ -1,0 +1,64 @@
+{
+  "name": "L2 course workflow 3/3",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f83dcb94-513f-421f-8390-3540ae00b576",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=The workflow {{ $json.workflow.name }} failed, with the error message: {{ $json.execution.error.message }}. Last node executed: {{ $json.execution.lastNodeExecuted }}. Check this workflow execution here: {{ $json.execution.url }} My Unique ID: 72aa1c8b97ded2d20885a50390912ba3 ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "fd489f16-0c1b-4827-a0ec-ff82e020abf3",
+      "name": "Discord",
+      "webhookId": "5d30d80b-85bf-4612-923c-06afc88b112d",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "cVmA8VnrSm0dzeCw",
+          "name": "Discord Webhook lvl 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f9ac76df-dffb-4191-b2f5-f0d9b6295edd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "48cd71dbb48103e54ab73e035407f795fa313947739d28b6bb459bcad38062c8"
+  },
+  "id": "F37xFn75DKw27tNh",
+  "tags": []
+}

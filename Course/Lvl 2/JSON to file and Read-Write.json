@@ -1,0 +1,135 @@
+{
+  "name": "JSON to file and Read-Write",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "ff0a90c2-2500-4e2b-9453-e1db3e35d5c8",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        208,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://poetrydb.org/random/1",
+        "options": {}
+      },
+      "id": "2565700a-b638-43e1-8857-ce25085911da",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        432,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {}
+      },
+      "id": "0bfecb09-3f58-4e20-8175-889c2f54a232",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1,
+      "position": [
+        656,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "/files/poetrydb.json",
+        "options": {
+          "append": false
+        }
+      },
+      "id": "c1de2383-bd62-40d2-ad7e-fc1855efa85f",
+      "name": "Read/Write Files from Disk",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        880,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.fileName }}",
+        "options": {}
+      },
+      "id": "8b85abb5-cd03-489f-b056-bd76c7e77b4f",
+      "name": "Read/Write Files from Disk1",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        32
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "64304ffa-a6c0-4736-a0e7-f48a9eacc1b0",
+  "meta": {
+    "instanceId": "48cd71dbb48103e54ab73e035407f795fa313947739d28b6bb459bcad38062c8"
+  },
+  "id": "CLKoPY1CCO2w0XN9",
+  "tags": []
+}
