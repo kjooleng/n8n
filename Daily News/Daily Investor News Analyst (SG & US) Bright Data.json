@@ -92,13 +92,13 @@
     },
     {
       "parameters": {
-        "sendTo": "kangjooleng@gmail.com",
+        "sendTo": "receiver email",
         "subject": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 10 SG & US Financial Headlines (Bright Data)",
         "emailType": "text",
         "message": "={{ $json.output }}",
         "options": {
           "appendAttribution": false,
-          "bccList": "jooleng.kang@gmail.com,kangjooleng@yahoo.com"
+          "bccList": "receiver email"
         }
       },
       "type": "n8n-nodes-base.gmail",
@@ -113,7 +113,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "WuF8gx0H2ToxxTJJ",
-          "name": "jooleng.kang@gmail.com"
+          "name": "sender email"
         }
       }
     },
