@@ -1,0 +1,577 @@
+{
+  "name": "Google Drive Bank",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1LvPiGL6Yqk3OXjZgldlknJEdlf0FiG0K",
+          "mode": "list",
+          "cachedResultName": "n8n",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1LvPiGL6Yqk3OXjZgldlknJEdlf0FiG0K"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        208
+      ],
+      "id": "4064927d-d136-49d6-9eca-1d1ccb33561a",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "e55xS7OEjjQ9yEpY",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -240,
+        208
+      ],
+      "id": "b7871b39-7248-475f-803c-f28ec7f3290d",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "e55xS7OEjjQ9yEpY",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "heicoders",
+          "mode": "list",
+          "cachedResultName": "heicoders"
+        },
+        "options": {
+          "pineconeNamespace": "HR Finance"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        0
+      ],
+      "id": "585b2bbe-4a6f-45f4-b887-14f51178e1e2",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "E81mkLLT6Hwiqr1w",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -16,
+        224
+      ],
+      "id": "41222d21-ec3b-4d1e-a2e8-76d342614c88",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "ptuQGhyFm6LQXw69",
+          "name": "JL Kang API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        224
+      ],
+      "id": "2d3a32b9-18c4-42a9-80e5-8f9b5121bf48",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        192,
+        432
+      ],
+      "id": "a83aa72e-336f-4c50-aa1a-5143d3530b6b",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -464,
+        752
+      ],
+      "id": "be7f6cf3-c5c4-4e23-8a5b-2a96f34eb3e1",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4w6mOKpuRQrD8wSD",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        752
+      ],
+      "id": "1cdb540a-714d-4cd6-b4e3-beb22163c3d1",
+      "name": "Mark a message as read",
+      "webhookId": "0ce4ed33-146c-4227-aa13-e04fcbb18950",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4w6mOKpuRQrD8wSD",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Gmail Trigger').item.json.snippet }}",
+        "options": {
+          "systemMessage": "=You are an email assistant specialising in financial policy of the company. Your task is to provide accurate information enquiries using only the official document provided. \nFollow these guidelines:\n\nInformation source: Use only the pinecone tool. Do not speculate or use external information.\nTone: Maintain a warm, professional tone\n\nReply using below template:-\n\nDear [Customer Name],\n\nThank you for reaching out to HeiFinance Bank.\n\n[Answer to customer’s specific query. Ensure details are accurate and taken from the official product fact sheet. If applicable, include relevant fees, or exceptions.]\n\nFor your reference:\n• [Key detail 1]  \n• [Key detail 2]  \n• [Key detail 3, if needed]  \n\nIf you have any further questions, please do not hesitate to contact us at cust.service@heifinance.com\n\nWarm regards,  \n[Your Full Name]  \nCustomer Service Officer  \nHeiFinance Bank"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        16,
+        752
+      ],
+      "id": "43cb1853-9cce-4a7d-99a6-964ed44e9161",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        976
+      ],
+      "id": "2ec9c256-1250-40af-a7b1-93bf985f4810",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ptuQGhyFm6LQXw69",
+          "name": "JL Kang API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Call this tool to access Finance policy",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "heicoders",
+          "mode": "list",
+          "cachedResultName": "heicoders"
+        },
+        "options": {
+          "pineconeNamespace": "HR Finance"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        976
+      ],
+      "id": "d3280e22-4bb3-4329-a7e9-58dbf8260f5d",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "E81mkLLT6Hwiqr1w",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        1184
+      ],
+      "id": "1dc6464a-042a-422d-b847-8d54bbc45549",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ptuQGhyFm6LQXw69",
+          "name": "JL Kang API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "={{ $json.output }}",
+        "options": {
+          "threadId": "={{ $('Gmail Trigger').item.json.threadId }}",
+          "sendTo": "={{ $('Gmail Trigger').item.json.From }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        752
+      ],
+      "id": "dec66ab1-88e9-4384-bdb2-b506e6d14901",
+      "name": "Create a draft",
+      "webhookId": "22c8bf95-3282-4545-8ecd-6ff5a3af841c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4w6mOKpuRQrD8wSD",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Google Drive Trigger": [
+      {
+        "json": {
+          "parents": [
+            "1LvPiGL6Yqk3OXjZgldlknJEdlf0FiG0K"
+          ],
+          "lastModifyingUser": {
+            "displayName": "JL Kang",
+            "kind": "drive#user",
+            "me": true,
+            "permissionId": "16598444344538789151",
+            "emailAddress": "jooleng.kang@gmail.com",
+            "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocJkvG7loHqpG7j2JPxfHxq8Ug5-3-eo9xNeg5kBR7n-BZcFhQ=s64"
+          },
+          "owners": [
+            {
+              "displayName": "JL Kang",
+              "kind": "drive#user",
+              "me": true,
+              "permissionId": "16598444344538789151",
+              "emailAddress": "jooleng.kang@gmail.com",
+              "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocJkvG7loHqpG7j2JPxfHxq8Ug5-3-eo9xNeg5kBR7n-BZcFhQ=s64"
+            }
+          ],
+          "permissions": [
+            {
+              "kind": "drive#permission",
+              "id": "16598444344538789151",
+              "type": "user",
+              "emailAddress": "jooleng.kang@gmail.com",
+              "role": "owner",
+              "displayName": "JL Kang",
+              "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocJkvG7loHqpG7j2JPxfHxq8Ug5-3-eo9xNeg5kBR7n-BZcFhQ=s64",
+              "deleted": false,
+              "pendingOwner": false
+            }
+          ],
+          "spaces": [
+            "drive"
+          ],
+          "capabilities": {
+            "canAcceptOwnership": false,
+            "canAddChildren": false,
+            "canAddMyDriveParent": false,
+            "canChangeCopyRequiresWriterPermission": true,
+            "canChangeItemDownloadRestriction": true,
+            "canChangeSecurityUpdateEnabled": false,
+            "canChangeViewersCanCopyContent": true,
+            "canComment": true,
+            "canCopy": true,
+            "canDelete": true,
+            "canDisableInheritedPermissions": false,
+            "canDownload": true,
+            "canEdit": true,
+            "canEnableInheritedPermissions": true,
+            "canListChildren": false,
+            "canModifyContent": true,
+            "canModifyContentRestriction": true,
+            "canModifyEditorContentRestriction": true,
+            "canModifyOwnerContentRestriction": true,
+            "canModifyLabels": false,
+            "canMoveChildrenWithinDrive": false,
+            "canMoveItemIntoTeamDrive": true,
+            "canMoveItemOutOfDrive": true,
+            "canMoveItemWithinDrive": true,
+            "canReadLabels": false,
+            "canReadRevisions": true,
+            "canRemoveChildren": false,
+            "canRemoveContentRestriction": false,
+            "canRemoveMyDriveParent": true,
+            "canRename": true,
+            "canShare": true,
+            "canTrash": true,
+            "canUntrash": true
+          },
+          "permissionIds": [
+            "16598444344538789151"
+          ],
+          "linkShareMetadata": {
+            "securityUpdateEligible": false,
+            "securityUpdateEnabled": true
+          },
+          "downloadRestrictions": {
+            "itemDownloadRestriction": {
+              "restrictedForReaders": false,
+              "restrictedForWriters": false
+            },
+            "effectiveDownloadRestrictionWithContext": {
+              "restrictedForReaders": false,
+              "restrictedForWriters": false
+            }
+          },
+          "kind": "drive#file",
+          "id": "1DtfhW7NnQZk8XmwKZT8KqBK3etUXt1N-",
+          "name": "HeiFinance Bank Product Fact Sheet.pdf",
+          "mimeType": "application/pdf",
+          "starred": false,
+          "trashed": false,
+          "explicitlyTrashed": false,
+          "version": "3",
+          "webContentLink": "https://drive.google.com/uc?id=1DtfhW7NnQZk8XmwKZT8KqBK3etUXt1N-&export=download",
+          "webViewLink": "https://drive.google.com/file/d/1DtfhW7NnQZk8XmwKZT8KqBK3etUXt1N-/view?usp=drivesdk",
+          "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/pdf",
+          "hasThumbnail": true,
+          "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBOO2jof9SPWikZAi6J_-_2z91etnJk2DDgJNCClahr95myko17qgvF9U5L866QDknJqCOsyVzjN_KUD9ZdXDZux3TmcEboZDhyV2s9uiRhZyOWqkQ=s220",
+          "thumbnailVersion": "1",
+          "viewedByMe": true,
+          "viewedByMeTime": "2026-02-05T17:14:29.648Z",
+          "createdTime": "2026-02-05T17:14:29.648Z",
+          "modifiedTime": "2026-01-26T15:29:21.000Z",
+          "modifiedByMeTime": "2026-01-26T15:29:21.000Z",
+          "modifiedByMe": true,
+          "shared": false,
+          "ownedByMe": true,
+          "viewersCanCopyContent": true,
+          "copyRequiresWriterPermission": false,
+          "writersCanShare": true,
+          "originalFilename": "HeiFinance Bank Product Fact Sheet.pdf",
+          "fullFileExtension": "pdf",
+          "fileExtension": "pdf",
+          "md5Checksum": "f0ff481533c1ceb1ad6b2efae03b96f8",
+          "sha1Checksum": "c13b615d030a1c432dffeec86674b0a2295a1dae",
+          "sha256Checksum": "9a564404c07eef213227cade721a4882ddf803033ebace8a3f765cb2dd970026",
+          "size": "56697",
+          "quotaBytesUsed": "56697",
+          "headRevisionId": "0B_cWMhtlN13xdDBDZXBEbklPM1pEenE5aEVrbW5wSFFQeFhFPQ",
+          "isAppAuthorized": false,
+          "inheritedPermissionsDisabled": false
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Mark a message as read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark a message as read": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3ba2b165-6966-41b5-99aa-4a16df7db23e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8561c73f2e74d32e847078afff609bfd03ae3ec5487a6a020157f66c94729534"
+  },
+  "id": "GcKbuc1wXkDDiNRS",
+  "tags": []
+}

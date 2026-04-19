@@ -1,0 +1,177 @@
+{
+  "name": "Gmail trigger",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d2c2b7e2-17ba-4171-bc2f-64edafcfe0a9",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4w6mOKpuRQrD8wSD",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "02880d6a-95c3-483b-9f67-3a3d9c09a32b",
+      "name": "Mark a message as read",
+      "webhookId": "b50aac50-a429-4da9-8e60-44b8c2a7174e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4w6mOKpuRQrD8wSD",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Gmail Trigger').item.json.snippet }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "caac42e8-e564-4c49-a92c-2c705450152b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        224
+      ],
+      "id": "385bee1b-724c-48f3-85c0-2a71f81bf9b1",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ptuQGhyFm6LQXw69",
+          "name": "JL Kang API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "operation": "reply",
+        "threadId": "={{ $('Gmail Trigger').item.json.threadId }}",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "2166b5a7-ecb6-41a6-a7b9-70190f7b1a86",
+      "name": "Reply to a message",
+      "webhookId": "69b4a53c-e9f4-41bc-a3be-e342d898791f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4w6mOKpuRQrD8wSD",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Mark a message as read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark a message as read": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "5a0cc4f3-8c8c-4d2f-ae12-815b4133bf0f",
+  "meta": {
+    "instanceId": "8561c73f2e74d32e847078afff609bfd03ae3ec5487a6a020157f66c94729534"
+  },
+  "id": "NOccaiS0E2ooapTJSovfG",
+  "tags": []
+}
