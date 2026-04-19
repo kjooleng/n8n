@@ -1,0 +1,197 @@
+{
+  "name": "EOD Indices PM",
+  "nodes": [
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {
+          "includeBinaries": true
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -208
+      ],
+      "id": "b80eabee-3320-45b0-85c2-1384e5ced7db",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/files/EOD/Indices/*.csv",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -416,
+        -208
+      ],
+      "id": "5c3c3b23-9dfb-4ba5-96b7-a757909e8df7",
+      "name": "Read CSV Files from Disk1"
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@yahoo.com,kangjooleng@gmail.com",
+        "subject": "={{ $today.toFormat('dd-MMM-yyyy') }} EOD Indices EOD PM",
+        "message": "=Attached EOD Indices EOD PM for {{ $today.toFormat('dd-MMM-yyyy') }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data,data_1"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        -208
+      ],
+      "id": "d2ec5a38-caeb-44b9-b1bf-7a937947c607",
+      "name": "Send EOD data to email",
+      "webhookId": "50aa98fc-c725-407c-9766-3d3fc480e9a2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jOBiXZAKYqgJ4UPv",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "executeOnce": false,
+        "command": "cd /files/EOD/Indices\npython EOD-IndicesPM.py\n\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        -208
+      ],
+      "id": "f30da151-ba27-4e03-997b-b8117bf1a6f0",
+      "name": "Python script to download EOD Indice EOD data"
+    },
+    {
+      "parameters": {
+        "executeOnce": false,
+        "command": "cd /files/EOD/Indices\nrm *.csv\n\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        128,
+        -208
+      ],
+      "id": "32ea020f-2edc-4f8c-bc42-3258dff9da2f",
+      "name": "Remove CSV"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                2,
+                3,
+                4,
+                5,
+                1
+              ],
+              "triggerAtHour": 18,
+              "triggerAtMinute": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -768,
+        -208
+      ],
+      "id": "671d962c-dbab-4fbb-a2d9-6efd7f6a2ec0",
+      "name": "1810 HRS SGT Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send EOD data to email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read CSV Files from Disk1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send EOD data to email": {
+      "main": [
+        [
+          {
+            "node": "Remove CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Python script to download EOD Indice EOD data": {
+      "main": [
+        [
+          {
+            "node": "Read CSV Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1810 HRS SGT Trigger": {
+      "main": [
+        [
+          {
+            "node": "Python script to download EOD Indice EOD data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "X1sEUmuWIyr2vFvT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "110653d7-fc6b-4321-b8da-0dc81c77cb62",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "48cd71dbb48103e54ab73e035407f795fa313947739d28b6bb459bcad38062c8"
+  },
+  "id": "judsTv1X4jtaaQin",
+  "tags": []
+}
