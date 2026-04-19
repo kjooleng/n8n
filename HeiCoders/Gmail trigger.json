@@ -23,7 +23,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "4w6mOKpuRQrD8wSD",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -44,7 +44,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "4w6mOKpuRQrD8wSD",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
