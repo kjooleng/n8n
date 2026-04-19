@@ -1,0 +1,177 @@
+{
+  "name": "YF REITs",
+  "nodes": [
+    {
+      "parameters": {
+        "executeOnce": false,
+        "command": "cd /files/Yahoo/REITs\npython YF-REITs.py\n\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        -208
+      ],
+      "id": "1b196a29-e1f3-41c0-874a-8f3a96a61f7e",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/files/Yahoo/REITs/*.csv",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -336,
+        -208
+      ],
+      "id": "db6d3bf7-9dcf-4e69-a928-987ee1ab81fb",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {
+          "includeBinaries": true
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        -208
+      ],
+      "id": "92534e08-ca70-4c89-9c82-ff1b15e99b77",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@yahoo.com,kangjooleng@gmail.com",
+        "subject": "={{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }} YF REITs EOD",
+        "message": "=Attached YF REITs EOD for {{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data,data_1,data_2,data_3"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        -208
+      ],
+      "id": "54c77a41-461e-4663-aa53-fbe870585ff7",
+      "name": "Send a message",
+      "webhookId": "191bd96a-2126-4bd1-88e7-94555d4dabcf",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jOBiXZAKYqgJ4UPv",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                2,
+                3,
+                4,
+                5,
+                6
+              ],
+              "triggerAtHour": 8,
+              "triggerAtMinute": 4
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -768,
+        -208
+      ],
+      "id": "25f7851a-9597-435f-a8b4-65d5fafc9bef",
+      "name": "0804 Hrs Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "0804 Hrs Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "X1sEUmuWIyr2vFvT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "ef455b00-4e60-41f9-8acc-03686f8dc6e6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "48cd71dbb48103e54ab73e035407f795fa313947739d28b6bb459bcad38062c8"
+  },
+  "id": "eYw0Vj5HT7DSe3ut",
+  "tags": []
+}
