@@ -32,7 +32,7 @@
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "e55xS7OEjjQ9yEpY",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -57,7 +57,7 @@
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "e55xS7OEjjQ9yEpY",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -159,7 +159,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "4w6mOKpuRQrD8wSD",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -180,7 +180,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "4w6mOKpuRQrD8wSD",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -297,7 +297,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "4w6mOKpuRQrD8wSD",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     }
@@ -323,7 +323,7 @@
               "kind": "drive#user",
               "me": true,
               "permissionId": "16598444344538789151",
-              "emailAddress": "jooleng.kang@gmail.com",
+              "emailAddress": "Source email",
               "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocJkvG7loHqpG7j2JPxfHxq8Ug5-3-eo9xNeg5kBR7n-BZcFhQ=s64"
             }
           ],
@@ -332,7 +332,7 @@
               "kind": "drive#permission",
               "id": "16598444344538789151",
               "type": "user",
-              "emailAddress": "jooleng.kang@gmail.com",
+              "emailAddress": "Source email",
               "role": "owner",
               "displayName": "JL Kang",
               "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocJkvG7loHqpG7j2JPxfHxq8Ug5-3-eo9xNeg5kBR7n-BZcFhQ=s64",
