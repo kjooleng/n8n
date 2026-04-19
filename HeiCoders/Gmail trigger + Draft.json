@@ -23,7 +23,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "4w6mOKpuRQrD8wSD",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -44,7 +44,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "4w6mOKpuRQrD8wSD",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -111,7 +111,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "4w6mOKpuRQrD8wSD",
-          "name": "jooleng.kang@gmail.com"
+          "name": "Source email"
         }
       }
     },
@@ -162,9 +162,9 @@
               "name": "UNREAD"
             }
           ],
-          "From": "Kang Joo Leng <kangjooleng@gmail.com>",
+          "From": "sender email",
           "Subject": "Leave",
-          "To": "jooleng.kang@gmail.com"
+          "To": "receiver email"
         },
         "pairedItem": {
           "item": 0
