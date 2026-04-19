@@ -1,0 +1,177 @@
+{
+  "name": "YF Funds",
+  "nodes": [
+    {
+      "parameters": {
+        "executeOnce": false,
+        "command": "cd /files/Yahoo/Funds\npython YF-Funds.py\n\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        -208
+      ],
+      "id": "be8951b3-fc18-4c04-b2b4-3b223579b4ac",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/files/Yahoo/Funds/*.csv",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -336,
+        -208
+      ],
+      "id": "13ba2f1f-33fd-4fc5-83c1-1c25044fb273",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {
+          "includeBinaries": true
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        -208
+      ],
+      "id": "242ec705-1733-4e5e-94a0-42332f5cd7b3",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@yahoo.com,kangjooleng@gmail.com",
+        "subject": "={{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }} YF Funds EOD",
+        "message": "=Attached YF Funds EOD for {{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data,data_1,data_2,data_3,data_4,data_5,data_6,data_7,data_8,data_9,data_10,data_11,data_12,data_13,data_14,data_15,data_16,data_17,data_18,data_19,data_20,data_21,data_22,data_23,data_24,data_25,data_26,data_27,data_28,data_29,data_30,data_31,data_32,data_33,data_34,data_35,data_36,data_37,data_38,data_39,data_40,data_41,data_42,data_43,data_44,data_45,data_46,data_47,data_48,data_49,data_50,data_51,data_52,data_53,data_54,data_55,data_56,data_57,data_58,data_59,data_60,data_61,data_62,data_63,data_64,data_65,data_66,data_67,data_68,data_69,data_70,data_71,data_72,data_73,data_74,data_75,data_76,data_77,data_78"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        -208
+      ],
+      "id": "c220441b-1e87-4514-89b8-433ec4e511fb",
+      "name": "Send a message",
+      "webhookId": "d5d33360-8585-442e-8fc4-99182a18a3c3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jOBiXZAKYqgJ4UPv",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                2,
+                3,
+                4,
+                5,
+                6
+              ],
+              "triggerAtHour": 8,
+              "triggerAtMinute": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -768,
+        -208
+      ],
+      "id": "925fa3de-1e0e-4e29-8321-1b144a301b74",
+      "name": "0808 Hrs Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "0808 Hrs Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "X1sEUmuWIyr2vFvT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "7906429e-c3c5-4ac8-94f6-a9f785513f95",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "48cd71dbb48103e54ab73e035407f795fa313947739d28b6bb459bcad38062c8"
+  },
+  "id": "PjEsvex8hsm6fG5h",
+  "tags": []
+}
