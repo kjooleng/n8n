@@ -31,7 +31,7 @@
     },
     {
       "parameters": {
-        "sendTo": "kangjooleng@yahoo.com,kangjooleng@gmail.com",
+        "sendTo": "receiver email",
         "subject": "={{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }} Stooq SNP500 EOD",
         "message": "=Attached Stooq SNP500 EOD for {{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }}",
         "options": {
@@ -57,7 +57,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "jOBiXZAKYqgJ4UPv",
-          "name": "jooleng.kang@gmail.com"
+          "name": "sender email"
         }
       }
     },
@@ -120,7 +120,7 @@
     },
     {
       "parameters": {
-        "sendTo": "kangjooleng@yahoo.com,kangjooleng@gmail.com",
+        "sendTo": "receiver email",
         "subject": "={{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }} Stooq SNP500 EOD",
         "message": "=Attached Stooq SNP500 EOD for {{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }}",
         "options": {
@@ -146,7 +146,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "jOBiXZAKYqgJ4UPv",
-          "name": "jooleng.kang@gmail.com"
+          "name": "sender email"
         }
       }
     },
