@@ -33,7 +33,7 @@
     },
     {
       "parameters": {
-        "sendTo": "kangjooleng@yahoo.com,kangjooleng@gmail.com",
+        "sendTo": "receiver email",
         "subject": "={{ $today.toFormat('dd-MMM-yyyy') }} EOD Indices EOD PM",
         "message": "=Attached EOD Indices EOD PM for {{ $today.toFormat('dd-MMM-yyyy') }}",
         "options": {
@@ -59,7 +59,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "jOBiXZAKYqgJ4UPv",
-          "name": "jooleng.kang@gmail.com"
+          "name": "sender email"
         }
       }
     },
