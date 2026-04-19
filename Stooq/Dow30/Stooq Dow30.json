@@ -1,0 +1,330 @@
+{
+  "name": "Stooq Dow30",
+  "nodes": [
+    {
+      "parameters": {
+        "executeOnce": false,
+        "command": "cd /files/Stooq/Dow30\npython Stooq-Dow30.py\n\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        -304
+      ],
+      "id": "fb28b755-6a5a-46a9-9e4c-ad95c564b7fc",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/files/Stooq/Dow30/*.*",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -800,
+        -304
+      ],
+      "id": "1ec25527-b6aa-487d-91bb-117af56c7315",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@yahoo.com,kangjooleng@gmail.com",
+        "subject": "={{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }} Stooq Dow30 EOD",
+        "message": "=Attached Stooq Dow30 EOD for {{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data,data_1,data_2"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        -160
+      ],
+      "id": "4ac7bad9-2360-4171-bc99-ab1509fea562",
+      "name": "Send a message",
+      "webhookId": "5fda4778-9e68-4623-97b5-4fc2ce5e91c6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jOBiXZAKYqgJ4UPv",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                2,
+                3,
+                4,
+                5,
+                6
+              ],
+              "triggerAtHour": 8,
+              "triggerAtMinute": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1136,
+        -304
+      ],
+      "id": "190739d4-0b48-4cde-8796-652d534e1dac",
+      "name": "0810 Hrs Trigger"
+    },
+    {
+      "parameters": {
+        "command": "cd /files/Stooq/Dow30\nrm US*.csv"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -160
+      ],
+      "id": "02fd89ef-0121-4866-9d1c-a2ce1493e308",
+      "name": "Execute Command1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {
+          "includeBinaries": true
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -160
+      ],
+      "id": "3a6bcbe0-678f-47fa-aaac-ef90c3ce4162",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@yahoo.com,kangjooleng@gmail.com",
+        "subject": "={{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }} Stooq Dow30 EOD",
+        "message": "=Attached Stooq Dow30 EOD for {{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data,data_1,data_2,data_3"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        -448
+      ],
+      "id": "0c3191f2-7f59-408d-af53-70f70dbe2566",
+      "name": "Send a message1",
+      "webhookId": "5fda4778-9e68-4623-97b5-4fc2ce5e91c6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jOBiXZAKYqgJ4UPv",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "cd /files/Stooq/Dow30\nrm US*.csv\nrm *.txt"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -448
+      ],
+      "id": "b1c437a7-f9d0-4f55-850f-d27c77de35ac",
+      "name": "Execute Command2"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {
+          "includeBinaries": true
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -448
+      ],
+      "id": "8eed6955-03b9-46d0-884a-b52e22b90939",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "418b4c25-6c51-4577-a6f5-874d15ad379f",
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -624,
+        -304
+      ],
+      "id": "2cfb9900-4d48-424f-9b98-cb1209d77b1d",
+      "name": "No of files"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk1": {
+      "main": [
+        [
+          {
+            "node": "No of files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Execute Command1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "0810 Hrs Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Execute Command2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No of files": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "X1sEUmuWIyr2vFvT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "65585bd7-3aeb-479d-9424-9b4fd95410de",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "48cd71dbb48103e54ab73e035407f795fa313947739d28b6bb459bcad38062c8"
+  },
+  "id": "1OVacX9XOfN8pTK0",
+  "tags": []
+}
