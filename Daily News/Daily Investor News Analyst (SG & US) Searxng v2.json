@@ -47,13 +47,13 @@
     },
     {
       "parameters": {
-        "sendTo": "kangjooleng@gmail.com",
+        "sendTo": "receiver email",
         "subject": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 10 SG & US Financial Headlines (Searxng)",
         "emailType": "text",
         "message": "={{ $json.output }}",
         "options": {
           "appendAttribution": false,
-          "bccList": "jooleng.kang@gmail.com,kangjooleng@yahoo.com"
+          "bccList": "receiver email"
         }
       },
       "type": "n8n-nodes-base.gmail",
@@ -68,7 +68,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "jOBiXZAKYqgJ4UPv",
-          "name": "jooleng.kang@gmail.com"
+          "name": "sender email"
         }
       }
     },
