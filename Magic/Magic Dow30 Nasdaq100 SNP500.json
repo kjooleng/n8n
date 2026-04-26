@@ -1,0 +1,189 @@
+{
+  "name": "Magic Dow30 Nasdaq100 SNP500",
+  "nodes": [
+    {
+      "parameters": {
+        "command": "cd /files/Magic\nrm *.csv\nrm *.xlsx"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -304
+      ],
+      "id": "647ce249-2bde-4d2b-bf41-32df258b3c82",
+      "name": "Execute Command1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {
+          "includeBinaries": true
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        -304
+      ],
+      "id": "bf5fbec3-5c85-4084-9611-a26ed362e57d",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 9,
+              "triggerAtMinute": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1136,
+        -304
+      ],
+      "id": "48f16120-8ab6-442e-aeb4-b9a8054b1152",
+      "name": "0901 Hrs SGT Monthly Trigger"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/files/Magic/*.*",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -688,
+        -304
+      ],
+      "id": "b61aafae-3a29-402e-a421-710724f8fc80",
+      "name": "Read Results"
+    },
+    {
+      "parameters": {
+        "executeOnce": false,
+        "command": "cd /files/Magic\npython \"Magic(Dow30 + Nasdaq100 + S&P500).py\"\n\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -912,
+        -304
+      ],
+      "id": "e80f909f-c9ad-447c-b98d-095af420cb05",
+      "name": "Python script to apply magic formula"
+    },
+    {
+      "parameters": {
+        "sendTo": "receiver email",
+        "subject": "={{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }} Magic Formula Results (Dow30 + Nasdaq100 + SNP500)",
+        "message": "=Attached Magic Formula Results (Dow30 + Nasdaq100 + SNP500) for {{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data,data_1,data_2"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        -304
+      ],
+      "id": "b49528e1-499e-49a4-bae1-d653a2b935d7",
+      "name": "Send magic formula results to email",
+      "webhookId": "13290714-32b4-429e-8ee8-3f3f844d4983",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jOBiXZAKYqgJ4UPv",
+          "name": "sender email"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send magic formula results to email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "0901 Hrs SGT Monthly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Python script to apply magic formula",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Results": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Python script to apply magic formula": {
+      "main": [
+        [
+          {
+            "node": "Read Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send magic formula results to email": {
+      "main": [
+        [
+          {
+            "node": "Execute Command1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "X1sEUmuWIyr2vFvT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "80837f22-034f-40d5-a0f8-5d4ea24373a3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "48cd71dbb48103e54ab73e035407f795fa313947739d28b6bb459bcad38062c8"
+  },
+  "id": "aH62fR2IqjIvvH5u",
+  "tags": []
+}
