@@ -1,0 +1,476 @@
+{
+  "name": "Daily Investor News Analyst (SG & US) Ollama Searxng",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a **Daily Investor News Analyst** running as a fully automated n8n workflow. There is NO human user. Produce the complete 10-item brief autonomously without asking any questions.\n\n---\n\n### ⚠️ ABSOLUTE BEHAVIOUR RULES\n- NEVER ask the user to choose between options.\n- NEVER present \"Option A / Option B\" choices.\n- NEVER deliver a partial brief and stop.\n- NEVER stall or wait for input.\n- If articles are from the past 48 hours rather than 24 hours, use them and note the date.\n- Always output all 10 items in one complete response.\n- If web_url_read returns ANY error (401, 403, 404, 410, timeout, or any other), SKIP that URL immediately, output nothing about it, and continue with the next step. NEVER retry a failed URL. NEVER let a URL error halt the workflow.\n\n---\n\n### 🎯 Your Task\nGenerate the **top 10 most important financial and economic news headlines** from the most recent available data (past 24–48 hours, Singapore time UTC+8). Focus on developments impacting **Singapore** and **U.S.** economies, stock markets, currencies, or investor sentiment.\n\n### 🔍 Search Strategy\n\n**Step 1 — Run these searches one at a time using searxng_web_search:**\n- `{\"query\": \"Singapore economy financial news today\", \"time_range\": \"day\"}`\n- `{\"query\": \"US Federal Reserve interest rates 2026\", \"time_range\": \"day\"}`\n- `{\"query\": \"Singapore STI stock market today\", \"time_range\": \"day\"}`\n- `{\"query\": \"US S&P 500 Nasdaq market today\", \"time_range\": \"day\"}`\n- `{\"query\": \"Singapore MAS monetary policy 2026\", \"time_range\": \"day\"}`\n\n**Step 2 — Run these additional searches one at a time:**\n- `{\"query\": \"US inflation CPI data 2026\", \"time_range\": \"day\"}`\n- `{\"query\": \"China economy Singapore impact 2026\", \"time_range\": \"day\"}`\n- `{\"query\": \"oil price commodities market today\", \"time_range\": \"day\"}`\n- `{\"query\": \"AI technology stocks earnings 2026\", \"time_range\": \"day\"}`\n- `{\"query\": \"US Singapore trade tariffs 2026\", \"time_range\": \"day\"}`\n\n**Step 3 — Read articles (OPEN-ACCESS ONLY) using web_url_read:**\n- ONLY attempt web_url_read on these domains: channelnewsasia.com, businesstimes.com.sg, cnbc.com, marketwatch.com, straitstimes.com, nikkei.com\n- DO NOT call web_url_read on: bloomberg.com, wsj.com, ft.com, reuters.com, or any site requiring login\n- If web_url_read returns ANY error, skip it immediately and use the search snippet instead\n- Example: `{\"url\": \"https://www.channelnewsasia.com/article-path\"}`\n\n**Step 4 — Write the complete 10-item brief immediately using search snippets + any successfully scraped content.**\n\n---\n\n### 📰 News Scope\n- Prioritise **Singapore** and **United States** market developments.\n- Include international stories only if they materially affect SG or US markets.\n- Use only credible outlets: Bloomberg, Reuters, WSJ, CNBC, CNA, The Edge Singapore, Business Times, Nikkei Asia.\n- Neutral, factual, analytical tone.\n- It is acceptable to write items based on search result snippets alone if scraping fails.\n\n---\n\n### 📈 Output Format — use exactly for all 10 items\n\nBegin with:\n**📰 Daily Investor Brief — [dd-MMM-yyyy], Singapore Time**\n\nFor each of the 10 items:\n\n---\n**[N]. 1⃣ Headline**\nShort, factual, impactful title.\n\n**2⃣ Core Thesis**\nOne concise paragraph on the event and its relevance to SG or US investors.\n\n**3⃣ Key Insights**\n- 2–4 bullet points on financial or economic implications.\n\n**4⃣ Key Definitions**\nDefine any financial/economic/technical terms used (e.g. CPI, GDP, PMI, Fed Funds Rate).\n\n**5⃣ Direct Statements & Statistics**\nNotable quotes, figures, or data points from the article or official sources.\n\n**6⃣ Macro Linkages**\nHow this connects to broader macro themes (inflation, rates, trade, commodities, AI/tech, geopolitics) and likely market impact.\n\n**7⃣ Source URL**\nOriginal article link. If paywalled, note it and provide the URL anyway.\n\n---\n\n### 🧩 Final Rules\n- Complete all 10 items. No partial output.\n- If a source is blocked or returns an error, use the next available one — do not stop.\n- Emphasise **Singapore–U.S. economic interlinkages**.\n- This is an automated pipeline. Produce the output now.",
+        "options": {
+          "systemMessage": "You are a fully automated workflow with no human user. CRITICAL MCP TOOL SCHEMAS (verified): (1) searxng_web_search: {\"query\": \"str\", \"time_range\": \"day\"} — single query string only. (2) web_url_read: {\"url\": \"https://...\"} — single URL string only. IMPORTANT RULES FOR web_url_read: NEVER call web_url_read on bloomberg.com, wsj.com, ft.com, reuters.com, or any paywalled site — they return 401/403 and WILL crash the workflow. Only call web_url_read on open-access URLs: channelnewsasia.com, businesstimes.com.sg, straitstimes.com (free articles), nikkei.com free articles, cnbc.com, marketwatch.com. If web_url_read returns an error, SKIP that URL immediately and continue — do NOT retry. Use search result snippets directly if scraping fails. Never ask questions. Always produce the complete 10-item brief. CRITICAL: If web_url_read returns ANY error including 404, 403, 401, or timeout, treat it as a non-fatal skip — output the string 'SKIP: <error>' and immediately continue to the next task using search snippets. NEVER let a web_url_read error stop or crash the workflow.",
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -400,
+        160
+      ],
+      "id": "60c446b1-48b7-4888-9fe9-8c06dad9dfce",
+      "name": "AI Agent — Daily Investor Analyst"
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@gmail.com",
+        "subject": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 10 SG & US Financial Headlines (Ollama Searxng)",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false,
+          "bccList": "jooleng.kang@gmail.com,kangjooleng@yahoo.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bd974e88-a2c9-4674-90e3-3f9b4eda29db",
+      "name": "Send Daily Brief via Gmail",
+      "webhookId": "3f2ea68f-4a29-478b-95ef-38eab311cb7b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jOBiXZAKYqgJ4UPv",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-output-length",
+              "leftValue": "={{ $json.output.length() }}",
+              "rightValue": 2000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        240
+      ],
+      "id": "1f81afc5-a9b1-497e-90ef-65947636f461",
+      "name": "Output > 2000 chars?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recursive Text Splitter for Notion page blocks\nconst CHUNK_SIZE = 1900;\nconst SEPARATORS = ['\\n\\n', '\\n', '. ', ' '];\n\nconst inputText = $input.first().json.output || '';\n\nfunction splitText(text, separators, chunkSize) {\n  if (text.length <= chunkSize) return [text];\n  const results = [];\n  let remaining = text;\n  while (remaining.length > chunkSize) {\n    let splitAt = -1;\n    for (const sep of separators) {\n      const idx = remaining.lastIndexOf(sep, chunkSize);\n      if (idx > 0) { splitAt = idx + sep.length; break; }\n    }\n    if (splitAt <= 0) splitAt = chunkSize;\n    results.push(remaining.slice(0, splitAt));\n    remaining = remaining.slice(splitAt);\n  }\n  if (remaining.length > 0) results.push(remaining);\n  return results;\n}\n\nconst chunks = splitText(inputText, SEPARATORS, CHUNK_SIZE);\nreturn chunks.map((chunk, index) => ({\n  json: {\n    chunkIndex: index + 1,\n    totalChunks: chunks.length,\n    text: chunk.trim(),\n    firstBlock: index === 0\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        240
+      ],
+      "id": "08770304-6633-438f-884d-65f0d3842031",
+      "name": "Recursive Text Splitter"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-first-block",
+              "leftValue": "={{ $json.firstBlock }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        400,
+        240
+      ],
+      "id": "74214100-f372-4f84-9361-a19c8039f8e2",
+      "name": "Is First Block?"
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "34e30e12316d80cf90b8d6154984128c",
+          "mode": "id"
+        },
+        "title": "={{ $today.toFormat('dd-MMM-yyyy') }} | Daily Investor Brief — Top 10 SG & US Financial Headlines (Ollama Searxng)",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        112
+      ],
+      "id": "e6dcb868-faee-4ddb-ac92-2c64fcd06b67",
+      "name": "Create Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "fvFzKGRSY6OQkW4c",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-url",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        112
+      ],
+      "id": "211a1edc-f881-4c06-b710-5c1c21d9570c",
+      "name": "Store Page URL"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        720,
+        320
+      ],
+      "id": "3af4b9a2-97df-472c-9701-397ca6484240",
+      "name": "Merge Chunks"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $json.url }}",
+          "mode": "url"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        320
+      ],
+      "id": "5cef378e-6515-476f-beef-d93cc7ccf19c",
+      "name": "Append Block to Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "fvFzKGRSY6OQkW4c",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "34e30e12316d80cf90b8d6154984128c",
+          "mode": "id"
+        },
+        "title": "={{ $today.toFormat('dd-MMM-yyyy') }} | Daily Investor Brief — Top 10 SG & US Financial Headlines (Ollama Searxng)",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $('AI Agent — Daily Investor Analyst').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "d4df8f6c-5e1d-4a84-914b-981e4832738c",
+      "name": "Create Notion Page (Short Output)",
+      "credentials": {
+        "notionApi": {
+          "id": "fvFzKGRSY6OQkW4c",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://searxng-mcp:3000/mcp",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        384
+      ],
+      "id": "23b7b310-bfc5-41c5-8427-deeef6ecbd5f",
+      "name": "MCP Client (Searxng)",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0
+              ],
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -800,
+        160
+      ],
+      "id": "31454866-49e8-496c-b74b-9283b2ce7636",
+      "name": "Schedule Trigger (Daily 6PM SGT)"
+    },
+    {
+      "parameters": {
+        "model": "gemma4:31b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        368
+      ],
+      "id": "e53c0998-7c9c-459d-b1f9-d7e0d77c08bb",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "wywsYrJHSwm1WsIw",
+          "name": "Ollama Cloud for Ollama Chat Model"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent — Daily Investor Analyst": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Brief via Gmail",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Output > 2000 chars?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output > 2000 chars?": {
+      "main": [
+        [
+          {
+            "node": "Recursive Text Splitter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Notion Page (Short Output)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Text Splitter": {
+      "main": [
+        [
+          {
+            "node": "Is First Block?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is First Block?": {
+      "main": [
+        [
+          {
+            "node": "Create Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create Notion Page": {
+      "main": [
+        [
+          {
+            "node": "Store Page URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Page URL": {
+      "main": [
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Chunks": {
+      "main": [
+        [
+          {
+            "node": "Append Block to Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client (Searxng)": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent — Daily Investor Analyst",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger (Daily 6PM SGT)": {
+      "main": [
+        [
+          {
+            "node": "AI Agent — Daily Investor Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent — Daily Investor Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "X1sEUmuWIyr2vFvT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "5fb7b78b-f1bc-4305-b9fe-9cf0ba5442f4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "48cd71dbb48103e54ab73e035407f795fa313947739d28b6bb459bcad38062c8"
+  },
+  "id": "xtYcuQp9b5vFoXEQ",
+  "tags": []
+}
