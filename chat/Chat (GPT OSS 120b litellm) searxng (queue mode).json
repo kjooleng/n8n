@@ -79,7 +79,7 @@
         "tableName": "chat_history"
       },
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
-      "typeVersion": 1.2,
+      "typeVersion": 1.4,
       "position": [
         576,
         384
