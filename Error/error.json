@@ -1,0 +1,90 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        288
+      ],
+      "id": "7bf8634b-7ada-4b26-855e-f4a2f9a3e8c4"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "n8n-workflow",
+          "mode": "name"
+        },
+        "text": "=This workflow {{$(\"Error Trigger\").item.json[\"workflow\"][\"name\"]}}failed.\nHave a look at it here: {{$(\"Error Trigger\").item.json[\"execution\"][\"url\"]}}",
+        "otherOptions": {}
+      },
+      "name": "Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        -784,
+        528
+      ],
+      "typeVersion": 2.5,
+      "id": "e4bdaba4-e6cd-4af0-b345-77c6863c0ba9",
+      "webhookId": "2c95c5aa-6319-4c55-be3d-bec57a24b0bf",
+      "credentials": {
+        "slackApi": {
+          "id": "HqnmCJPZO2yyQtE6",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@yahoo.com",
+        "subject": "=WorkFlow {{ $json.workflow.name }} Error",
+        "message": "=The workflow {{ $json.workflow.name }} failed, with the error message: {{ $json.execution.error.message }}. Last node executed: {{ $json.execution.lastNodeExecuted }}. Check this workflow execution here: {{ $json.execution.url }} ",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -784,
+        288
+      ],
+      "id": "e15d4269-abcd-442c-b097-272e990bf9a7",
+      "name": "Send a message",
+      "webhookId": "6bb7733a-c64a-4f16-b0c9-0b3c18fdd690",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U4v1W1uZ3ABwcgps",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
