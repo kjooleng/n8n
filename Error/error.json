@@ -40,7 +40,7 @@
     },
     {
       "parameters": {
-        "sendTo": "kangjooleng@yahoo.com",
+        "sendTo": "receiver email",
         "subject": "=WorkFlow {{ $json.workflow.name }} Error",
         "message": "=The workflow {{ $json.workflow.name }} failed, with the error message: {{ $json.execution.error.message }}. Last node executed: {{ $json.execution.lastNodeExecuted }}. Check this workflow execution here: {{ $json.execution.url }} ",
         "options": {
@@ -59,7 +59,7 @@
       "credentials": {
         "gmailOAuth2": {
           "id": "U4v1W1uZ3ABwcgps",
-          "name": "jooleng.kang@gmail.com"
+          "name": "sender email"
         }
       }
     }
