@@ -1,0 +1,150 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is JL. How can I assist you today?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        208
+      ],
+      "id": "d165a9e0-ea47-4e78-93c6-43c14712ce66",
+      "name": "When chat message received",
+      "webhookId": "95a21e31-18b4-4871-9e9d-bb874070b8da"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a research assistant. You have tools to search for and access real-time, up-to-date data. Before calling any tool, ask yourself: can I answer this confidently from the conversation context alone? If yes, answer directly without using a tool. Only call a tool when you need real-time data, need to write or read from an external system, or the user explicitly asks you to perform an action. Search before stating that you can't or don't know. \nTool schemas:\n- searxng_web_search: {\"query\": \"<string>\"}\n- web_url_read: {\"url\": \"https://...\"}\nBe concise. Skip URLs that return errors.",
+          "maxIterations": 10
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        608,
+        208
+      ],
+      "id": "fd5e0efc-9c53-4ca4-b944-c35cffc16da4",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://searxng-mcp:3000/mcp",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        800,
+        432
+      ],
+      "id": "f4a7534f-3bb4-4e0b-9d2e-8f886f249d41",
+      "name": "searxng_web_search"
+    },
+    {
+      "parameters": {
+        "tableName": "chat_history"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        672,
+        432
+      ],
+      "id": "d008a30f-a979-4481-bb35-9cf2463f4169",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "mKrmOFMf4gkMXMAu",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gemini-3.1-flash-lite",
+          "mode": "list",
+          "cachedResultName": "gemini-3.1-flash-lite"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        416
+      ],
+      "id": "9f650821-9215-4ae7-85d5-310bbfe8f333",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "hWi7swKVPh1dLEZq",
+          "name": "LLM"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "searxng_web_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
