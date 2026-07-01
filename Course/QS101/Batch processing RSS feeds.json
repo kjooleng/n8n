@@ -1,0 +1,106 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "117d9c69-3162-439d-ae92-5cfc02ad3b1c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      url: 'https://medium.com/feed/n8n-io'\n    }\n  },\n  {\n    json: {\n      url: 'https://dev.to/feed/n8n'\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "679081b9-1aa0-4deb-85e6-e44d5059660d",
+      "name": "FeedURLs"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "f232fc8d-3ccb-443a-8b7c-46519113df4c",
+      "name": "BatchFeeds"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        208
+      ],
+      "id": "8c2cb747-0bc7-4624-8f85-4234e3399d03",
+      "name": "ReadFeed"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "FeedURLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FeedURLs": {
+      "main": [
+        [
+          {
+            "node": "BatchFeeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BatchFeeds": {
+      "main": [
+        [],
+        [
+          {
+            "node": "ReadFeed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReadFeed": {
+      "main": [
+        [
+          {
+            "node": "BatchFeeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
