@@ -1,0 +1,101 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        96
+      ],
+      "id": "77d320bb-2a40-416f-98ff-4febe3cfa84c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "getAllPeople",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.n8nTrainingCustomerDatastore",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "6fd51178-80fb-4306-8ad4-ed49db6965e2",
+      "name": "GetCustomerData"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      name: 'Jay Gatsby',\n      country: {\n        name: 'US'\n      }\n    }\n  },\n  {\n    json: {\n      name: 'José Arcadio Buendía',\n      country: {\n        name: 'CO'\n      }\n    }\n  },\n  {\n    json: {\n      name: 'Max Mustermann',\n      country: {\n        name: 'DE'\n      }\n    }\n  },\n  {\n    json: {\n      name: 'John Smith',\n      country: {\n        name: 'UK'\n      }\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        192
+      ],
+      "id": "65f5ce34-4bdc-42dd-b0ef-b2abdef177d1",
+      "name": "Characters"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "name",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        448,
+        96
+      ],
+      "id": "6a210feb-6e10-44a1-8e95-d87309e4b17d",
+      "name": "Merge"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "GetCustomerData",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Characters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetCustomerData": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Characters": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
