@@ -1,0 +1,186 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "92adfc70-976d-402b-8857-0658182d4a7b",
+      "name": "When chat message received",
+      "webhookId": "6c813ad1-3bdd-43ab-b825-4839217cf0b7"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a customer service agent. You have access to a customer database and an order database.\n\nWhen asked about customers, use the GetCustomers tool to look up their information.\nWhen asked about orders, prices, employees, or product categories, use the GetOrderData tool.\n\nBe concise and helpful. If the data does not contain what the user is asking for, say so. Do not make up information."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "b45ac48d-b002-4c04-a365-132689d9fe0d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gemma-4-26b",
+          "mode": "list",
+          "cachedResultName": "gemma-4-26b"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        208
+      ],
+      "id": "e0ba9e98-e34c-4856-9503-a5a9733064a3",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "93DCkmIv2kqZb1lA",
+          "name": "LiteLLM account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        160,
+        208
+      ],
+      "id": "571769ad-237d-41fc-a8f9-d8e7ab8d326f",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "pQk0QVQFQkNvfh2M",
+          "mode": "list",
+          "cachedResultName": "customers",
+          "cachedResultUrl": "/projects/AUdDgoinTGByqxn9/datatables/pQk0QVQFQkNvfh2M"
+        }
+      },
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        496,
+        208
+      ],
+      "id": "090f9f9d-1500-46cc-b4f7-be6fffeb3fbc",
+      "name": "GetCustomers"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Retrieve order details including order prices, quantities, product categories, employee assignments, and order statuses for all customers",
+        "url": "https://learn.app.n8n.cloud/webhook/courses/n8n-quickstart/order-tool",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-assessment-id",
+              "value": "7ef5d6a6ebbc2c02fcf9ea1155fa8514"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        352,
+        208
+      ],
+      "id": "27547fbf-08bb-464b-919a-58cfd637350c",
+      "name": "GetOrderData",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "njDkFXHwu347ym2d",
+          "name": "n8n Quickstart Header Auth account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetCustomers": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetOrderData": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
