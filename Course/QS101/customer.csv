@@ -1,0 +1,11 @@
+id,customerID,customerCountry,customerEmail,customerSince,region,subregion,createdAt,updatedAt
+1,1,India,customer1@mail.in,2026-12-09T16:00:00.000Z,Asia,Southern Asia,2026-07-02T17:34:26.927Z,2026-07-02T17:57:32.561Z
+2,2,Japan,customer2@mail.jp,2026-06-16T16:00:00.000Z,Asia,Eastern Asia,2026-07-02T17:34:26.927Z,2026-07-02T17:57:32.574Z
+3,3,France,customer3@mail.com,2026-08-06T16:00:00.000Z,Europe,Western Europe,2026-07-02T17:34:26.927Z,2026-07-02T17:57:32.585Z
+4,4,Brazil,customer4@mail.com,2026-07-28T16:00:00.000Z,Americas,Latin America and the Caribbean,2026-07-02T17:34:26.927Z,2026-07-02T17:57:32.596Z
+5,5,Canada,customer5@mail.com,2026-09-05T16:00:00.000Z,Americas,Northern America,2026-07-02T17:34:26.927Z,2026-07-02T17:57:32.608Z
+6,6,Sweden,customer6@mail.com,2026-09-08T16:00:00.000Z,Europe,Northern Europe,2026-07-02T17:34:26.927Z,2026-07-02T17:57:32.620Z
+7,7,Australia,customer7@mail.com,2026-08-08T16:00:00.000Z,Oceania,Australia and New Zealand,2026-07-02T17:34:26.927Z,2026-07-02T17:57:32.633Z
+8,8,Germany,customer8@mail.de,2026-10-02T16:00:00.000Z,Europe,Western Europe,2026-07-02T17:34:26.927Z,2026-07-02T17:57:32.645Z
+9,9,Ukraine,customer9@mail.com,2026-09-12T16:00:00.000Z,Europe,Eastern Europe,2026-07-02T17:34:26.927Z,2026-07-02T17:57:32.658Z
+10,10,Cuba,customer10@mail.com,2026-06-14T16:00:00.000Z,Americas,Latin America and the Caribbean,2026-07-02T17:34:26.927Z,2026-07-02T17:57:32.670Z
