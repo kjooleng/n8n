@@ -2,7 +2,7 @@
   "nodes": [
     {
       "parameters": {
-        "url": "https://dog.ceo/api/breeds/image/random",
+        "url": "https://learn.app.n8n.cloud/webhook/apis/dog-images",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
