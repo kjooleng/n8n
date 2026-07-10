@@ -1,0 +1,153 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        -512
+      ],
+      "id": "ae1f9fae-a945-48c9-a870-74a62cdd42eb",
+      "name": "When clicking Execute workflow"
+    },
+    {
+      "parameters": {
+        "url": "https://jsonplaceholder.typicode.com/users",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "_limit",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -784,
+        -512
+      ],
+      "id": "7de6da3f-ab46-4032-830f-87edc6f7ec94",
+      "name": "Get Users"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+              "name": "name",
+              "value": "={{$json.name}}",
+              "type": "string"
+            },
+            {
+              "id": "b2b2b2b2-c3c3-d4d4-e5e5-f6f6f6f6f6f6",
+              "name": "city",
+              "value": "={{$json.address.city}}",
+              "type": "string"
+            },
+            {
+              "id": "c3c3c3c3-d4d4-e5e5-f6f6-a7a7a7a7a7a7",
+              "name": "company",
+              "value": "={{$json.company.name}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        -512
+      ],
+      "id": "367930de-aeed-4cde-a4e9-d2520940c328",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -512
+      ],
+      "id": "1c89d03e-25eb-4278-9ac4-e22cf89616bc",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "name",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        -512
+      ],
+      "id": "1a0047e3-8575-44d9-8527-e6fdce925457",
+      "name": "Split Out"
+    }
+  ],
+  "connections": {
+    "When clicking Execute workflow": {
+      "main": [
+        [
+          {
+            "node": "Get Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Users": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
