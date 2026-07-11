@@ -5,20 +5,20 @@
         "operation": "get",
         "dataTableId": {
           "__rl": true,
-          "value": "pQk0QVQFQkNvfh2M",
+          "value": "pRyF1rtL4X0GU9rZ",
           "mode": "list",
           "cachedResultName": "customers",
-          "cachedResultUrl": "/projects/AUdDgoinTGByqxn9/datatables/pQk0QVQFQkNvfh2M"
+          "cachedResultUrl": "/projects/bJslhVO14hDAzcpC/datatables/pRyF1rtL4X0GU9rZ"
         },
         "returnAll": true
       },
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        224,
-        -160
+        0,
+        0
       ],
-      "id": "78fd5bca-c778-4921-9966-ad89cae50875",
+      "id": "0e9f1e06-d9c4-46dd-b0f4-97c00ecb8aeb",
       "name": "GetCustomers"
     },
     {
@@ -26,10 +26,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        -64
+        -224,
+        96
       ],
-      "id": "40848606-0ed7-436c-9d13-ad4d801d3959",
+      "id": "aa5b4464-43cf-469e-a906-261ffc8d2328",
       "name": "ManualTrigger"
     },
     {
@@ -40,10 +40,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        224,
-        32
+        0,
+        192
       ],
-      "id": "bc9d5cef-2862-4d9b-bb71-47a698b783e8",
+      "id": "1ce8b2e8-4f1a-4a8d-904d-d085a812ff2b",
       "name": "GetCountries"
     },
     {
@@ -63,10 +63,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        448,
-        -64
+        224,
+        96
       ],
-      "id": "4be1e8d5-90b8-4fee-b248-4c16e5b9705c",
+      "id": "bf18ddbf-676d-4973-8af5-383ec9a2252c",
       "name": "Merge"
     },
     {
@@ -74,10 +74,10 @@
         "operation": "update",
         "dataTableId": {
           "__rl": true,
-          "value": "pQk0QVQFQkNvfh2M",
+          "value": "pRyF1rtL4X0GU9rZ",
           "mode": "list",
           "cachedResultName": "customers",
-          "cachedResultUrl": "/projects/AUdDgoinTGByqxn9/datatables/pQk0QVQFQkNvfh2M"
+          "cachedResultUrl": "/projects/bJslhVO14hDAzcpC/datatables/pRyF1rtL4X0GU9rZ"
         },
         "filters": {
           "conditions": [
@@ -163,10 +163,10 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        656,
-        -64
+        432,
+        96
       ],
-      "id": "1a289d75-a230-45a8-8cf0-405d62e6d945",
+      "id": "c58582cc-19bd-43b5-9f09-bef6f6afbaf6",
       "name": "UpdateCustomers"
     }
   ],
@@ -223,7 +223,6 @@
   },
   "pinData": {},
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
   }
 }
