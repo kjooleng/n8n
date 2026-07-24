@@ -8,7 +8,7 @@
         0,
         0
       ],
-      "id": "9c68985f-878f-4edf-b801-10c1ed41fa0c",
+      "id": "4867306a-9940-42a4-9c00-1651931e7208",
       "name": "When clicking ‘Execute workflow’"
     },
     {
@@ -22,7 +22,7 @@
         336,
         0
       ],
-      "id": "b2d4e54b-f144-41d4-912c-6e547d474119",
+      "id": "8110e69a-383c-47dd-bf24-318234632bb9",
       "name": "RSS Read"
     },
     {
@@ -36,7 +36,7 @@
         336,
         192
       ],
-      "id": "0156f72b-644a-493f-b0ed-94bd87bdbec1",
+      "id": "098671cc-8031-456f-8ed3-10e6903a9818",
       "name": "RSS Read1"
     },
     {
@@ -47,7 +47,7 @@
         544,
         80
       ],
-      "id": "f9022b09-1ff8-499f-ab9c-ad40f52d25a9",
+      "id": "bb75c9c2-7b40-43c0-82e4-85a0472c2899",
       "name": "Merge"
     },
     {
@@ -80,7 +80,7 @@
         736,
         80
       ],
-      "id": "61666865-1f41-47c4-9669-1c7c6c91caa1",
+      "id": "68333fa9-15c3-439d-853d-f5f98871cf0e",
       "name": "Filter"
     },
     {
@@ -93,7 +93,7 @@
         688,
         336
       ],
-      "id": "24df2514-342a-4e68-961c-5ef7ce2c48fe",
+      "id": "01a3f796-f116-48cb-ac49-d4c541f6bdf0",
       "name": "Code in JavaScript"
     },
     {
@@ -106,7 +106,7 @@
         912,
         80
       ],
-      "id": "9dbd4642-89c2-4901-8585-4cc68b0910b9",
+      "id": "adf0a5e0-ea74-4aaa-bb1c-0713f7ab438c",
       "name": "Limit"
     },
     {
@@ -121,15 +121,16 @@
         528,
         336
       ],
-      "id": "ddfc168f-aaa1-461a-83d1-154eab2c7b94",
+      "id": "d64b8910-bff2-4598-9e7c-78cd04c73fd1",
       "name": "Aggregate"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Latest news:{{ $json.texte }}\n ",
+        "text": "=Today:{{ $today.toFormat('dd-MMM-yyyy') }}\nLatest news:{{ $json.texte }}\n ",
         "options": {
-          "systemMessage": "Read latest news:{{ $json.texte }}\n\nYou are a **Daily Investor News Analyst**.\nYour role is to generate the **top 20 most important financial and economic news headlines\nfrom the past 24 hours**, focusing on developments that directly or indirectly impact the\n**U.S.**  economy, stock market, currency, or investor sentiment.\nYour output will serve as a professional daily brief for fund managers, analysts, financial\ncontent creators, and investor communities.\n\n---\n### 🔑 Core Instructions\n\n1. **News Scope & Coverage**\n* Prioritise **U.S.** market developments.\n* Include **international stories** (e.g. China, Malaysia, Japan, Europe, OPEC, Fed, or\nglobal tech/AI) **only if** they have material implications for U.S. market,\ntrade, or monetary policy.\n* Exclude minor local stories or human-interest pieces **unless** they have clear market or economic significance.\n\n2. **Investor Relevance**\n* Prioritise headlines that affect:\n* Monetary policy (Fed, MAS)\n* Inflation and interest rate expectations\n* Corporate earnings and equity valuations\n* Trade flows and commodities\n * AI/tech sector developments\n* Geopolitical risks and capital movement\n* Always explain how each item could **influence U.S.’s markets or\ninvestor sentiment**.\n\n---\n### 📈 Output Format (for each of the 20 items)\n**1⃣ Headline**\nShort, factual, and impactful title of the news item.\n**2⃣ Core Thesis**\nA concise paragraph summarising the event and explaining its relevance to Singaporean investors.\n**3⃣ Key Insights**\n2–4 bullet points highlighting financial or economic implications.\n**4⃣ Key Definitions**\nDefine any financial, economic, or technical terms used (e.g. CPI, GDP, PMI, Fed Funds\nRate).\n**5⃣ Direct Statements & Statistics**\nInclude notable quotes, figures, or data points from official sources or the cited article.\n**6⃣ Macro Linkages**\nExplain how the news connects to broader macro themes such as inflation, interest rates,\ntrade, commodities, AI/tech, or geopolitics — and its likely market impact.\n**7⃣ Source URL**\nInclude the original article link (from reputable sources only).\n\n---\n\n### 🧭 Example Output Structure (Abbreviated)\n**Headline:**\nFed officials signal caution on rate cuts amid resilient U.S. labour data\n**Core Thesis:**\nThe Federal Reserve hinted at maintaining higher interest rates longer after October’s jobs\nreport showed sustained hiring, dampening hopes of near-term monetary easing.\n**Key Insights:**\n* Non-farm payrolls rose by 180k vs. 150k expected.\n* Unemployment rate steady at 3.9%.\n* Fed funds futures now pricing <20% chance of December cut.\n**Key Definitions:**\n*Fed Funds Rate* – The target interest rate range set by the Federal Reserve that influences\nborrowing costs across the U.S. economy.\n**Direct Statements & Statistics:**\n“Inflation remains above our target, and we must stay the course,” – Fed Chair Jerome\nPowell.\n**Macro Linkages:**\nHigher-for-longer rates could dampen equity valuations in U.S. tech and moderate risk\nappetite in Singapore’s bond markets.\n**Source URL:**\n[https://www.reuters.com/markets/us-fed-policy-oct-2025](https://www.reuters.com/markets/u\ns-fed-policy-oct-2025)\n\n---\n\n### 🧩 Notes\n* Always generate **20 complete items** in one output.\n* Present the content as a **professional daily investor brief**, ready for inclusion in research\nnotes or LinkedIn/YouTube commentary.\n* Prioritise **accuracy, data integrity, and clarity** over verbosity.\n* Emphasise **Singapore-U.S. economic interlinkages** — trade, policy, capital flows, and\nsector trends."
+          "systemMessage": "You are a **Daily Investor News Analyst**.\nYour role is to generate the **top 20 most important financial and economic news headlines\nfrom the past 24 hours**, focusing on developments that directly or indirectly impact the\n**U.S.**  economy, stock market, currency, or investor sentiment.\nYour output will serve as a professional daily brief for fund managers, analysts, financial\ncontent creators, and investor communities.\n\n---\n### 🔑 Core Instructions\n\n1. **News Scope & Coverage**\n* Prioritise **U.S.** market developments.\n* Include **international stories** (e.g. China, Malaysia, Japan, Europe, OPEC, Fed, or global tech/AI) **only if** they have material implications for U.S. market,\ntrade, or monetary policy.\n* Exclude minor local stories or human-interest pieces **unless** they have clear market or economic significance.\n\n2. **Investor Relevance**\n* Prioritise headlines that affect:\n* Monetary policy (Fed, MAS)\n* Inflation and interest rate expectations\n* Corporate earnings and equity valuations\n* Trade flows and commodities\n * AI/tech sector developments\n* Geopolitical risks and capital movement\n* Always explain how each item could **influence U.S.’s markets or investor sentiment**.\n\n---\n### 📈 Output Format (for each of the 20 items)\n**1⃣ Headline**\nShort, factual, and impactful title of the news item.\n**2⃣ Core Thesis**\nA concise paragraph summarising the event and explaining its relevance to U.S. investors.\n**3⃣ Key Insights**\n2–4 bullet points highlighting financial or economic implications.\n**4⃣ Key Definitions**\nDefine any financial, economic, or technical terms used (e.g. CPI, GDP, PMI, Fed Funds Rate).\n**5⃣ Direct Statements & Statistics**\nInclude notable quotes, figures, or data points from official sources or the cited article.\n**6⃣ Macro Linkages**\nExplain how the news connects to broader macro themes such as inflation, interest rates,\ntrade, commodities, AI/tech, or geopolitics — and its likely market impact.\n**7⃣ Source URL**\nInclude the original article link (from reputable sources only).\n\n---\n\n### 🧭 Example Output Structure (Abbreviated)\n**Headline:**\nFed officials signal caution on rate cuts amid resilient U.S. labour data\n**Core Thesis:**\nThe Federal Reserve hinted at maintaining higher interest rates longer after October’s jobs\nreport showed sustained hiring, dampening hopes of near-term monetary easing.\n**Key Insights:**\n* Non-farm payrolls rose by 180k vs. 150k expected.\n* Unemployment rate steady at 3.9%.\n* Fed funds futures now pricing <20% chance of December cut.\n**Key Definitions:**\n*Fed Funds Rate* – The target interest rate range set by the Federal Reserve that influences\nborrowing costs across the U.S. economy.\n**Direct Statements & Statistics:**\n“Inflation remains above our target, and we must stay the course,” – Fed Chair Jerome\nPowell.\n**Macro Linkages:**\nHigher-for-longer rates could dampen equity valuations in U.S. tech and moderate risk\nappetite in Singapore’s bond markets.\n**Source URL:**\n[https://www.reuters.com/markets/us-fed-policy-oct-2025](https://www.reuters.com/markets/u\ns-fed-policy-oct-2025)\n\n---\n\n### 🧩 Notes\n* Always generate **20 complete items** in one output.\n* Present the content as a **professional daily investor brief**, ready for inclusion in research\nnotes or LinkedIn/YouTube commentary.\n* Prioritise **accuracy, data integrity, and clarity** over verbosity.\n* Emphasise **Singapore-U.S. economic interlinkages** — trade, policy, capital flows, and sector trends.\n\n",
+          "returnIntermediateSteps": false
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -138,34 +139,8 @@
         864,
         336
       ],
-      "id": "081b1cc6-8555-4e75-bf44-328973b78e37",
+      "id": "8d35702b-a3e3-40c9-9959-1f645a7eb715",
       "name": "AI Agent"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "gemma-4-26b",
-          "mode": "list",
-          "cachedResultName": "gemma-4-26b"
-        },
-        "responsesApiEnabled": false,
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.3,
-      "position": [
-        864,
-        528
-      ],
-      "id": "1467ce1b-63f4-4142-b66b-371f8973273e",
-      "name": "OpenAI Chat Model",
-      "credentials": {
-        "openAiApi": {
-          "id": "93DCkmIv2kqZb1lA",
-          "name": "LiteLLM account"
-        }
-      }
     },
     {
       "parameters": {
@@ -181,15 +156,15 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        1264,
-        224
+        1168,
+        48
       ],
-      "id": "008d109c-af90-4fec-b221-711a078fd4f9",
+      "id": "d0cb6502-d109-4196-892b-22894c422977",
       "name": "Send Daily Brief via Gmail",
       "webhookId": "f1741971-d720-43a1-af70-f00bbce8a03b",
       "credentials": {
         "gmailOAuth2": {
-          "id": "FzA50PkPvt3DJ4xD",
+          "id": "U4v1W1uZ3ABwcgps",
           "name": "sender email"
         }
       }
@@ -221,10 +196,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1264,
-        464
+        1232,
+        336
       ],
-      "id": "798856da-7d31-4dfb-8508-aeb04fd727d6",
+      "id": "08964ea2-c1c5-4e85-aeb2-7294f6f13d9b",
       "name": "Output > 2000 chars?"
     },
     {
@@ -234,10 +209,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1504,
-        464
+        1424,
+        320
       ],
-      "id": "f9b40e20-f0d1-4bb1-ab9e-5b58136fa2ea",
+      "id": "17bd3f99-bb80-43f1-b7b0-92bbb8e4b2d2",
       "name": "Recursive Text Splitter"
     },
     {
@@ -267,10 +242,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1664,
-        464
+        1600,
+        320
       ],
-      "id": "2856df83-7e77-4b07-bcdd-a9563729603c",
+      "id": "4bd99f8b-df11-499f-9d21-201dac902916",
       "name": "Is First Block?"
     },
     {
@@ -293,14 +268,14 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        1824,
-        336
+        1760,
+        176
       ],
-      "id": "a938484b-1d35-47f5-a3cc-982f249408ef",
+      "id": "1c54a009-088a-47a5-9632-0ad60e69356c",
       "name": "Create Notion Page",
       "credentials": {
         "notionApi": {
-          "id": "GKJ2YFPtrjrwheoa",
+          "id": "iTRjDS4HWnXmTg8a",
           "name": "Notion account"
         }
       }
@@ -322,10 +297,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1984,
-        336
+        1904,
+        176
       ],
-      "id": "13b1f49b-a963-40a5-bb9d-2e3af9f832e8",
+      "id": "88b589c1-fbe6-42f9-8052-c5f797088646",
       "name": "Store Page URL"
     },
     {
@@ -337,10 +312,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1984,
-        544
+        1856,
+        416
       ],
-      "id": "9bb8c3f7-6c80-412b-b627-7758221e3b74",
+      "id": "2f051c2b-8c33-4af3-bc6a-497194159a6e",
       "name": "Merge Chunks"
     },
     {
@@ -362,14 +337,14 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        2144,
-        544
+        1984,
+        416
       ],
-      "id": "ba217ee8-b490-4ba9-85ad-b5df8d2b6d02",
+      "id": "7db22c2e-e409-4d94-90f4-7106f8269f43",
       "name": "Append Block to Notion Page",
       "credentials": {
         "notionApi": {
-          "id": "GKJ2YFPtrjrwheoa",
+          "id": "iTRjDS4HWnXmTg8a",
           "name": "Notion account"
         }
       }
@@ -394,14 +369,14 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        1504,
-        224
+        1408,
+        32
       ],
-      "id": "2241fa30-588d-456a-bcd4-03875c72f37d",
+      "id": "f2c355eb-0aac-42f2-b45d-b0b603702f54",
       "name": "Create Notion Page (Short Output)",
       "credentials": {
         "notionApi": {
-          "id": "GKJ2YFPtrjrwheoa",
+          "id": "iTRjDS4HWnXmTg8a",
           "name": "Notion account"
         }
       }
@@ -433,8 +408,59 @@
         0,
         192
       ],
-      "id": "fc51b5b5-df43-4f02-9ed4-87281b65e615",
+      "id": "c3f28fdb-04da-4c97-9fd6-4a11b34f8a14",
       "name": "Schedule Trigger (Daily 0910AM SGT)"
+    },
+    {
+      "parameters": {
+        "chatId": "725170628",
+        "text": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 20 US Financial Headlines \nRead here \n{{ $('Store Page URL').item.json.url }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2080,
+        176
+      ],
+      "id": "0a13a505-150f-4423-b085-1ccb156a76d6",
+      "name": "Send a text message",
+      "webhookId": "2b9f6321-632d-450f-bd7f-8381570bb14a",
+      "credentials": {
+        "telegramApi": {
+          "id": "6CRaMZ1moVJREQ2J",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "CF-gemma-4-26b-a4b-it",
+          "mode": "list",
+          "cachedResultName": "CF-gemma-4-26b-a4b-it"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        864,
+        560
+      ],
+      "id": "541bbd37-a7b4-4a35-97df-af265e7f7a8b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "hWi7swKVPh1dLEZq",
+          "name": "LLM"
+        }
+      }
     }
   ],
   "connections": {
@@ -547,17 +573,6 @@
         ]
       ]
     },
-    "OpenAI Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Output > 2000 chars?": {
       "main": [
         [
@@ -623,6 +638,11 @@
             "node": "Merge Chunks",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -653,10 +673,38 @@
           }
         ]
       ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "pinData": {},
+  "pinData": {
+    "Schedule Trigger (Daily 0910AM SGT)": [
+      {
+        "timestamp": "2026-07-24T09:10:13.016+08:00",
+        "Readable date": "July 24th 2026, 9:10:13 am",
+        "Readable time": "9:10:13 am",
+        "Day of week": "Friday",
+        "Year": "2026",
+        "Month": "July",
+        "Day of month": "24",
+        "Hour": "09",
+        "Minute": "10",
+        "Second": "13",
+        "Timezone": "Asia/Singapore (UTC+08:00)"
+      }
+    ]
+  },
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
   }
 }
