@@ -5,10 +5,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -752,
-        -112
+        -560,
+        320
       ],
-      "id": "d338614c-65f0-49ea-8fb1-738bf6baad90",
+      "id": "198294af-9bbc-4f37-9a9a-9666bcaadb5f",
       "name": "When clicking ‘Execute workflow’"
     },
     {
@@ -19,10 +19,10 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        -416,
-        -112
+        -320,
+        80
       ],
-      "id": "60b0029f-e338-41c9-bb8e-d8ac205f4cc1",
+      "id": "9adb7a85-d32a-4bbf-aded-a11db4b11866",
       "name": "RSS Read"
     },
     {
@@ -33,21 +33,23 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        -416,
-        80
+        -320,
+        240
       ],
-      "id": "edeb557f-519a-43af-8d1e-b3c240b95136",
+      "id": "d5212b1c-0ffb-48a4-a510-49d46b092fbf",
       "name": "RSS Read1"
     },
     {
-      "parameters": {},
+      "parameters": {
+        "numberInputs": 5
+      },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -208,
-        -32
+        -16,
+        352
       ],
-      "id": "3d66ebcb-64d4-40cb-9dd7-bf95f53d6640",
+      "id": "a2f9cc6c-ba21-45bd-b286-36eb4d569894",
       "name": "Merge"
     },
     {
@@ -77,10 +79,10 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.3,
       "position": [
-        -16,
-        -32
+        176,
+        400
       ],
-      "id": "2d97dfe1-48b8-4177-bfca-33e88d5e8d00",
+      "id": "d4c2262e-1a3f-48a3-a7e9-e887144494f4",
       "name": "Filter"
     },
     {
@@ -90,23 +92,23 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -64,
-        224
+        128,
+        656
       ],
-      "id": "00408fec-c620-4574-a93f-10162bf1a531",
+      "id": "01815a42-b860-4d70-89d4-2dc01efd44cd",
       "name": "Code in JavaScript"
     },
     {
       "parameters": {
-        "maxItems": 40
+        "maxItems": 50
       },
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        160,
-        -32
+        352,
+        400
       ],
-      "id": "916ac056-1811-4dd2-b655-dde383f87965",
+      "id": "891df6f1-3e24-4030-949a-227d6fb4c300",
       "name": "Limit"
     },
     {
@@ -118,54 +120,28 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        -224,
-        224
+        -32,
+        656
       ],
-      "id": "2b855ef5-9744-408e-a1e9-4170c0190463",
+      "id": "7f2eb4d2-55c8-4caa-a06e-53b60394cbb8",
       "name": "Aggregate"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Latest news:{{ $json.texte }}\n ",
+        "text": "=Today:{{ $today.toFormat('dd-MMM-yyyy') }}\nLatest news:{{ $json.texte }}\n ",
         "options": {
-          "systemMessage": "Read latest news:{{ $json.texte }}\n\nYou are a **Daily Investor News Analyst**.\nYour role is to generate the **top 20 most important financial and economic news headlines\nfrom the past 24 hours**, focusing on developments that directly or indirectly impact the\n**Singapore**  economy, stock market, currency, or investor sentiment.\nYour output will serve as a professional daily brief for fund managers, analysts, financial\ncontent creators, and investor communities.\n\n---\n### 🔑 Core Instructions\n\n1. **News Scope & Coverage**\n* Prioritise **Singapore** market developments.\n* Include **international stories** (e.g. China, Malaysia, Japan, Europe, OPEC, Fed, or\nglobal tech/AI) **only if** they have material implications for Singaporean market,\ntrade, or monetary policy.\n* Exclude minor local stories or human-interest pieces **unless** they have clear market or economic significance.\n\n2. **Investor Relevance**\n* Prioritise headlines that affect:\n* Monetary policy (Fed, MAS)\n* Inflation and interest rate expectations\n* Corporate earnings and equity valuations\n* Trade flows and commodities\n * AI/tech sector developments\n* Geopolitical risks and capital movement\n* Always explain how each item could **influence Singapore’s markets or\ninvestor sentiment**.\n\n---\n### 📈 Output Format (for each of the 20 items)\n**1⃣ Headline**\nShort, factual, and impactful title of the news item.\n**2⃣ Core Thesis**\nA concise paragraph summarising the event and explaining its relevance to Singaporean investors.\n**3⃣ Key Insights**\n2–4 bullet points highlighting financial or economic implications.\n**4⃣ Key Definitions**\nDefine any financial, economic, or technical terms used (e.g. CPI, GDP, PMI, Fed Funds\nRate).\n**5⃣ Direct Statements & Statistics**\nInclude notable quotes, figures, or data points from official sources or the cited article.\n**6⃣ Macro Linkages**\nExplain how the news connects to broader macro themes such as inflation, interest rates,\ntrade, commodities, AI/tech, or geopolitics — and its likely market impact.\n**7⃣ Source URL**\nInclude the original article link (from reputable sources only).\n\n---\n\n### 🧭 Example Output Structure (Abbreviated)\n**Headline:**\nFed officials signal caution on rate cuts amid resilient U.S. labour data\n**Core Thesis:**\nThe Federal Reserve hinted at maintaining higher interest rates longer after October’s jobs\nreport showed sustained hiring, dampening hopes of near-term monetary easing.\n**Key Insights:**\n* Non-farm payrolls rose by 180k vs. 150k expected.\n* Unemployment rate steady at 3.9%.\n* Fed funds futures now pricing <20% chance of December cut.\n**Key Definitions:**\n*Fed Funds Rate* – The target interest rate range set by the Federal Reserve that influences\nborrowing costs across the U.S. economy.\n**Direct Statements & Statistics:**\n“Inflation remains above our target, and we must stay the course,” – Fed Chair Jerome\nPowell.\n**Macro Linkages:**\nHigher-for-longer rates could dampen equity valuations in U.S. tech and moderate risk\nappetite in Singapore’s bond markets.\n**Source URL:**\n[https://www.reuters.com/markets/us-fed-policy-oct-2025](https://www.reuters.com/markets/u\ns-fed-policy-oct-2025)\n\n---\n\n### 🧩 Notes\n* Always generate **20 complete items** in one output.\n* Present the content as a **professional daily investor brief**, ready for inclusion in research\nnotes or LinkedIn/YouTube commentary.\n* Prioritise **accuracy, data integrity, and clarity** over verbosity.\n* Emphasise **Singapore-U.S. economic interlinkages** — trade, policy, capital flows, and\nsector trends."
+          "systemMessage": "You are a **Daily Investor News Analyst**.\nYour role is to generate the **top 20 most important financial and economic news headlines from the past 24 hours**, focusing on developments that directly or indirectly impact the **Singapore**  economy, stock market, currency, or investor sentiment. Your output will serve as a professional daily brief for fund managers, analysts, financial content creators, and investor communities.\n\n---\n### 🔑 Core Instructions\n\n1. **News Scope & Coverage**\n* Prioritise **Singapore** market developments.\n* Include **international stories** (e.g. China, Malaysia, Japan, Europe, OPEC, Fed, or global tech/AI) **only if** they have material implications for Singaporean market, trade, or monetary policy.\n* Exclude minor local stories or human-interest pieces **unless** they have clear market or economic significance.\n\n2. **Investor Relevance**\n* Prioritise headlines that affect:\n* Monetary policy (Fed, MAS)\n* Inflation and interest rate expectations\n* Corporate earnings and equity valuations\n* Trade flows and commodities\n* AI/tech sector developments\n* Geopolitical risks and capital movement\n* Always explain how each item could **influence Singapore’s markets or investor sentiment**.\n\n---\n### 📈 Output Format (for each of the 20 items)\n**1⃣ Headline**\nShort, factual, and impactful title of the news item.\n**2⃣ Core Thesis**\nA concise paragraph summarising the event and explaining its relevance to Singaporean investors.\n**3⃣ Key Insights**\n2–4 bullet points highlighting financial or economic implications.\n**4⃣ Key Definitions**\nDefine any financial, economic, or technical terms used (e.g. CPI, GDP, PMI, Fed Funds Rate).\n**5⃣ Direct Statements & Statistics**\nInclude notable quotes, figures, or data points from official sources or the cited article.\n**6⃣ Macro Linkages**\nExplain how the news connects to broader macro themes such as inflation, interest rates, trade, commodities, AI/tech, or geopolitics — and its likely market impact.\n**7⃣ Source URL**\nInclude the original article link (from reputable sources only).\n\n---\n\n### 🧭 Example Output Structure (Abbreviated)\n**Headline:**\nFed officials signal caution on rate cuts amid resilient U.S. labour data\n**Core Thesis:**\nThe Federal Reserve hinted at maintaining higher interest rates longer after October’s jobs report showed sustained hiring, dampening hopes of near-term monetary easing.\n**Key Insights:**\n* Non-farm payrolls rose by 180k vs. 150k expected.\n* Unemployment rate steady at 3.9%.\n* Fed funds futures now pricing <20% chance of December cut.\n**Key Definitions:**\n*Fed Funds Rate* – The target interest rate range set by the Federal Reserve that influences borrowing costs across the U.S. economy.\n**Direct Statements & Statistics:**\n“Inflation remains above our target, and we must stay the course,” – Fed Chair Jerome Powell.\n**Macro Linkages:**\nHigher-for-longer rates could dampen equity valuations in U.S. tech and moderate risk appetite in Singapore’s bond markets.\n**Source URL:**\n[https://www.reuters.com/markets/us-fed-policy-oct-2025](https://www.reuters.com/markets/us-fed-policy-oct-2025)\n\n---\n\n### 🧩 Notes\n* Always generate **20 complete items** in one output.\n* Present the content as a **professional daily investor brief**, ready for inclusion in research notes or LinkedIn/YouTube commentary.\n* Prioritise **accuracy, data integrity, and clarity** over verbosity.\n* Emphasise **Singapore-U.S. economic interlinkages** — trade, policy, capital flows, and sector trends."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        112,
-        224
+        304,
+        656
       ],
-      "id": "e4f60bfc-68ca-4359-856a-976e7abf2412",
+      "id": "00aebd0f-234e-4e6d-b71d-33bc2cdc7548",
       "name": "AI Agent"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "gemma-4-26b",
-          "mode": "list",
-          "cachedResultName": "gemma-4-26b"
-        },
-        "responsesApiEnabled": false,
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.3,
-      "position": [
-        112,
-        416
-      ],
-      "id": "120c23d5-2bcd-4830-943f-010e70c0e870",
-      "name": "OpenAI Chat Model",
-      "credentials": {
-        "openAiApi": {
-          "id": "93DCkmIv2kqZb1lA",
-          "name": "LiteLLM account"
-        }
-      }
     },
     {
       "parameters": {
@@ -181,15 +157,15 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        512,
-        112
+        704,
+        544
       ],
-      "id": "03451919-0813-4b01-a061-94e90f1e4390",
+      "id": "015a4827-59c4-44c5-8d5a-63146871670e",
       "name": "Send Daily Brief via Gmail",
       "webhookId": "f1741971-d720-43a1-af70-f00bbce8a03b",
       "credentials": {
         "gmailOAuth2": {
-          "id": "FzA50PkPvt3DJ4xD",
+          "id": "U4v1W1uZ3ABwcgps",
           "name": "sender email"
         }
       }
@@ -221,10 +197,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        512,
-        352
+        704,
+        784
       ],
-      "id": "0b23835a-29e8-47fb-b3c4-3c24009ae961",
+      "id": "e774c42b-c5bb-4b34-9a77-4313230ae500",
       "name": "Output > 2000 chars?"
     },
     {
@@ -234,10 +210,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        752,
-        352
+        944,
+        784
       ],
-      "id": "47f2ce9d-d6a3-45d0-a137-60ec86c2322c",
+      "id": "6af5c707-1739-404d-b81b-a973d87c8682",
       "name": "Recursive Text Splitter"
     },
     {
@@ -267,10 +243,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        912,
-        352
+        1104,
+        784
       ],
-      "id": "25a06c96-1140-49e9-abc4-eb0e3f613b86",
+      "id": "c135adc9-e712-4589-aa9b-53699e43af71",
       "name": "Is First Block?"
     },
     {
@@ -293,14 +269,14 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        1072,
-        224
+        1264,
+        656
       ],
-      "id": "b9d82678-ed5f-4905-a5ce-92a3afed7c4c",
+      "id": "66fdaadb-e886-4f56-8536-a5dfaeb0bccd",
       "name": "Create Notion Page",
       "credentials": {
         "notionApi": {
-          "id": "GKJ2YFPtrjrwheoa",
+          "id": "iTRjDS4HWnXmTg8a",
           "name": "Notion account"
         }
       }
@@ -322,10 +298,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1232,
-        224
+        1424,
+        656
       ],
-      "id": "8daa3852-3c5d-4b31-9837-a4ffe0c1a758",
+      "id": "ba17c31e-5bb9-42b6-bd36-7e1cd3f96189",
       "name": "Store Page URL"
     },
     {
@@ -337,10 +313,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1232,
-        432
+        1424,
+        864
       ],
-      "id": "95e9a27e-f824-4ffe-ab34-5bea6221415c",
+      "id": "0303d310-44b3-4c14-b935-f1c3273b9482",
       "name": "Merge Chunks"
     },
     {
@@ -362,14 +338,14 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        1392,
-        432
+        1584,
+        864
       ],
-      "id": "79e4c4c5-ebac-4adc-b379-bb1442376b81",
+      "id": "d39ffa22-21b5-4384-a360-3536d6a83e19",
       "name": "Append Block to Notion Page",
       "credentials": {
         "notionApi": {
-          "id": "GKJ2YFPtrjrwheoa",
+          "id": "iTRjDS4HWnXmTg8a",
           "name": "Notion account"
         }
       }
@@ -394,14 +370,14 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        752,
-        112
+        944,
+        544
       ],
-      "id": "9239cf46-ffd4-4a46-970a-bb10c0b71e17",
+      "id": "ada465a5-a0a9-480f-b28b-4dabdbb9584d",
       "name": "Create Notion Page (Short Output)",
       "credentials": {
         "notionApi": {
-          "id": "GKJ2YFPtrjrwheoa",
+          "id": "iTRjDS4HWnXmTg8a",
           "name": "Notion account"
         }
       }
@@ -422,7 +398,7 @@
                 0
               ],
               "triggerAtHour": 9,
-              "triggerAtMinute": 15
+              "triggerAtMinute": 30
             }
           ]
         }
@@ -430,11 +406,104 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
-        -752,
-        80
+        -560,
+        512
       ],
-      "id": "58cb0585-9506-4152-82aa-714dac14c449",
-      "name": "Schedule Trigger (Daily 0915AM SGT)"
+      "id": "3c784dda-0448-4223-a658-f14519924dc4",
+      "name": "Schedule Trigger (Daily 0930AM SGT)"
+    },
+    {
+      "parameters": {
+        "url": "https://www.businesstimes.com.sg/rss/economy-policy",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        400
+      ],
+      "id": "9b656217-cd7b-4d25-b9cb-2ac356ab5c6c",
+      "name": "RSS Read2"
+    },
+    {
+      "parameters": {
+        "url": "https://www.businesstimes.com.sg/rss/companies-markets",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        576
+      ],
+      "id": "cb7177cd-dc09-4125-bc04-27da0b3e2723",
+      "name": "RSS Read3"
+    },
+    {
+      "parameters": {
+        "url": "https://www.straitstimes.com/news/world/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        768
+      ],
+      "id": "ecd4150d-9dd7-4d90-8772-126f08467a8f",
+      "name": "RSS Read4"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "ollama gpt-oss:120b-cloud",
+          "mode": "list",
+          "cachedResultName": "ollama gpt-oss:120b-cloud"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        864
+      ],
+      "id": "3291e1e5-9c85-44d4-a420-5afac2ce19ce",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "hWi7swKVPh1dLEZq",
+          "name": "LLM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "725170628",
+        "text": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 20 Singapore Financial Headlines \nRead here \n{{ $('Store Page URL').item.json.url }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1616,
+        656
+      ],
+      "id": "3cf04a8b-1e43-45f1-8154-3abf3eb971e0",
+      "name": "Send a text message",
+      "webhookId": "2b9f6321-632d-450f-bd7f-8381570bb14a",
+      "credentials": {
+        "telegramApi": {
+          "id": "6CRaMZ1moVJREQ2J",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -448,6 +517,21 @@
           },
           {
             "node": "RSS Read1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read4",
             "type": "main",
             "index": 0
           }
@@ -547,17 +631,6 @@
         ]
       ]
     },
-    "OpenAI Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Output > 2000 chars?": {
       "main": [
         [
@@ -623,6 +696,11 @@
             "node": "Merge Chunks",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -638,7 +716,7 @@
         ]
       ]
     },
-    "Schedule Trigger (Daily 0915AM SGT)": {
+    "Schedule Trigger (Daily 0930AM SGT)": {
       "main": [
         [
           {
@@ -649,6 +727,65 @@
           {
             "node": "RSS Read1",
             "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "RSS Read3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "RSS Read4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
