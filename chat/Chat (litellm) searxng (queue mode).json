@@ -3,14 +3,13 @@
     {
       "parameters": {
         "public": true,
-        "initialMessages": "Hi there! 👋\nMy name is JL. How can I assist you today?",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.4,
       "position": [
-        320,
-        208
+        0,
+        16
       ],
       "id": "d165a9e0-ea47-4e78-93c6-43c14712ce66",
       "name": "When chat message received",
@@ -19,15 +18,15 @@
     {
       "parameters": {
         "options": {
-          "systemMessage": "You are a research assistant. You have tools to search for and access real-time, up-to-date data. Before calling any tool, ask yourself: can I answer this confidently from the conversation context alone? If yes, answer directly without using a tool. Only call a tool when you need real-time data, need to write or read from an external system, or the user explicitly asks you to perform an action. Search before stating that you can't or don't know. \nTool schemas:\n- searxng_web_search: {\"query\": \"<string>\"}\n- web_url_read: {\"url\": \"https://...\"}\nBe concise. Skip URLs that return errors.",
+          "systemMessage": "You are a research assistant. You have tools to search for and access real-time, up-to-date data. Before calling any tool, ask yourself: can I answer this confidently from the conversation context alone? If yes, answer directly without using a tool. Only call a tool when you need real-time data, need to write or read from an external system, or the user explicitly asks you to perform an action. Search before stating that you can't or don't know. \nIf using tool call, call it once every 15 seconds.\nTool schemas:\n- searxng_web_search: {\"query\": \"<string>\"}\n- web_url_read: {\"url\": \"https://...\"}\nBe concise. Skip URLs that return errors.",
           "maxIterations": 10
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        608,
-        208
+        288,
+        16
       ],
       "id": "fd5e0efc-9c53-4ca4-b944-c35cffc16da4",
       "name": "AI Agent"
@@ -42,21 +41,22 @@
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
       "typeVersion": 1.2,
       "position": [
-        800,
-        432
+        -16,
+        272
       ],
       "id": "f4a7534f-3bb4-4e0b-9d2e-8f886f249d41",
       "name": "searxng_web_search"
     },
     {
       "parameters": {
-        "tableName": "chat_history"
+        "tableName": "chat_history",
+        "contextWindowLength": 25
       },
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.4,
       "position": [
-        672,
-        432
+        -176,
+        240
       ],
       "id": "d008a30f-a979-4481-bb35-9cf2463f4169",
       "name": "Postgres Chat Memory",
@@ -71,9 +71,9 @@
       "parameters": {
         "model": {
           "__rl": true,
-          "value": "gemini-3.1-flash-lite",
+          "value": "gemini-3.5-flash-lite1",
           "mode": "list",
-          "cachedResultName": "gemini-3.1-flash-lite"
+          "cachedResultName": "gemini-3.5-flash-lite1"
         },
         "responsesApiEnabled": false,
         "options": {
@@ -83,8 +83,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        480,
-        416
+        -432,
+        240
       ],
       "id": "9f650821-9215-4ae7-85d5-310bbfe8f333",
       "name": "OpenAI Chat Model",
@@ -92,6 +92,208 @@
         "openAiApi": {
           "id": "hWi7swKVPh1dLEZq",
           "name": "LLM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Get Singapore TV Listing for all channels",
+        "url": "https://tv-sg.com/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        176,
+        496
+      ],
+      "id": "14656b89-6cee-4f62-9d0e-54e9f9761193",
+      "name": "Singapore TV Listing All Channels"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Get Singapore TV Listing for Ch 5",
+        "url": "https://tv-sg.com/channel/channel-5/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        288,
+        400
+      ],
+      "id": "024c74f2-e84e-49a1-808e-1fab473eb608",
+      "name": "Singapore TV Listing for Ch 5"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Get Singapore TV listing for Ch 8",
+        "url": "https://tv-sg.com/channel/channel-8/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        400,
+        336
+      ],
+      "id": "3da06e19-2d30-4ff8-968b-302a1d8954b9",
+      "name": "Singapore TV Listing for Ch 8"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Get Singapore TV listing for Ch U",
+        "url": "https://tv-sg.com/channel/channel-u/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        480,
+        592
+      ],
+      "id": "b472babc-7291-4ce1-843e-501c10e01b8b",
+      "name": "Singapore TV Listing for Ch U"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Get Singapore TV listing for CNA",
+        "url": "https://tv-sg.com/channel/cna/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        560,
+        496
+      ],
+      "id": "356b4dcb-4294-41fd-86e0-ca49f20b99a0",
+      "name": "Singapore TV Listing for CNA"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Provide latest Singapore haze information",
+        "url": "https://haze.gov.sg/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        640,
+        416
+      ],
+      "id": "d7c63150-27c6-4988-a9b7-17694284c48c",
+      "name": "Singapore Haze Information"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Singapore PSI Reading",
+        "url": "https://api-open.data.gov.sg/v2/real-time/api/psi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        784,
+        512
+      ],
+      "id": "5b84daad-fad6-4bd0-8727-964128567e67",
+      "name": "Singapore PSI Reading"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Singapore PM 2.5 Reading",
+        "url": "https://api-open.data.gov.sg/v2/real-time/api/pm25",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        848,
+        416
+      ],
+      "id": "41c07e52-105b-404a-927a-4f66114d0122",
+      "name": "Singapore PM 2.5 Reading"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Singapore Traffic Condition",
+        "url": "https://api.data.gov.sg/v1/transport/traffic-images",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        672
+      ],
+      "id": "5e9359ae-9890-490b-beb1-db3e3b41019f",
+      "name": "Singapore Traffic Condition"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Singapore Weather 2 Hr Forecast",
+        "url": "https://api-open.data.gov.sg/v2/real-time/api/two-hr-forecast",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        944,
+        672
+      ],
+      "id": "eabfd24c-0f37-40cd-aa94-b1822a4203c9",
+      "name": "Singapore Weather 2 Hr Forecast"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Singapore Weather 24Hr Forecast",
+        "url": "https://api-open.data.gov.sg/v2/real-time/api/twenty-four-hr-forecast",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1024,
+        496
+      ],
+      "id": "f7109a55-af38-432d-a701-1f319816c711",
+      "name": "Singapore Weather 24Hr Forecast"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Singapore Weather 4 Day Forecast",
+        "url": "https://api-open.data.gov.sg/v2/real-time/api/four-day-outlook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1232,
+        400
+      ],
+      "id": "458a8554-19c8-4696-a13d-838117d037df",
+      "name": "Singapore Weather 4 Day Forecast"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Gets weather forecast information",
+        "operation": "5DayForecast",
+        "cityName": "={{ $fromAI('cityName', 'City name for weather forecast', 'string') }}"
+      },
+      "type": "n8n-nodes-base.openWeatherMapTool",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        416
+      ],
+      "id": "e57daeb1-bc10-4e2a-b386-40620cec3760",
+      "name": "Weather Forecast",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "YLrEVrjXwBRMrvCw",
+          "name": "OpenWeatherMap account"
         }
       }
     }
@@ -136,6 +338,149 @@
           {
             "node": "AI Agent",
             "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore TV Listing All Channels": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore TV Listing for Ch 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore TV Listing for Ch 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore TV Listing for Ch U": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore TV Listing for CNA": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore Haze Information": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore PSI Reading": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore PM 2.5 Reading": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore Traffic Condition": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore Weather 2 Hr Forecast": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore Weather 24Hr Forecast": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Singapore Weather 4 Day Forecast": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weather Forecast": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
             "index": 0
           }
         ]
