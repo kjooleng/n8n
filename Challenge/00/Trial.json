@@ -1,0 +1,5432 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "3679fcfd-bfae-4e41-8d7d-4206bc113e35",
+      "name": "When clicking 'Execute workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        80,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "clear",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "zd10NhFdcQGPtc0k",
+          "cachedResultName": "ledger_agreement_state"
+        }
+      },
+      "id": "e6b39029-71a5-42de-96b6-a6afdb28ba03",
+      "name": "Clear Ledger State",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        304,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-00/ledger",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "kjooleng"
+            },
+            {
+              "name": "key",
+              "value": "MB-KP52-2NML"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bb3582c9-cc51-4f90-b947-471dec5a0f16",
+      "name": "Stage 1 - my ledger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        336,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "events",
+        "options": {}
+      },
+      "id": "b01b9521-f669-4ec3-860d-3639f37488e6",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        752,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.type }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "reversed",
+              "id": "989cb2dc-e3d2-401f-94ef-a465cabcc5a7"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4bcbed5e-ca00-4431-8d37-5c9ac23d02c1",
+      "name": "Only Reversed Events",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        1008
+      ]
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "reverses"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8719cdc6-a4b4-4cb6-9949-3042e027241a",
+      "name": "Collect Reversed IDs",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        1008
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combineBySql",
+        "query": "SELECT input1.*, input2.reverses AS reversed_ids FROM input1, input2",
+        "options": {
+          "emptyQueryResult": "empty"
+        }
+      },
+      "id": "2c6d8d0c-dad9-4186-b9db-80eb8158091b",
+      "name": "Attach Reversed IDs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1200,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "keep",
+              "type": "boolean",
+              "value": "={{ !( $json.reversed_ids || [] ).includes($json.event_id) }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "749e903a-b177-4b9a-9e81-aee2419c2a35",
+      "name": "Flag Keep",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1392,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.keep }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "rightValue": true,
+              "id": "b49eb43f-e2d6-4125-ac4e-2177fdd0170e"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c65ac547-ee17-452d-aef1-ad6b2be044df",
+      "name": "Remove Reversed Targets",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1584,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "seq"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "48d121c1-1398-497b-8019-f14af44be5a0",
+      "name": "Sort1",
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "zd10NhFdcQGPtc0k",
+          "cachedResultName": "ledger_agreement_state"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "live",
+              "keyValue": "={{ true }}"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "id": "f9d5fe3a-a3c7-4e8e-9cd6-4315953f6d5c",
+      "name": "Get Live Records",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2464,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "notional",
+              "type": "number",
+              "value": "={{ $json.units * $json.unit_rate }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "d3f96b28-28e2-4167-b534-9b0678424262",
+      "name": "Compute Notional",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        2624,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "notional",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "90e0a508-8322-4edf-b0c2-a1fa41114aef",
+      "name": "Sort by Notional Desc",
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        2784,
+        784
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "55bab50e-e321-425a-bb13-fd431d06bf48",
+      "name": "Greatest Units x Unit Rate",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        2976,
+        784
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "6837da96-1814-465b-99a1-a086626d1121",
+      "name": "Current Event",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2208,
+        1008
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "27f52c57-949e-4936-ab7c-2355d94cc98f",
+      "name": "Apply Events Loop",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2032,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "zd10NhFdcQGPtc0k",
+          "cachedResultName": "ledger_agreement_state"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "entity_id",
+              "keyValue": "={{ $json.entity_id }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "id": "aef6bb3f-b08c-4a6e-b436-f6387698b605",
+      "name": "Get Existing State",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1936,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "entity_id",
+              "type": "string",
+              "value": "={{ $json.entity_id }}"
+            },
+            {
+              "id": "2",
+              "name": "prev_units",
+              "type": "number",
+              "value": "={{ $json.units }}"
+            },
+            {
+              "id": "3",
+              "name": "prev_unit_rate",
+              "type": "number",
+              "value": "={{ $json.unit_rate }}"
+            },
+            {
+              "id": "4",
+              "name": "prev_live",
+              "type": "boolean",
+              "value": "={{ $json.live }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ab909a0a-7fb1-4378-b4c5-2433c17c424a",
+      "name": "Rename Prior Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        2128,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "entity_id",
+        "joinMode": "enrichInput1",
+        "options": {
+          "disableDotNotation": false,
+          "fuzzyCompare": false
+        }
+      },
+      "id": "a5d7aa9d-ef14-44a2-9cbd-1483a08b1d24",
+      "name": "Join Event With Prior State",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2384,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "entity_id",
+              "type": "string",
+              "value": "={{ $json.entity_id }}"
+            },
+            {
+              "id": "2",
+              "name": "units",
+              "type": "number",
+              "value": "={{ $json.units !== undefined && $json.units !== null ? $json.units : $json.prev_units }}"
+            },
+            {
+              "id": "3",
+              "name": "unit_rate",
+              "type": "number",
+              "value": "={{ $json.unit_rate !== undefined && $json.unit_rate !== null ? Number(String($json.unit_rate).replace(/,/g, \"\")) : $json.prev_unit_rate }}"
+            },
+            {
+              "id": "4",
+              "name": "live",
+              "type": "boolean",
+              "value": "={{ [\"opened\",\"reinstated\"].includes($json.type) ? true : ([\"cancelled\",\"superseded\"].includes($json.type) ? false : $json.prev_live) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8e50137f-95c6-4c24-a69e-542436cf0294",
+      "name": "Compute New State",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        2608,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "zd10NhFdcQGPtc0k",
+          "cachedResultName": "ledger_agreement_state"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "entity_id",
+              "keyValue": "={{ $json.entity_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "entity_id": "={{ $json.entity_id }}",
+            "units": "={{ $json.units }}",
+            "unit_rate": "={{ $json.unit_rate }}",
+            "live": "={{ $json.live }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "f9adef1b-fca7-4491-b8c9-4b387244cb70",
+      "name": "Upsert State",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2816,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-00/sample",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        512,
+        784
+      ],
+      "id": "15180541-f6d7-47cc-a901-cf0812848c34",
+      "name": "Sample ledger (free)"
+    }
+  ],
+  "connections": {
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Clear Ledger State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Ledger State": {
+      "main": [
+        [
+          {
+            "node": "Sample ledger (free)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 1 - my ledger": {
+      "main": [
+        []
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Only Reversed Events",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Attach Reversed IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Reversed Events": {
+      "main": [
+        [
+          {
+            "node": "Collect Reversed IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Reversed IDs": {
+      "main": [
+        [
+          {
+            "node": "Attach Reversed IDs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Attach Reversed IDs": {
+      "main": [
+        [
+          {
+            "node": "Flag Keep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag Keep": {
+      "main": [
+        [
+          {
+            "node": "Remove Reversed Targets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Reversed Targets": {
+      "main": [
+        [
+          {
+            "node": "Sort1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort1": {
+      "main": [
+        [
+          {
+            "node": "Apply Events Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Live Records": {
+      "main": [
+        [
+          {
+            "node": "Compute Notional",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Notional": {
+      "main": [
+        [
+          {
+            "node": "Sort by Notional Desc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort by Notional Desc": {
+      "main": [
+        [
+          {
+            "node": "Greatest Units x Unit Rate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Current Event": {
+      "main": [
+        [
+          {
+            "node": "Get Existing State",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Join Event With Prior State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Events Loop": {
+      "main": [
+        [
+          {
+            "node": "Get Live Records",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Current Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Existing State": {
+      "main": [
+        [
+          {
+            "node": "Rename Prior Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Prior Fields": {
+      "main": [
+        [
+          {
+            "node": "Join Event With Prior State",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Join Event With Prior State": {
+      "main": [
+        [
+          {
+            "node": "Compute New State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute New State": {
+      "main": [
+        [
+          {
+            "node": "Upsert State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert State": {
+      "main": [
+        [
+          {
+            "node": "Apply Events Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample ledger (free)": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Sample ledger (free)": [
+      {
+        "what_this_is": "A fixed practice dataset. Everybody gets this same one. It does not start your clock, does not need your key, and is not rate limited.",
+        "how_to_use_it": "Fold it exactly as stage one asks. If your pipeline produces the answer below, your fold handles all six event types and both format traps, and you are ready to fetch your own ledger.",
+        "answer": {
+          "entity_id": "AGR-QRUH",
+          "committed_value": "26672.18"
+        },
+        "rows": 581,
+        "events": [
+          {
+            "event_id": "EV-LAC66G",
+            "seq": 875,
+            "entity_id": "AGR-W88M",
+            "type": "amended",
+            "units": 9,
+            "effective_from": "2026-01-08T16:23:00.000Z"
+          },
+          {
+            "event_id": "EV-NHVU2U",
+            "seq": 795,
+            "entity_id": "AGR-CU6S",
+            "type": "amended",
+            "unit_rate": 257.96,
+            "effective_from": "2026-07-05T07:31:04.000Z"
+          },
+          {
+            "event_id": "EV-E7B6ZF",
+            "seq": 639,
+            "entity_id": "AGR-42AH",
+            "type": "cancelled",
+            "effective_from": "2026-07-19T23:18:40.000Z"
+          },
+          {
+            "event_id": "EV-6GM33R",
+            "seq": 445,
+            "entity_id": "AGR-8F4E",
+            "type": "amended",
+            "units": 66,
+            "effective_from": 1776278149
+          },
+          {
+            "event_id": "EV-3PFB4C",
+            "seq": 545,
+            "entity_id": "AGR-WS5S",
+            "type": "amended",
+            "unit_rate": 300.3,
+            "effective_from": 1779598123
+          },
+          {
+            "event_id": "EV-3TEZBU",
+            "seq": 352,
+            "entity_id": "AGR-EZNL",
+            "type": "amended",
+            "units": 80,
+            "unit_rate": 442.71,
+            "effective_from": "2026-08-06T05:41:20.000Z"
+          },
+          {
+            "event_id": "EV-YZHRGU",
+            "seq": 124,
+            "entity_id": "AGR-BXXA",
+            "type": "amended",
+            "unit_rate": 297.84,
+            "effective_from": "2026-05-28T23:16:14.000Z"
+          },
+          {
+            "event_id": "EV-J6NLC6",
+            "seq": 1153,
+            "entity_id": "AGR-J8J8",
+            "type": "cancelled",
+            "effective_from": "2026-08-12T20:28:31.000Z"
+          },
+          {
+            "event_id": "EV-J3X4VF",
+            "seq": 779,
+            "entity_id": "AGR-CUAS",
+            "type": "amended",
+            "units": 47,
+            "unit_rate": 374.03,
+            "effective_from": "2026-03-08T02:20:18.000Z"
+          },
+          {
+            "event_id": "EV-WEYMUF",
+            "seq": 662,
+            "entity_id": "AGR-L7Z6",
+            "type": "opened",
+            "units": 49,
+            "unit_rate": 1458.6,
+            "effective_from": "2026-02-25T23:19:45.000Z"
+          },
+          {
+            "event_id": "EV-87M9HP",
+            "seq": 310,
+            "entity_id": "AGR-6NJG",
+            "type": "amended",
+            "unit_rate": 89.41,
+            "effective_from": "2026-07-28T10:41:39.000Z"
+          },
+          {
+            "event_id": "EV-NJW3L6",
+            "seq": 377,
+            "entity_id": "AGR-KYUM",
+            "type": "opened",
+            "units": 36,
+            "unit_rate": 156.93,
+            "effective_from": 1770222744
+          },
+          {
+            "event_id": "EV-37LX5L",
+            "seq": 641,
+            "entity_id": "AGR-TW9Z",
+            "type": "opened",
+            "units": 112,
+            "unit_rate": 362.92,
+            "effective_from": 1785513298
+          },
+          {
+            "event_id": "EV-4Z5MDF",
+            "seq": 534,
+            "entity_id": "AGR-KEXK",
+            "type": "cancelled",
+            "effective_from": "2026-07-02T09:02:26.000Z"
+          },
+          {
+            "event_id": "EV-9KVRR9",
+            "seq": 461,
+            "entity_id": "AGR-JTQH",
+            "type": "reversed",
+            "reverses": "EV-G94TMW",
+            "effective_from": "2026-08-22T08:51:40.000Z"
+          },
+          {
+            "event_id": "EV-K39DH5",
+            "seq": 1131,
+            "entity_id": "AGR-RGMY",
+            "type": "reinstated",
+            "effective_from": "2026-08-30T04:21:20.000Z"
+          },
+          {
+            "event_id": "EV-S4FJDB",
+            "seq": 134,
+            "entity_id": "AGR-YRSA",
+            "type": "amended",
+            "units": 13,
+            "effective_from": 1787486424
+          },
+          {
+            "event_id": "EV-U3BBX7",
+            "seq": 896,
+            "entity_id": "AGR-AAKK",
+            "type": "reinstated",
+            "effective_from": "2026-07-29T13:27:13.000Z"
+          },
+          {
+            "event_id": "EV-F43CCB",
+            "seq": 51,
+            "entity_id": "AGR-PXCJ",
+            "type": "amended",
+            "unit_rate": 216.54,
+            "effective_from": 1780815432
+          },
+          {
+            "event_id": "EV-C9V5S3",
+            "seq": 762,
+            "entity_id": "AGR-Q4LW",
+            "type": "amended",
+            "units": 65,
+            "unit_rate": 196.97,
+            "effective_from": 1777133325
+          },
+          {
+            "event_id": "EV-AP9VXB",
+            "seq": 39,
+            "entity_id": "AGR-MJVK",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 1361.81,
+            "effective_from": "2026-02-04T13:50:02.000Z"
+          },
+          {
+            "event_id": "EV-MSW8Q3",
+            "seq": 312,
+            "entity_id": "AGR-YRSA",
+            "type": "amended",
+            "units": 9,
+            "effective_from": "2026-07-13T23:28:04.000Z"
+          },
+          {
+            "event_id": "EV-CY65UE",
+            "seq": 738,
+            "entity_id": "AGR-5NFU",
+            "type": "reversed",
+            "reverses": "EV-ZM8BG9",
+            "effective_from": "2026-05-19T23:55:03.000Z"
+          },
+          {
+            "event_id": "EV-DB9BVQ",
+            "seq": 947,
+            "entity_id": "AGR-CZNH",
+            "type": "amended",
+            "units": 1,
+            "effective_from": 1774778568
+          },
+          {
+            "event_id": "EV-SPSS9U",
+            "seq": 1090,
+            "entity_id": "AGR-8AY3",
+            "type": "reversed",
+            "reverses": "EV-F4MB7Q",
+            "effective_from": "2026-07-13T14:33:07.000Z"
+          },
+          {
+            "event_id": "EV-A8GS9V",
+            "seq": 165,
+            "entity_id": "AGR-VDJJ",
+            "type": "amended",
+            "units": 84,
+            "effective_from": "2026-05-03T10:53:20.000Z"
+          },
+          {
+            "event_id": "EV-HQD3WN",
+            "seq": 70,
+            "entity_id": "AGR-6NJG",
+            "type": "opened",
+            "units": 37,
+            "unit_rate": 519.81,
+            "effective_from": "2026-02-06T05:03:50.000Z"
+          },
+          {
+            "event_id": "EV-8XLPWR",
+            "seq": 555,
+            "entity_id": "AGR-2CBQ",
+            "type": "amended",
+            "unit_rate": "1,661.72",
+            "effective_from": "2026-07-20T21:17:52.000Z"
+          },
+          {
+            "event_id": "EV-2KBXCH",
+            "seq": 668,
+            "entity_id": "AGR-ZH3R",
+            "type": "amended",
+            "unit_rate": 366.52,
+            "effective_from": "2026-02-05T04:10:27.000Z"
+          },
+          {
+            "event_id": "EV-G94TMW",
+            "seq": 321,
+            "entity_id": "AGR-JTQH",
+            "type": "amended",
+            "units": 21,
+            "effective_from": "2026-08-06T06:15:06.000Z"
+          },
+          {
+            "event_id": "EV-VNXN67",
+            "seq": 299,
+            "entity_id": "AGR-F26Z",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 4606.37,
+            "effective_from": 1779520960
+          },
+          {
+            "event_id": "EV-ULG2EN",
+            "seq": 439,
+            "entity_id": "AGR-5NFU",
+            "type": "amended",
+            "units": 50,
+            "unit_rate": 449.67,
+            "effective_from": "2026-03-25T12:09:29.000Z"
+          },
+          {
+            "event_id": "EV-U4D66E",
+            "seq": 118,
+            "entity_id": "AGR-SU6Z",
+            "type": "amended",
+            "units": 18,
+            "effective_from": "2026-07-11T17:24:29.000Z"
+          },
+          {
+            "event_id": "EV-23W7UR",
+            "seq": 630,
+            "entity_id": "AGR-7UBT",
+            "type": "amended",
+            "unit_rate": 875.11,
+            "effective_from": "2026-02-21T17:01:18.000Z"
+          },
+          {
+            "event_id": "EV-5UNAJJ",
+            "seq": 902,
+            "entity_id": "AGR-BKWP",
+            "type": "amended",
+            "units": 89,
+            "unit_rate": 239.53,
+            "effective_from": 1784799070
+          },
+          {
+            "event_id": "EV-4DSVWK",
+            "seq": 346,
+            "entity_id": "AGR-EW4M",
+            "type": "amended",
+            "units": 13,
+            "effective_from": "2026-04-16T00:14:20.000Z"
+          },
+          {
+            "event_id": "EV-JNXFSN",
+            "seq": 655,
+            "entity_id": "AGR-SBS2",
+            "type": "amended",
+            "units": 27,
+            "effective_from": 1784055962
+          },
+          {
+            "event_id": "EV-X8AN7W",
+            "seq": 493,
+            "entity_id": "AGR-85ZX",
+            "type": "amended",
+            "units": 11,
+            "unit_rate": "1,888.11",
+            "effective_from": "2026-08-26T09:46:12.000Z"
+          },
+          {
+            "event_id": "EV-RT7XTP",
+            "seq": 535,
+            "entity_id": "AGR-WYR6",
+            "type": "amended",
+            "units": 72,
+            "effective_from": "2026-01-28T18:03:42.000Z"
+          },
+          {
+            "event_id": "EV-2B7QDB",
+            "seq": 458,
+            "entity_id": "AGR-EP36",
+            "type": "amended",
+            "unit_rate": 1918.2,
+            "effective_from": "2026-04-21T07:52:48.000Z"
+          },
+          {
+            "event_id": "EV-KCM3FG",
+            "seq": 1095,
+            "entity_id": "AGR-MJVK",
+            "type": "reinstated",
+            "effective_from": "2026-07-28T22:40:00.000Z"
+          },
+          {
+            "event_id": "EV-8RWP7C",
+            "seq": 789,
+            "entity_id": "AGR-AAKK",
+            "type": "cancelled",
+            "effective_from": "2026-05-18T13:52:19.000Z"
+          },
+          {
+            "event_id": "EV-25SL5H",
+            "seq": 915,
+            "entity_id": "AGR-UZY7",
+            "type": "reversed",
+            "reverses": "EV-FVQF7G",
+            "effective_from": "2026-05-20T11:31:48.000Z"
+          },
+          {
+            "event_id": "EV-JPCHZE",
+            "seq": 601,
+            "entity_id": "AGR-CU6S",
+            "type": "amended",
+            "units": 57,
+            "effective_from": "2026-03-16T04:23:06.000Z"
+          },
+          {
+            "event_id": "EV-T56UDJ",
+            "seq": 923,
+            "entity_id": "AGR-KQXX",
+            "type": "cancelled",
+            "effective_from": "2026-02-14T14:24:29.000Z"
+          },
+          {
+            "event_id": "EV-DDCZ6H",
+            "seq": 538,
+            "entity_id": "AGR-7A2G",
+            "type": "amended",
+            "unit_rate": 134.39,
+            "effective_from": 1770263031
+          },
+          {
+            "event_id": "EV-MVTDSE",
+            "seq": 866,
+            "entity_id": "AGR-5NFU",
+            "type": "amended",
+            "units": 56,
+            "effective_from": "2026-06-15T16:10:00.000Z"
+          },
+          {
+            "event_id": "EV-6BFKGT",
+            "seq": 103,
+            "entity_id": "AGR-PXCJ",
+            "type": "amended",
+            "units": 75,
+            "effective_from": "2026-04-25T18:32:46.000Z"
+          },
+          {
+            "event_id": "EV-C5S9GZ",
+            "seq": 381,
+            "entity_id": "AGR-CZNH",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 1550.38,
+            "effective_from": "2026-04-30T18:04:56.000Z"
+          },
+          {
+            "event_id": "EV-G6BDQ6",
+            "seq": 122,
+            "entity_id": "AGR-2PPH",
+            "type": "amended",
+            "unit_rate": 719.49,
+            "effective_from": 1781439460
+          },
+          {
+            "event_id": "EV-LHANGQ",
+            "seq": 1002,
+            "entity_id": "AGR-8AY3",
+            "type": "amended",
+            "unit_rate": 503.54,
+            "effective_from": 1774659987
+          },
+          {
+            "event_id": "EV-NTMFUE",
+            "seq": 234,
+            "entity_id": "AGR-U7Z4",
+            "type": "amended",
+            "units": 18,
+            "effective_from": "2026-04-20T06:19:51.000Z"
+          },
+          {
+            "event_id": "EV-6LG9FA",
+            "seq": 516,
+            "entity_id": "AGR-QNEJ",
+            "type": "amended",
+            "units": 9,
+            "effective_from": "2026-05-05T09:45:28.000Z"
+          },
+          {
+            "event_id": "EV-JV3J85",
+            "seq": 627,
+            "entity_id": "AGR-NQK8",
+            "type": "amended",
+            "units": 23,
+            "effective_from": "2026-05-02T13:51:51.000Z"
+          },
+          {
+            "event_id": "EV-LEA7AN",
+            "seq": 846,
+            "entity_id": "AGR-8AY3",
+            "type": "amended",
+            "units": 36,
+            "effective_from": "2026-02-19T11:22:06.000Z"
+          },
+          {
+            "event_id": "EV-EYCGC3",
+            "seq": 757,
+            "entity_id": "AGR-GSNB",
+            "type": "reversed",
+            "reverses": "EV-2B25HP",
+            "effective_from": "2026-05-06T08:01:05.000Z"
+          },
+          {
+            "event_id": "EV-CQ4NJ5",
+            "seq": 1115,
+            "entity_id": "AGR-6HHQ",
+            "type": "reinstated",
+            "effective_from": "2026-08-07T12:18:01.000Z"
+          },
+          {
+            "event_id": "EV-Z43PUW",
+            "seq": 486,
+            "entity_id": "AGR-7A2G",
+            "type": "amended",
+            "units": 90,
+            "effective_from": "2026-03-20T14:56:52.000Z"
+          },
+          {
+            "event_id": "EV-E8RVAC",
+            "seq": 188,
+            "entity_id": "AGR-LARF",
+            "type": "amended",
+            "units": 8,
+            "effective_from": "2026-01-19T03:46:35.000Z"
+          },
+          {
+            "event_id": "EV-PFKY5J",
+            "seq": 1043,
+            "entity_id": "AGR-CMME",
+            "type": "cancelled",
+            "effective_from": 1778459270
+          },
+          {
+            "event_id": "EV-54RJZ7",
+            "seq": 684,
+            "entity_id": "AGR-ZWYK",
+            "type": "amended",
+            "unit_rate": "1,001.30",
+            "effective_from": "2026-03-25T23:29:27.000Z"
+          },
+          {
+            "event_id": "EV-A2BVUP",
+            "seq": 316,
+            "entity_id": "AGR-RGMY",
+            "type": "opened",
+            "units": 46,
+            "unit_rate": 336.23,
+            "effective_from": "2026-01-17T22:13:44.000Z"
+          },
+          {
+            "event_id": "EV-W4BGMK",
+            "seq": 1041,
+            "entity_id": "AGR-VDJJ",
+            "type": "reversed",
+            "reverses": "EV-A6T5NV",
+            "effective_from": 1779630888
+          },
+          {
+            "event_id": "EV-7PX4Q2",
+            "seq": 84,
+            "entity_id": "AGR-CUAS",
+            "type": "opened",
+            "units": 70,
+            "unit_rate": 46.35,
+            "effective_from": "2026-05-25T21:40:42.000Z"
+          },
+          {
+            "event_id": "EV-SKJD7V",
+            "seq": 1155,
+            "entity_id": "AGR-JTQH",
+            "type": "cancelled",
+            "effective_from": "2026-04-28T06:22:26.000Z"
+          },
+          {
+            "event_id": "EV-DW49C9",
+            "seq": 753,
+            "entity_id": "AGR-W88M",
+            "type": "amended",
+            "units": 17,
+            "effective_from": "2026-05-11T10:16:06.000Z"
+          },
+          {
+            "event_id": "EV-V6D4TE",
+            "seq": 290,
+            "entity_id": "AGR-F54J",
+            "type": "opened",
+            "units": 6,
+            "unit_rate": 1420.02,
+            "effective_from": "2026-05-30T09:02:01.000Z"
+          },
+          {
+            "event_id": "EV-EDJ7DA",
+            "seq": 1118,
+            "entity_id": "AGR-J8J8",
+            "type": "amended",
+            "units": 71,
+            "effective_from": 1778073470
+          },
+          {
+            "event_id": "EV-RKW39C",
+            "seq": 938,
+            "entity_id": "AGR-GGFR",
+            "type": "reversed",
+            "reverses": "EV-MDR2AX",
+            "effective_from": "2026-08-06T09:53:21.000Z"
+          },
+          {
+            "event_id": "EV-HJ5LVN",
+            "seq": 176,
+            "entity_id": "AGR-AAKK",
+            "type": "opened",
+            "units": 16,
+            "unit_rate": 1405.85,
+            "effective_from": "2026-02-05T11:11:01.000Z"
+          },
+          {
+            "event_id": "EV-K9KK4Q",
+            "seq": 303,
+            "entity_id": "AGR-KQXX",
+            "type": "opened",
+            "units": 54,
+            "unit_rate": 271.88,
+            "effective_from": "2026-05-13T02:11:13.000Z"
+          },
+          {
+            "event_id": "EV-2H7RVT",
+            "seq": 272,
+            "entity_id": "AGR-U7Z4",
+            "type": "reversed",
+            "reverses": "EV-NTMFUE",
+            "effective_from": "2026-05-21T02:50:39.000Z"
+          },
+          {
+            "event_id": "EV-5B3GN9",
+            "seq": 790,
+            "entity_id": "AGR-GKM2",
+            "type": "amended",
+            "units": 31,
+            "unit_rate": 535.19,
+            "effective_from": "2026-07-04T14:48:50.000Z"
+          },
+          {
+            "event_id": "EV-MCVKZ7",
+            "seq": 237,
+            "entity_id": "AGR-37HS",
+            "type": "amended",
+            "units": 17,
+            "effective_from": 1785366417
+          },
+          {
+            "event_id": "EV-UH7NQL",
+            "seq": 349,
+            "entity_id": "AGR-BXXA",
+            "type": "amended",
+            "units": 47,
+            "unit_rate": 327.26,
+            "effective_from": "2026-03-29T16:53:22.000Z"
+          },
+          {
+            "event_id": "EV-49EHQX",
+            "seq": 931,
+            "entity_id": "AGR-UZY7",
+            "type": "cancelled",
+            "effective_from": "2026-01-30T15:32:06.000Z"
+          },
+          {
+            "event_id": "EV-UQ6G3J",
+            "seq": 488,
+            "entity_id": "AGR-68LD",
+            "type": "amended",
+            "units": 1,
+            "effective_from": "2026-07-26T15:34:54.000Z"
+          },
+          {
+            "event_id": "EV-4F48XR",
+            "seq": 101,
+            "entity_id": "AGR-5BW4",
+            "type": "opened",
+            "units": 8,
+            "unit_rate": 1721.73,
+            "effective_from": "2026-01-06T13:15:54.000Z"
+          },
+          {
+            "event_id": "EV-SKE9DE",
+            "seq": 59,
+            "entity_id": "AGR-KEXK",
+            "type": "opened",
+            "units": 65,
+            "unit_rate": 25,
+            "effective_from": "2026-02-15T19:18:13.000Z"
+          },
+          {
+            "event_id": "EV-XQGLZQ",
+            "seq": 1070,
+            "entity_id": "AGR-ABSE",
+            "type": "amended",
+            "unit_rate": 310.28,
+            "effective_from": "2026-06-04T01:56:22.000Z"
+          },
+          {
+            "event_id": "EV-NBZK24",
+            "seq": 499,
+            "entity_id": "AGR-2CBQ",
+            "type": "amended",
+            "units": 16,
+            "effective_from": 1768448543
+          },
+          {
+            "event_id": "EV-PXB4PA",
+            "seq": 593,
+            "entity_id": "AGR-EQ2L",
+            "type": "amended",
+            "unit_rate": 699.79,
+            "effective_from": "2026-08-12T14:47:16.000Z"
+          },
+          {
+            "event_id": "EV-MRQ7ES",
+            "seq": 834,
+            "entity_id": "AGR-4PXU",
+            "type": "cancelled",
+            "effective_from": "2026-04-22T03:55:01.000Z"
+          },
+          {
+            "event_id": "EV-L2L4V6",
+            "seq": 799,
+            "entity_id": "AGR-5NXB",
+            "type": "amended",
+            "units": 51,
+            "effective_from": "2026-08-14T14:22:29.000Z"
+          },
+          {
+            "event_id": "EV-XMPXFX",
+            "seq": 146,
+            "entity_id": "AGR-GVEM",
+            "type": "amended",
+            "units": 542,
+            "effective_from": "2026-06-25T14:22:48.000Z"
+          },
+          {
+            "event_id": "EV-QAMER6",
+            "seq": 890,
+            "entity_id": "AGR-NQK8",
+            "type": "cancelled",
+            "effective_from": "2026-08-12T01:52:43.000Z"
+          },
+          {
+            "event_id": "EV-NR7LMJ",
+            "seq": 564,
+            "entity_id": "AGR-GQ72",
+            "type": "opened",
+            "units": 61,
+            "unit_rate": 442.14,
+            "effective_from": 1784490886
+          },
+          {
+            "event_id": "EV-ZE6SGF",
+            "seq": 587,
+            "entity_id": "AGR-FHSL",
+            "type": "superseded",
+            "replaced_by": "AGR-NNBH",
+            "effective_from": "2026-06-09T22:31:51.000Z"
+          },
+          {
+            "event_id": "EV-9FW37J",
+            "seq": 50,
+            "entity_id": "AGR-HEQ6",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 429.22,
+            "effective_from": "2026-06-04T08:11:46.000Z"
+          },
+          {
+            "event_id": "EV-LCHLXN",
+            "seq": 858,
+            "entity_id": "AGR-2ZVN",
+            "type": "reinstated",
+            "effective_from": "2026-03-25T12:12:08.000Z"
+          },
+          {
+            "event_id": "EV-XE2Z6V",
+            "seq": 1082,
+            "entity_id": "AGR-RGMY",
+            "type": "amended",
+            "units": 483,
+            "effective_from": "2026-06-01T05:55:35.000Z"
+          },
+          {
+            "event_id": "EV-3H5JGB",
+            "seq": 583,
+            "entity_id": "AGR-KQXX",
+            "type": "amended",
+            "units": 71,
+            "effective_from": 1769798750
+          },
+          {
+            "event_id": "EV-WVCJQX",
+            "seq": 840,
+            "entity_id": "AGR-W88M",
+            "type": "reversed",
+            "reverses": "EV-DW49C9",
+            "effective_from": "2026-05-31T06:24:11.000Z"
+          },
+          {
+            "event_id": "EV-JDTCMV",
+            "seq": 1016,
+            "entity_id": "AGR-KYUM",
+            "type": "superseded",
+            "replaced_by": "AGR-EQP5",
+            "effective_from": 1787871452
+          },
+          {
+            "event_id": "EV-JUVGYL",
+            "seq": 679,
+            "entity_id": "AGR-ABSE",
+            "type": "opened",
+            "units": 82,
+            "unit_rate": 186.47,
+            "effective_from": "2026-05-07T09:13:35.000Z"
+          },
+          {
+            "event_id": "EV-WL3BGH",
+            "seq": 1107,
+            "entity_id": "AGR-ER79",
+            "type": "cancelled",
+            "effective_from": "2026-05-24T12:54:22.000Z"
+          },
+          {
+            "event_id": "EV-ZM8BG9",
+            "seq": 551,
+            "entity_id": "AGR-5NFU",
+            "type": "amended",
+            "units": 67,
+            "effective_from": "2026-05-14T23:36:00.000Z"
+          },
+          {
+            "event_id": "EV-GFT8WT",
+            "seq": 231,
+            "entity_id": "AGR-85ZX",
+            "type": "amended",
+            "units": 21,
+            "effective_from": 1776653202
+          },
+          {
+            "event_id": "EV-BLUZ3F",
+            "seq": 1140,
+            "entity_id": "AGR-L7Z6",
+            "type": "reinstated",
+            "effective_from": "2026-01-22T09:41:26.000Z"
+          },
+          {
+            "event_id": "EV-KUFCUD",
+            "seq": 447,
+            "entity_id": "AGR-FHSL",
+            "type": "amended",
+            "unit_rate": 392.72,
+            "effective_from": 1779661492
+          },
+          {
+            "event_id": "EV-W2F7WW",
+            "seq": 988,
+            "entity_id": "AGR-TW9Z",
+            "type": "cancelled",
+            "effective_from": 1774840660
+          },
+          {
+            "event_id": "EV-ZB5DND",
+            "seq": 107,
+            "entity_id": "AGR-EQ2L",
+            "type": "amended",
+            "units": 23,
+            "effective_from": "2026-02-26T08:44:04.000Z"
+          },
+          {
+            "event_id": "EV-2AT58X",
+            "seq": 882,
+            "entity_id": "AGR-ER79",
+            "type": "amended",
+            "units": 11,
+            "effective_from": "2026-06-07T21:18:08.000Z"
+          },
+          {
+            "event_id": "EV-6RG856",
+            "seq": 104,
+            "entity_id": "AGR-42AH",
+            "type": "opened",
+            "units": 116,
+            "unit_rate": 57.83,
+            "effective_from": "2026-02-20T16:29:51.000Z"
+          },
+          {
+            "event_id": "EV-V5NU46",
+            "seq": 452,
+            "entity_id": "AGR-YRSA",
+            "type": "reinstated",
+            "effective_from": "2026-03-25T19:25:21.000Z"
+          },
+          {
+            "event_id": "EV-DGW3V5",
+            "seq": 343,
+            "entity_id": "AGR-7A2G",
+            "type": "opened",
+            "units": 87,
+            "unit_rate": 267.09,
+            "effective_from": 1773064882
+          },
+          {
+            "event_id": "EV-UNB7HL",
+            "seq": 162,
+            "entity_id": "AGR-BKWP",
+            "type": "amended",
+            "units": 89,
+            "unit_rate": 250.87,
+            "effective_from": "2026-01-23T07:55:48.000Z"
+          },
+          {
+            "event_id": "EV-NGP3A3",
+            "seq": 215,
+            "entity_id": "AGR-WYR6",
+            "type": "amended",
+            "unit_rate": 246.48,
+            "effective_from": "2026-01-19T14:53:24.000Z"
+          },
+          {
+            "event_id": "EV-BW2AAL",
+            "seq": 1019,
+            "entity_id": "AGR-7UBT",
+            "type": "superseded",
+            "replaced_by": "AGR-TYQ7",
+            "effective_from": "2026-08-09T22:46:54.000Z"
+          },
+          {
+            "event_id": "EV-RP62UN",
+            "seq": 871,
+            "entity_id": "AGR-Q4LW",
+            "type": "cancelled",
+            "effective_from": 1787397208
+          },
+          {
+            "event_id": "EV-56QAGS",
+            "seq": 230,
+            "entity_id": "AGR-85ZX",
+            "type": "opened",
+            "units": 33,
+            "unit_rate": 2203.16,
+            "effective_from": "2026-04-13T19:26:29.000Z"
+          },
+          {
+            "event_id": "EV-RVUZ3Y",
+            "seq": 624,
+            "entity_id": "AGR-ER79",
+            "type": "amended",
+            "unit_rate": 1517.44,
+            "effective_from": "2026-01-07T07:48:56.000Z"
+          },
+          {
+            "event_id": "EV-RHLKJ9",
+            "seq": 247,
+            "entity_id": "AGR-FHSL",
+            "type": "amended",
+            "units": 75,
+            "effective_from": "2026-05-12T02:08:11.000Z"
+          },
+          {
+            "event_id": "EV-9KY8JP",
+            "seq": 1071,
+            "entity_id": "AGR-GGFR",
+            "type": "cancelled",
+            "effective_from": "2026-03-21T13:24:01.000Z"
+          },
+          {
+            "event_id": "EV-G98PBT",
+            "seq": 96,
+            "entity_id": "AGR-U7Z4",
+            "type": "opened",
+            "units": 34,
+            "unit_rate": 663.48,
+            "effective_from": "2026-08-03T07:44:24.000Z"
+          },
+          {
+            "event_id": "EV-KNTFPU",
+            "seq": 34,
+            "entity_id": "AGR-VDJJ",
+            "type": "opened",
+            "units": 44,
+            "unit_rate": 25,
+            "effective_from": "2026-03-19T00:34:11.000Z"
+          },
+          {
+            "event_id": "EV-RN8ZMN",
+            "seq": 1080,
+            "entity_id": "AGR-MJVK",
+            "type": "cancelled",
+            "effective_from": "2026-04-18T00:58:57.000Z"
+          },
+          {
+            "event_id": "EV-QPCCM3",
+            "seq": 1075,
+            "entity_id": "AGR-ER79",
+            "type": "amended",
+            "unit_rate": "1,540.90",
+            "effective_from": "2026-03-15T09:40:25.000Z"
+          },
+          {
+            "event_id": "EV-N666WE",
+            "seq": 300,
+            "entity_id": "AGR-EW4M",
+            "type": "opened",
+            "units": 21,
+            "unit_rate": 1755.99,
+            "effective_from": "2026-05-21T15:53:23.000Z"
+          },
+          {
+            "event_id": "EV-YQNKX4",
+            "seq": 671,
+            "entity_id": "AGR-GSNB",
+            "type": "amended",
+            "unit_rate": 599.5,
+            "effective_from": 1774587578
+          },
+          {
+            "event_id": "EV-UUMCK2",
+            "seq": 397,
+            "entity_id": "AGR-QDRN",
+            "type": "amended",
+            "unit_rate": 809.88,
+            "effective_from": "2026-07-14T08:37:53.000Z"
+          },
+          {
+            "event_id": "EV-Z7LQ29",
+            "seq": 56,
+            "entity_id": "AGR-GVEM",
+            "type": "amended",
+            "unit_rate": 118.22,
+            "effective_from": "2026-06-17T06:37:57.000Z"
+          },
+          {
+            "event_id": "EV-VS2EYS",
+            "seq": 419,
+            "entity_id": "AGR-KQXX",
+            "type": "amended",
+            "units": 28,
+            "effective_from": "2026-02-24T18:48:04.000Z"
+          },
+          {
+            "event_id": "EV-GMNLF7",
+            "seq": 5,
+            "entity_id": "AGR-ED52",
+            "type": "opened",
+            "units": 5,
+            "unit_rate": 1459.26,
+            "effective_from": "2026-01-15T22:45:19.000Z"
+          },
+          {
+            "event_id": "EV-STSGP8",
+            "seq": 924,
+            "entity_id": "AGR-WG26",
+            "type": "reinstated",
+            "effective_from": "2026-08-27T19:43:55.000Z"
+          },
+          {
+            "event_id": "EV-KV7WMH",
+            "seq": 591,
+            "entity_id": "AGR-CU6S",
+            "type": "amended",
+            "units": 61,
+            "effective_from": "2026-02-28T08:05:02.000Z"
+          },
+          {
+            "event_id": "EV-VCAPKB",
+            "seq": 777,
+            "entity_id": "AGR-CU6S",
+            "type": "amended",
+            "units": 45,
+            "effective_from": "2026-06-10T09:41:13.000Z"
+          },
+          {
+            "event_id": "EV-DRP6RF",
+            "seq": 198,
+            "entity_id": "AGR-BVY4",
+            "type": "reversed",
+            "reverses": "EV-PYNQU8",
+            "effective_from": 1786418212
+          },
+          {
+            "event_id": "EV-SJ7BZQ",
+            "seq": 850,
+            "entity_id": "AGR-4PXU",
+            "type": "reinstated",
+            "effective_from": "2026-05-21T07:26:39.000Z"
+          },
+          {
+            "event_id": "EV-HSMNBP",
+            "seq": 404,
+            "entity_id": "AGR-7UBT",
+            "type": "opened",
+            "units": 34,
+            "unit_rate": 740.36,
+            "effective_from": 1786986601
+          },
+          {
+            "event_id": "EV-9TU82A",
+            "seq": 1027,
+            "entity_id": "AGR-GGFR",
+            "type": "amended",
+            "units": 8,
+            "unit_rate": "1,083.86",
+            "effective_from": "2026-09-02T21:11:26.000Z"
+          },
+          {
+            "event_id": "EV-7TB7XZ",
+            "seq": 307,
+            "entity_id": "AGR-A388",
+            "type": "cancelled",
+            "effective_from": 1771322641
+          },
+          {
+            "event_id": "EV-6K2PKW",
+            "seq": 79,
+            "entity_id": "AGR-MUMQ",
+            "type": "amended",
+            "unit_rate": 25.06,
+            "effective_from": 1770378439
+          },
+          {
+            "event_id": "EV-P3GZW9",
+            "seq": 1044,
+            "entity_id": "AGR-68LD",
+            "type": "reinstated",
+            "effective_from": "2026-05-02T02:29:34.000Z"
+          },
+          {
+            "event_id": "EV-YAVNK7",
+            "seq": 606,
+            "entity_id": "AGR-NLLS",
+            "type": "amended",
+            "units": 50,
+            "effective_from": "2026-06-08T02:40:35.000Z"
+          },
+          {
+            "event_id": "EV-BKEVVD",
+            "seq": 109,
+            "entity_id": "AGR-A388",
+            "type": "opened",
+            "units": 10,
+            "unit_rate": 2092.61,
+            "effective_from": "2026-01-21T08:57:37.000Z"
+          },
+          {
+            "event_id": "EV-NTFSD7",
+            "seq": 25,
+            "entity_id": "AGR-2PPH",
+            "type": "opened",
+            "units": 38,
+            "unit_rate": 645.36,
+            "effective_from": "2026-03-14T21:36:39.000Z"
+          },
+          {
+            "event_id": "EV-KMEZYM",
+            "seq": 1,
+            "entity_id": "AGR-6HHQ",
+            "type": "opened",
+            "units": 21,
+            "unit_rate": 2821.66,
+            "effective_from": "2026-03-06T20:44:34.000Z"
+          },
+          {
+            "event_id": "EV-8U5C5Z",
+            "seq": 489,
+            "entity_id": "AGR-KYUM",
+            "type": "amended",
+            "units": 48,
+            "effective_from": "2026-02-22T07:33:05.000Z"
+          },
+          {
+            "event_id": "EV-CKL5DV",
+            "seq": 1124,
+            "entity_id": "AGR-CMME",
+            "type": "reinstated",
+            "effective_from": "2026-06-18T20:28:32.000Z"
+          },
+          {
+            "event_id": "EV-3T9Y73",
+            "seq": 386,
+            "entity_id": "AGR-F54J",
+            "type": "amended",
+            "units": 19,
+            "effective_from": "2026-02-05T04:44:56.000Z"
+          },
+          {
+            "event_id": "EV-SXTGP7",
+            "seq": 491,
+            "entity_id": "AGR-CZNH",
+            "type": "amended",
+            "unit_rate": 1130.5,
+            "effective_from": "2026-03-28T17:20:17.000Z"
+          },
+          {
+            "event_id": "EV-UGVW7F",
+            "seq": 160,
+            "entity_id": "AGR-KEXK",
+            "type": "amended",
+            "units": 58,
+            "unit_rate": 25,
+            "effective_from": "2026-05-21T23:39:16.000Z"
+          },
+          {
+            "event_id": "EV-7MKRHT",
+            "seq": 444,
+            "entity_id": "AGR-ZH3R",
+            "type": "amended",
+            "units": 84,
+            "effective_from": "2026-06-12T05:06:10.000Z"
+          },
+          {
+            "event_id": "EV-PRMETC",
+            "seq": 223,
+            "entity_id": "AGR-2PPH",
+            "type": "amended",
+            "unit_rate": 467.36,
+            "effective_from": "2026-07-04T14:55:14.000Z"
+          },
+          {
+            "event_id": "EV-KHDKHV",
+            "seq": 653,
+            "entity_id": "AGR-VW9N",
+            "type": "amended",
+            "units": 73,
+            "unit_rate": 431.41,
+            "effective_from": "2026-05-15T07:35:32.000Z"
+          },
+          {
+            "event_id": "EV-RN7SLH",
+            "seq": 1086,
+            "entity_id": "AGR-EP36",
+            "type": "reinstated",
+            "effective_from": 1787306464
+          },
+          {
+            "event_id": "EV-38JCPQ",
+            "seq": 943,
+            "entity_id": "AGR-68LD",
+            "type": "amended",
+            "unit_rate": "1,499.73",
+            "effective_from": "2026-03-19T22:41:55.000Z"
+          },
+          {
+            "event_id": "EV-VWVH3T",
+            "seq": 471,
+            "entity_id": "AGR-LARF",
+            "type": "amended",
+            "unit_rate": "1,194.99",
+            "effective_from": "2026-07-09T20:30:33.000Z"
+          },
+          {
+            "event_id": "EV-VME9MK",
+            "seq": 974,
+            "entity_id": "AGR-CU6S",
+            "type": "reinstated",
+            "effective_from": "2026-08-01T07:26:49.000Z"
+          },
+          {
+            "event_id": "EV-NKD53F",
+            "seq": 1150,
+            "entity_id": "AGR-J8J8",
+            "type": "amended",
+            "unit_rate": 310.83,
+            "effective_from": "2026-07-27T06:19:25.000Z"
+          },
+          {
+            "event_id": "EV-N79TH6",
+            "seq": 502,
+            "entity_id": "AGR-VW9N",
+            "type": "opened",
+            "units": 83,
+            "unit_rate": 226.85,
+            "effective_from": "2026-08-19T21:00:24.000Z"
+          },
+          {
+            "event_id": "EV-4HADKB",
+            "seq": 407,
+            "entity_id": "AGR-EQ2L",
+            "type": "amended",
+            "units": 41,
+            "effective_from": "2026-08-27T02:59:20.000Z"
+          },
+          {
+            "event_id": "EV-MHLAA7",
+            "seq": 13,
+            "entity_id": "AGR-RFH5",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 2709.54,
+            "effective_from": "2026-02-02T19:34:22.000Z"
+          },
+          {
+            "event_id": "EV-TWH9NX",
+            "seq": 22,
+            "entity_id": "AGR-48KT",
+            "type": "opened",
+            "units": 3,
+            "unit_rate": 990.34,
+            "effective_from": 1770194558
+          },
+          {
+            "event_id": "EV-ZLTLZP",
+            "seq": 798,
+            "entity_id": "AGR-ZWYK",
+            "type": "reinstated",
+            "effective_from": "2026-05-28T06:26:27.000Z"
+          },
+          {
+            "event_id": "EV-CQZBKC",
+            "seq": 390,
+            "entity_id": "AGR-U7Z4",
+            "type": "amended",
+            "units": 12,
+            "effective_from": 1780022270
+          },
+          {
+            "event_id": "EV-FAUDKU",
+            "seq": 367,
+            "entity_id": "AGR-2ZVN",
+            "type": "amended",
+            "units": 10,
+            "effective_from": "2026-02-14T04:02:11.000Z"
+          },
+          {
+            "event_id": "EV-6JVQY9",
+            "seq": 519,
+            "entity_id": "AGR-GSNB",
+            "type": "amended",
+            "unit_rate": 569.81,
+            "effective_from": "2026-03-09T09:09:32.000Z"
+          },
+          {
+            "event_id": "EV-3X43GD",
+            "seq": 1156,
+            "entity_id": "AGR-JTQH",
+            "type": "reinstated",
+            "effective_from": "2026-08-17T10:37:01.000Z"
+          },
+          {
+            "event_id": "EV-2HYXP7",
+            "seq": 86,
+            "entity_id": "AGR-F6B3",
+            "type": "opened",
+            "units": 23,
+            "unit_rate": 790.18,
+            "effective_from": "2026-01-06T10:42:18.000Z"
+          },
+          {
+            "event_id": "EV-MZ5P4G",
+            "seq": 424,
+            "entity_id": "AGR-EZNL",
+            "type": "superseded",
+            "replaced_by": "AGR-A2GV",
+            "effective_from": 1784462637
+          },
+          {
+            "event_id": "EV-DL9MUL",
+            "seq": 735,
+            "entity_id": "AGR-48KT",
+            "type": "amended",
+            "units": 11,
+            "effective_from": "2026-01-10T09:10:55.000Z"
+          },
+          {
+            "event_id": "EV-QNYJFD",
+            "seq": 1112,
+            "entity_id": "AGR-4SMN",
+            "type": "reinstated",
+            "effective_from": "2026-03-26T03:58:03.000Z"
+          },
+          {
+            "event_id": "EV-35YV6H",
+            "seq": 838,
+            "entity_id": "AGR-8XQH",
+            "type": "reinstated",
+            "effective_from": 1784048965
+          },
+          {
+            "event_id": "EV-2VN7C4",
+            "seq": 288,
+            "entity_id": "AGR-7JWD",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 1459.14,
+            "effective_from": "2026-01-09T21:34:47.000Z"
+          },
+          {
+            "event_id": "EV-7A9UH4",
+            "seq": 927,
+            "entity_id": "AGR-MBC8",
+            "type": "reinstated",
+            "effective_from": "2026-07-12T09:39:07.000Z"
+          },
+          {
+            "event_id": "EV-BFZM63",
+            "seq": 244,
+            "entity_id": "AGR-8AY3",
+            "type": "opened",
+            "units": 20,
+            "unit_rate": 601.6,
+            "effective_from": 1770605726
+          },
+          {
+            "event_id": "EV-Y95PNC",
+            "seq": 282,
+            "entity_id": "AGR-ER79",
+            "type": "amended",
+            "units": 19,
+            "unit_rate": 1447.17,
+            "effective_from": 1787769658
+          },
+          {
+            "event_id": "EV-R4HK77",
+            "seq": 522,
+            "entity_id": "AGR-MJVK",
+            "type": "amended",
+            "units": 13,
+            "effective_from": "2026-03-01T05:41:03.000Z"
+          },
+          {
+            "event_id": "EV-W6F5WY",
+            "seq": 339,
+            "entity_id": "AGR-YRSA",
+            "type": "cancelled",
+            "effective_from": 1784300203
+          },
+          {
+            "event_id": "EV-3CW5QC",
+            "seq": 243,
+            "entity_id": "AGR-EZNL",
+            "type": "opened",
+            "units": 100,
+            "unit_rate": 517.56,
+            "effective_from": 1786058857
+          },
+          {
+            "event_id": "EV-N8DAPM",
+            "seq": 958,
+            "entity_id": "AGR-QRUH",
+            "type": "cancelled",
+            "effective_from": "2026-07-15T17:37:42.000Z"
+          },
+          {
+            "event_id": "EV-H5N3CM",
+            "seq": 605,
+            "entity_id": "AGR-WS5S",
+            "type": "amended",
+            "unit_rate": 241.13,
+            "effective_from": 1775156021
+          },
+          {
+            "event_id": "EV-4DBCCP",
+            "seq": 1100,
+            "entity_id": "AGR-6NJG",
+            "type": "reinstated",
+            "effective_from": "2026-05-28T19:51:13.000Z"
+          },
+          {
+            "event_id": "EV-HDLXYE",
+            "seq": 996,
+            "entity_id": "AGR-QRUH",
+            "type": "reinstated",
+            "effective_from": "2026-07-29T16:46:51.000Z"
+          },
+          {
+            "event_id": "EV-8PFYEW",
+            "seq": 434,
+            "entity_id": "AGR-GSNB",
+            "type": "opened",
+            "units": 47,
+            "unit_rate": 400.94,
+            "effective_from": 1767989710
+          },
+          {
+            "event_id": "EV-CEDDGA",
+            "seq": 504,
+            "entity_id": "AGR-8XQH",
+            "type": "amended",
+            "units": 21,
+            "effective_from": "2026-04-16T17:43:29.000Z"
+          },
+          {
+            "event_id": "EV-PYNQU8",
+            "seq": 184,
+            "entity_id": "AGR-BVY4",
+            "type": "amended",
+            "units": 20,
+            "effective_from": "2026-06-06T21:39:16.000Z"
+          },
+          {
+            "event_id": "EV-2B25HP",
+            "seq": 682,
+            "entity_id": "AGR-GSNB",
+            "type": "amended",
+            "units": 66,
+            "effective_from": "2026-04-01T19:38:31.000Z"
+          },
+          {
+            "event_id": "EV-T92HSZ",
+            "seq": 733,
+            "entity_id": "AGR-GKM2",
+            "type": "amended",
+            "unit_rate": 567.69,
+            "effective_from": "2026-03-20T01:01:33.000Z"
+          },
+          {
+            "event_id": "EV-URKTPS",
+            "seq": 953,
+            "entity_id": "AGR-5NXB",
+            "type": "amended",
+            "unit_rate": 203.45,
+            "effective_from": "2026-04-19T01:20:17.000Z"
+          },
+          {
+            "event_id": "EV-XTTXMP",
+            "seq": 688,
+            "entity_id": "AGR-EP36",
+            "type": "amended",
+            "units": 21,
+            "effective_from": "2026-05-21T07:47:49.000Z"
+          },
+          {
+            "event_id": "EV-GBR3CQ",
+            "seq": 181,
+            "entity_id": "AGR-5BW4",
+            "type": "amended",
+            "unit_rate": 1654.3,
+            "effective_from": "2026-01-28T11:25:43.000Z"
+          },
+          {
+            "event_id": "EV-5VLH8F",
+            "seq": 1143,
+            "entity_id": "AGR-ABSE",
+            "type": "reinstated",
+            "effective_from": "2026-08-29T09:33:51.000Z"
+          },
+          {
+            "event_id": "EV-8UUVHY",
+            "seq": 64,
+            "entity_id": "AGR-AQ9Q",
+            "type": "opened",
+            "units": 22,
+            "unit_rate": 2831.13,
+            "effective_from": "2026-01-18T01:01:27.000Z"
+          },
+          {
+            "event_id": "EV-SJ8824",
+            "seq": 306,
+            "entity_id": "AGR-AQ9Q",
+            "type": "amended",
+            "units": 8,
+            "effective_from": "2026-05-29T01:16:49.000Z"
+          },
+          {
+            "event_id": "EV-XQWRX6",
+            "seq": 416,
+            "entity_id": "AGR-7BGU",
+            "type": "amended",
+            "units": 34,
+            "effective_from": 1773524440
+          },
+          {
+            "event_id": "EV-4XJKRM",
+            "seq": 347,
+            "entity_id": "AGR-8E8X",
+            "type": "cancelled",
+            "effective_from": "2026-06-02T07:36:33.000Z"
+          },
+          {
+            "event_id": "EV-9PZVSR",
+            "seq": 224,
+            "entity_id": "AGR-UNVS",
+            "type": "amended",
+            "unit_rate": 1509.77,
+            "effective_from": 1777671041
+          },
+          {
+            "event_id": "EV-2W3QXD",
+            "seq": 689,
+            "entity_id": "AGR-8XQH",
+            "type": "reversed",
+            "reverses": "EV-CEDDGA",
+            "effective_from": "2026-05-08T01:25:32.000Z"
+          },
+          {
+            "event_id": "EV-4V6U3G",
+            "seq": 739,
+            "entity_id": "AGR-7JWD",
+            "type": "cancelled",
+            "effective_from": "2026-04-21T09:56:40.000Z"
+          },
+          {
+            "event_id": "EV-4VKD26",
+            "seq": 19,
+            "entity_id": "AGR-U6F5",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 983.83,
+            "effective_from": "2026-05-27T01:31:56.000Z"
+          },
+          {
+            "event_id": "EV-CMWHSL",
+            "seq": 105,
+            "entity_id": "AGR-HKVR",
+            "type": "amended",
+            "units": 84,
+            "unit_rate": 25,
+            "effective_from": "2026-06-25T21:03:50.000Z"
+          },
+          {
+            "event_id": "EV-KCFSQQ",
+            "seq": 197,
+            "entity_id": "AGR-WYR6",
+            "type": "opened",
+            "units": 75,
+            "unit_rate": 552.45,
+            "effective_from": "2026-01-10T12:43:39.000Z"
+          },
+          {
+            "event_id": "EV-GEX2TJ",
+            "seq": 570,
+            "entity_id": "AGR-37HS",
+            "type": "amended",
+            "unit_rate": "1,071.22",
+            "effective_from": "2026-08-31T09:41:25.000Z"
+          },
+          {
+            "event_id": "EV-K4DBSZ",
+            "seq": 370,
+            "entity_id": "AGR-WS5S",
+            "type": "amended",
+            "unit_rate": 530.85,
+            "effective_from": "2026-01-12T07:17:09.000Z"
+          },
+          {
+            "event_id": "EV-E64C43",
+            "seq": 429,
+            "entity_id": "AGR-7JWD",
+            "type": "amended",
+            "units": 18,
+            "effective_from": "2026-02-06T14:07:02.000Z"
+          },
+          {
+            "event_id": "EV-GVT6EZ",
+            "seq": 576,
+            "entity_id": "AGR-F54J",
+            "type": "amended",
+            "unit_rate": "1,321.90",
+            "effective_from": "2026-07-24T17:19:02.000Z"
+          },
+          {
+            "event_id": "EV-JBJ5T5",
+            "seq": 275,
+            "entity_id": "AGR-A388",
+            "type": "amended",
+            "units": 8,
+            "unit_rate": "2,177.71",
+            "effective_from": 1768022096
+          },
+          {
+            "event_id": "EV-A7SYCN",
+            "seq": 1148,
+            "entity_id": "AGR-JTQH",
+            "type": "reversed",
+            "reverses": "EV-RT8H99",
+            "effective_from": "2026-02-09T00:15:24.000Z"
+          },
+          {
+            "event_id": "EV-JNWJGA",
+            "seq": 240,
+            "entity_id": "AGR-AAKK",
+            "type": "amended",
+            "unit_rate": 1201.76,
+            "effective_from": "2026-03-12T16:45:25.000Z"
+          },
+          {
+            "event_id": "EV-6G6CFC",
+            "seq": 612,
+            "entity_id": "AGR-W88M",
+            "type": "opened",
+            "units": 31,
+            "unit_rate": 998.81,
+            "effective_from": "2026-07-18T00:54:05.000Z"
+          },
+          {
+            "event_id": "EV-DWWU2C",
+            "seq": 553,
+            "entity_id": "AGR-J8C2",
+            "type": "amended",
+            "units": 21,
+            "effective_from": 1781856265
+          },
+          {
+            "event_id": "EV-T4UXW7",
+            "seq": 61,
+            "entity_id": "AGR-CMME",
+            "type": "opened",
+            "units": 26,
+            "unit_rate": 782.3,
+            "effective_from": 1767719307
+          },
+          {
+            "event_id": "EV-HVJH8C",
+            "seq": 888,
+            "entity_id": "AGR-LARF",
+            "type": "reinstated",
+            "effective_from": 1788000780
+          },
+          {
+            "event_id": "EV-PGV4CC",
+            "seq": 696,
+            "entity_id": "AGR-RFH5",
+            "type": "amended",
+            "units": 8,
+            "effective_from": 1771396746
+          },
+          {
+            "event_id": "EV-TEMW5S",
+            "seq": 155,
+            "entity_id": "AGR-5BW4",
+            "type": "amended",
+            "units": 11,
+            "effective_from": "2026-01-24T06:09:38.000Z"
+          },
+          {
+            "event_id": "EV-9N8T6L",
+            "seq": 566,
+            "entity_id": "AGR-BXXA",
+            "type": "cancelled",
+            "effective_from": "2026-02-25T08:52:19.000Z"
+          },
+          {
+            "event_id": "EV-RVCJXJ",
+            "seq": 46,
+            "entity_id": "AGR-2ZVN",
+            "type": "opened",
+            "units": 18,
+            "unit_rate": 1357.69,
+            "effective_from": 1774971212
+          },
+          {
+            "event_id": "EV-43XQCV",
+            "seq": 29,
+            "entity_id": "AGR-TZBJ",
+            "type": "opened",
+            "units": 66,
+            "unit_rate": 622.05,
+            "effective_from": 1771998268
+          },
+          {
+            "event_id": "EV-37BDU3",
+            "seq": 37,
+            "entity_id": "AGR-U6F5",
+            "type": "amended",
+            "units": 8,
+            "effective_from": "2026-08-04T19:55:56.000Z"
+          },
+          {
+            "event_id": "EV-WLB4WS",
+            "seq": 468,
+            "entity_id": "AGR-HEQ6",
+            "type": "superseded",
+            "replaced_by": "AGR-5XAM",
+            "effective_from": "2026-01-13T19:30:48.000Z"
+          },
+          {
+            "event_id": "EV-AR52RN",
+            "seq": 746,
+            "entity_id": "AGR-8F4E",
+            "type": "amended",
+            "unit_rate": 136.49,
+            "effective_from": "2026-05-26T04:49:51.000Z"
+          },
+          {
+            "event_id": "EV-RHHGEZ",
+            "seq": 1109,
+            "entity_id": "AGR-CZNH",
+            "type": "cancelled",
+            "effective_from": 1770819096
+          },
+          {
+            "event_id": "EV-34J9DR",
+            "seq": 115,
+            "entity_id": "AGR-PXCJ",
+            "type": "amended",
+            "unit_rate": 79.44,
+            "effective_from": "2026-04-01T00:58:21.000Z"
+          },
+          {
+            "event_id": "EV-5HVPHD",
+            "seq": 906,
+            "entity_id": "AGR-BKWP",
+            "type": "superseded",
+            "replaced_by": "AGR-CKF6",
+            "effective_from": 1774926348
+          },
+          {
+            "event_id": "EV-DEJZMD",
+            "seq": 171,
+            "entity_id": "AGR-BVY4",
+            "type": "opened",
+            "units": 32,
+            "unit_rate": 1555.97,
+            "effective_from": "2026-08-28T13:45:33.000Z"
+          },
+          {
+            "event_id": "EV-X8CKYL",
+            "seq": 319,
+            "entity_id": "AGR-RGMY",
+            "type": "amended",
+            "units": 84,
+            "effective_from": "2026-01-25T02:07:11.000Z"
+          },
+          {
+            "event_id": "EV-473CBY",
+            "seq": 440,
+            "entity_id": "AGR-U6F5",
+            "type": "cancelled",
+            "effective_from": "2026-06-10T04:54:42.000Z"
+          },
+          {
+            "event_id": "EV-5NTRQ7",
+            "seq": 652,
+            "entity_id": "AGR-8K37",
+            "type": "amended",
+            "unit_rate": 2614.55,
+            "effective_from": "2026-04-01T19:12:37.000Z"
+          },
+          {
+            "event_id": "EV-W8P7SB",
+            "seq": 531,
+            "entity_id": "AGR-WASN",
+            "type": "cancelled",
+            "effective_from": 1774514987
+          },
+          {
+            "event_id": "EV-WJB7VJ",
+            "seq": 42,
+            "entity_id": "AGR-MJVK",
+            "type": "amended",
+            "unit_rate": 1609.37,
+            "effective_from": "2026-07-08T09:12:59.000Z"
+          },
+          {
+            "event_id": "EV-2ZL4Y2",
+            "seq": 827,
+            "entity_id": "AGR-8K37",
+            "type": "cancelled",
+            "effective_from": 1776890722
+          },
+          {
+            "event_id": "EV-KKLKB2",
+            "seq": 380,
+            "entity_id": "AGR-KEXK",
+            "type": "amended",
+            "unit_rate": 94.96,
+            "effective_from": "2026-06-05T11:37:35.000Z"
+          },
+          {
+            "event_id": "EV-M72457",
+            "seq": 715,
+            "entity_id": "AGR-KQXX",
+            "type": "reversed",
+            "reverses": "EV-3H5JGB",
+            "effective_from": "2026-02-01T05:54:53.000Z"
+          },
+          {
+            "event_id": "EV-FZ3UFQ",
+            "seq": 212,
+            "entity_id": "AGR-NLLS",
+            "type": "amended",
+            "unit_rate": 208.28,
+            "effective_from": "2026-07-25T07:36:42.000Z"
+          },
+          {
+            "event_id": "EV-44SQVS",
+            "seq": 936,
+            "entity_id": "AGR-F6B3",
+            "type": "amended",
+            "unit_rate": 882.86,
+            "effective_from": "2026-07-03T10:37:38.000Z"
+          },
+          {
+            "event_id": "EV-E4G9G9",
+            "seq": 26,
+            "entity_id": "AGR-UZY7",
+            "type": "opened",
+            "units": 17,
+            "unit_rate": 400.38,
+            "effective_from": "2026-06-05T17:26:52.000Z"
+          },
+          {
+            "event_id": "EV-Y7Y6LT",
+            "seq": 966,
+            "entity_id": "AGR-5NFU",
+            "type": "cancelled",
+            "effective_from": 1784930930
+          },
+          {
+            "event_id": "EV-YBZ2VE",
+            "seq": 505,
+            "entity_id": "AGR-F54J",
+            "type": "amended",
+            "unit_rate": 1404.62,
+            "effective_from": "2026-04-23T04:51:17.000Z"
+          },
+          {
+            "event_id": "EV-2R625J",
+            "seq": 1096,
+            "entity_id": "AGR-GQ72",
+            "type": "reversed",
+            "reverses": "EV-J27AK9",
+            "effective_from": "2026-05-06T13:23:19.000Z"
+          },
+          {
+            "event_id": "EV-NBRPKB",
+            "seq": 774,
+            "entity_id": "AGR-QRUH",
+            "type": "amended",
+            "units": 33,
+            "effective_from": "2026-02-25T02:42:54.000Z"
+          },
+          {
+            "event_id": "EV-Y93QLA",
+            "seq": 133,
+            "entity_id": "AGR-5NXB",
+            "type": "opened",
+            "units": 37,
+            "unit_rate": 25,
+            "effective_from": "2026-05-06T21:51:08.000Z"
+          },
+          {
+            "event_id": "EV-VFTV5Z",
+            "seq": 87,
+            "entity_id": "AGR-HEQ6",
+            "type": "amended",
+            "units": 1,
+            "effective_from": "2026-03-06T13:16:25.000Z"
+          },
+          {
+            "event_id": "EV-J3TREL",
+            "seq": 528,
+            "entity_id": "AGR-FUDC",
+            "type": "amended",
+            "unit_rate": "1,082.33",
+            "effective_from": "2026-08-29T23:31:09.000Z"
+          },
+          {
+            "event_id": "EV-FL9REY",
+            "seq": 102,
+            "entity_id": "AGR-EQ2L",
+            "type": "amended",
+            "units": 54,
+            "unit_rate": 729.26,
+            "effective_from": "2026-03-24T08:26:35.000Z"
+          },
+          {
+            "event_id": "EV-5U5HEA",
+            "seq": 426,
+            "entity_id": "AGR-EW4M",
+            "type": "amended",
+            "units": 11,
+            "effective_from": 1776818185
+          },
+          {
+            "event_id": "EV-TALYBM",
+            "seq": 464,
+            "entity_id": "AGR-NQK8",
+            "type": "amended",
+            "units": 5,
+            "unit_rate": 1766.25,
+            "effective_from": "2026-04-03T18:44:22.000Z"
+          },
+          {
+            "event_id": "EV-Y6764V",
+            "seq": 74,
+            "entity_id": "AGR-MUMQ",
+            "type": "opened",
+            "units": 85,
+            "unit_rate": 353.34,
+            "effective_from": "2026-04-16T23:31:07.000Z"
+          },
+          {
+            "event_id": "EV-JMRTS2",
+            "seq": 116,
+            "entity_id": "AGR-48KT",
+            "type": "amended",
+            "unit_rate": 992.16,
+            "effective_from": "2026-06-17T14:35:57.000Z"
+          },
+          {
+            "event_id": "EV-8JCTA3",
+            "seq": 599,
+            "entity_id": "AGR-MDA8",
+            "type": "reversed",
+            "reverses": "EV-SJGRS7",
+            "effective_from": 1785590484
+          },
+          {
+            "event_id": "EV-YS46MQ",
+            "seq": 324,
+            "entity_id": "AGR-MJVK",
+            "type": "amended",
+            "units": 14,
+            "unit_rate": 1724.38,
+            "effective_from": "2026-03-04T21:53:34.000Z"
+          },
+          {
+            "event_id": "EV-Y3TZND",
+            "seq": 868,
+            "entity_id": "AGR-RGMY",
+            "type": "reversed",
+            "reverses": "EV-X8CKYL",
+            "effective_from": "2026-03-12T10:40:40.000Z"
+          },
+          {
+            "event_id": "EV-96NM2Z",
+            "seq": 1000,
+            "entity_id": "AGR-W88M",
+            "type": "reinstated",
+            "effective_from": "2026-06-30T12:56:02.000Z"
+          },
+          {
+            "event_id": "EV-8R4FYQ",
+            "seq": 1003,
+            "entity_id": "AGR-7BGU",
+            "type": "cancelled",
+            "effective_from": 1772389106
+          },
+          {
+            "event_id": "EV-QYUSV8",
+            "seq": 781,
+            "entity_id": "AGR-SBS2",
+            "type": "amended",
+            "units": 37,
+            "effective_from": "2026-07-11T21:14:04.000Z"
+          },
+          {
+            "event_id": "EV-5CXM2L",
+            "seq": 791,
+            "entity_id": "AGR-4PXU",
+            "type": "amended",
+            "unit_rate": "1,442.69",
+            "effective_from": 1775501630
+          },
+          {
+            "event_id": "EV-K4K5XD",
+            "seq": 1149,
+            "entity_id": "AGR-ER79",
+            "type": "reinstated",
+            "effective_from": "2026-08-11T19:49:40.000Z"
+          },
+          {
+            "event_id": "EV-A3YKLC",
+            "seq": 1012,
+            "entity_id": "AGR-CMME",
+            "type": "amended",
+            "unit_rate": "1,017.54",
+            "effective_from": 1777373359
+          },
+          {
+            "event_id": "EV-2PVSW5",
+            "seq": 1077,
+            "entity_id": "AGR-GGFR",
+            "type": "reinstated",
+            "effective_from": "2026-02-26T06:57:34.000Z"
+          },
+          {
+            "event_id": "EV-SFZ6EN",
+            "seq": 8,
+            "entity_id": "AGR-MDA8",
+            "type": "opened",
+            "units": 34,
+            "unit_rate": 807.25,
+            "effective_from": 1779611217
+          },
+          {
+            "event_id": "EV-QTAHSN",
+            "seq": 692,
+            "entity_id": "AGR-WHX9",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 1264.11,
+            "effective_from": 1768866604
+          },
+          {
+            "event_id": "EV-KQ6LGB",
+            "seq": 813,
+            "entity_id": "AGR-QNEJ",
+            "type": "amended",
+            "unit_rate": 3963.4,
+            "effective_from": "2026-05-21T20:21:33.000Z"
+          },
+          {
+            "event_id": "EV-GEXGHU",
+            "seq": 933,
+            "entity_id": "AGR-7JWD",
+            "type": "reinstated",
+            "effective_from": "2026-08-12T11:25:40.000Z"
+          },
+          {
+            "event_id": "EV-5UA6CV",
+            "seq": 1130,
+            "entity_id": "AGR-CZNH",
+            "type": "reinstated",
+            "effective_from": "2026-07-06T03:09:31.000Z"
+          },
+          {
+            "event_id": "EV-82JLMQ",
+            "seq": 33,
+            "entity_id": "AGR-8E8X",
+            "type": "opened",
+            "units": 34,
+            "unit_rate": 687.06,
+            "effective_from": "2026-01-15T05:37:09.000Z"
+          },
+          {
+            "event_id": "EV-5CMR2C",
+            "seq": 824,
+            "entity_id": "AGR-HKVR",
+            "type": "cancelled",
+            "effective_from": "2026-07-26T07:22:53.000Z"
+          },
+          {
+            "event_id": "EV-RQZ3B3",
+            "seq": 412,
+            "entity_id": "AGR-5NXB",
+            "type": "amended",
+            "units": 52,
+            "effective_from": 1782636086
+          },
+          {
+            "event_id": "EV-FUKK4D",
+            "seq": 427,
+            "entity_id": "AGR-2CBQ",
+            "type": "reversed",
+            "reverses": "EV-YK8EZP",
+            "effective_from": 1773049711
+          },
+          {
+            "event_id": "EV-7R8VWH",
+            "seq": 413,
+            "entity_id": "AGR-WASN",
+            "type": "amended",
+            "units": 83,
+            "unit_rate": 127.95,
+            "effective_from": "2026-07-05T18:51:52.000Z"
+          },
+          {
+            "event_id": "EV-CFJPWK",
+            "seq": 815,
+            "entity_id": "AGR-GQ72",
+            "type": "reversed",
+            "reverses": "EV-VXHN6U",
+            "effective_from": "2026-08-23T05:15:32.000Z"
+          },
+          {
+            "event_id": "EV-64ZSZC",
+            "seq": 149,
+            "entity_id": "AGR-42AH",
+            "type": "amended",
+            "units": 82,
+            "effective_from": "2026-04-08T08:13:35.000Z"
+          },
+          {
+            "event_id": "EV-DBFZEK",
+            "seq": 510,
+            "entity_id": "AGR-AQ9Q",
+            "type": "amended",
+            "unit_rate": "2,600.96",
+            "effective_from": 1783909201
+          },
+          {
+            "event_id": "EV-NR2X8R",
+            "seq": 540,
+            "entity_id": "AGR-ED52",
+            "type": "amended",
+            "units": 2,
+            "effective_from": "2026-03-22T15:03:13.000Z"
+          },
+          {
+            "event_id": "EV-QAGHMD",
+            "seq": 292,
+            "entity_id": "AGR-8K37",
+            "type": "amended",
+            "units": 6,
+            "effective_from": 1770544282
+          },
+          {
+            "event_id": "EV-7TV8CJ",
+            "seq": 256,
+            "entity_id": "AGR-8F4E",
+            "type": "opened",
+            "units": 42,
+            "unit_rate": 380.89,
+            "effective_from": 1773498857
+          },
+          {
+            "event_id": "EV-C2XVGX",
+            "seq": 1024,
+            "entity_id": "AGR-7BGU",
+            "type": "reinstated",
+            "effective_from": 1774461825
+          },
+          {
+            "event_id": "EV-MDR2AX",
+            "seq": 937,
+            "entity_id": "AGR-GGFR",
+            "type": "amended",
+            "units": 17,
+            "effective_from": "2026-05-23T00:31:01.000Z"
+          },
+          {
+            "event_id": "EV-YQX86N",
+            "seq": 1020,
+            "entity_id": "AGR-VW9N",
+            "type": "superseded",
+            "replaced_by": "AGR-UGUA",
+            "effective_from": "2026-02-25T15:16:39.000Z"
+          },
+          {
+            "event_id": "EV-JCXWFV",
+            "seq": 250,
+            "entity_id": "AGR-U6F5",
+            "type": "amended",
+            "unit_rate": "1,215.79",
+            "effective_from": "2026-08-04T04:47:48.000Z"
+          },
+          {
+            "event_id": "EV-29XVYS",
+            "seq": 575,
+            "entity_id": "AGR-CUAS",
+            "type": "amended",
+            "units": 41,
+            "effective_from": "2026-03-02T07:34:33.000Z"
+          },
+          {
+            "event_id": "EV-BBF8NQ",
+            "seq": 646,
+            "entity_id": "AGR-GGFR",
+            "type": "amended",
+            "units": 26,
+            "effective_from": "2026-01-09T01:24:46.000Z"
+          },
+          {
+            "event_id": "EV-M2D78V",
+            "seq": 229,
+            "entity_id": "AGR-UZY7",
+            "type": "amended",
+            "unit_rate": 214.12,
+            "effective_from": "2026-03-06T10:43:15.000Z"
+          },
+          {
+            "event_id": "EV-3BZQDK",
+            "seq": 892,
+            "entity_id": "AGR-QRUH",
+            "type": "amended",
+            "unit_rate": "1,159.66",
+            "effective_from": "2026-04-28T12:23:51.000Z"
+          },
+          {
+            "event_id": "EV-NRRTTN",
+            "seq": 747,
+            "entity_id": "AGR-MBC8",
+            "type": "cancelled",
+            "effective_from": "2026-04-01T13:44:08.000Z"
+          },
+          {
+            "event_id": "EV-SQPU6W",
+            "seq": 921,
+            "entity_id": "AGR-WG26",
+            "type": "cancelled",
+            "effective_from": "2026-07-22T03:56:57.000Z"
+          },
+          {
+            "event_id": "EV-G7GEMS",
+            "seq": 406,
+            "entity_id": "AGR-6NJG",
+            "type": "amended",
+            "units": 49,
+            "effective_from": 1779156198
+          },
+          {
+            "event_id": "EV-J4NU3L",
+            "seq": 764,
+            "entity_id": "AGR-ED52",
+            "type": "cancelled",
+            "effective_from": 1784850460
+          },
+          {
+            "event_id": "EV-557PK4",
+            "seq": 775,
+            "entity_id": "AGR-8E8X",
+            "type": "reinstated",
+            "effective_from": "2026-07-12T22:55:30.000Z"
+          },
+          {
+            "event_id": "EV-GWT9QA",
+            "seq": 206,
+            "entity_id": "AGR-2CBQ",
+            "type": "amended",
+            "unit_rate": 1522.04,
+            "effective_from": 1782864142
+          },
+          {
+            "event_id": "EV-W23VW9",
+            "seq": 453,
+            "entity_id": "AGR-WG26",
+            "type": "amended",
+            "units": 87,
+            "unit_rate": 174.44,
+            "effective_from": "2026-02-01T01:12:43.000Z"
+          },
+          {
+            "event_id": "EV-GLXHJB",
+            "seq": 698,
+            "entity_id": "AGR-68LD",
+            "type": "reversed",
+            "reverses": "EV-WFB74Z",
+            "effective_from": "2026-08-21T13:30:45.000Z"
+          },
+          {
+            "event_id": "EV-RAEEFF",
+            "seq": 737,
+            "entity_id": "AGR-SU6Z",
+            "type": "reinstated",
+            "effective_from": "2026-08-12T11:53:48.000Z"
+          },
+          {
+            "event_id": "EV-H456LT",
+            "seq": 810,
+            "entity_id": "AGR-GKM2",
+            "type": "cancelled",
+            "effective_from": "2026-08-16T23:48:11.000Z"
+          },
+          {
+            "event_id": "EV-26HHKY",
+            "seq": 972,
+            "entity_id": "AGR-37HS",
+            "type": "reinstated",
+            "effective_from": "2026-06-15T09:52:07.000Z"
+          },
+          {
+            "event_id": "EV-CJ36R9",
+            "seq": 285,
+            "entity_id": "AGR-8K37",
+            "type": "opened",
+            "units": 6,
+            "unit_rate": 2850.99,
+            "effective_from": "2026-02-09T22:20:50.000Z"
+          },
+          {
+            "event_id": "EV-FWBAK8",
+            "seq": 217,
+            "entity_id": "AGR-BVY4",
+            "type": "cancelled",
+            "effective_from": "2026-04-22T01:58:47.000Z"
+          },
+          {
+            "event_id": "EV-PA2L4F",
+            "seq": 111,
+            "entity_id": "AGR-NLLS",
+            "type": "opened",
+            "units": 57,
+            "unit_rate": 181.76,
+            "effective_from": "2026-04-05T00:07:33.000Z"
+          },
+          {
+            "event_id": "EV-2QJ9GQ",
+            "seq": 1088,
+            "entity_id": "AGR-RGMY",
+            "type": "reversed",
+            "reverses": "EV-XE2Z6V",
+            "effective_from": 1780332374
+          },
+          {
+            "event_id": "EV-UBAG5L",
+            "seq": 358,
+            "entity_id": "AGR-7BGU",
+            "type": "opened",
+            "units": 43,
+            "unit_rate": 861.86,
+            "effective_from": "2026-06-09T11:30:33.000Z"
+          },
+          {
+            "event_id": "EV-EHNPF2",
+            "seq": 928,
+            "entity_id": "AGR-JTQH",
+            "type": "amended",
+            "units": 16,
+            "effective_from": 1785340386
+          },
+          {
+            "event_id": "EV-285YCD",
+            "seq": 760,
+            "entity_id": "AGR-8K37",
+            "type": "reversed",
+            "reverses": "EV-L2BEZN",
+            "effective_from": "2026-01-27T09:45:46.000Z"
+          },
+          {
+            "event_id": "EV-M6HMJN",
+            "seq": 727,
+            "entity_id": "AGR-68LD",
+            "type": "amended",
+            "units": 9,
+            "effective_from": "2026-02-03T05:13:47.000Z"
+          },
+          {
+            "event_id": "EV-CBT3M3",
+            "seq": 523,
+            "entity_id": "AGR-SU6Z",
+            "type": "amended",
+            "unit_rate": "1,007.42",
+            "effective_from": "2026-07-29T12:49:29.000Z"
+          },
+          {
+            "event_id": "EV-4FW76J",
+            "seq": 93,
+            "entity_id": "AGR-KEXK",
+            "type": "amended",
+            "units": 48,
+            "effective_from": "2026-05-10T12:41:29.000Z"
+          },
+          {
+            "event_id": "EV-9LB5ZR",
+            "seq": 899,
+            "entity_id": "AGR-UNVS",
+            "type": "amended",
+            "units": 10,
+            "unit_rate": "1,427.08",
+            "effective_from": 1772775428
+          },
+          {
+            "event_id": "EV-ZFGCYC",
+            "seq": 687,
+            "entity_id": "AGR-KYUM",
+            "type": "amended",
+            "units": 35,
+            "effective_from": "2026-06-06T05:31:41.000Z"
+          },
+          {
+            "event_id": "EV-MD6AJJ",
+            "seq": 836,
+            "entity_id": "AGR-CMME",
+            "type": "reversed",
+            "reverses": "EV-QPZWPL",
+            "effective_from": 1768130318
+          },
+          {
+            "event_id": "EV-Q5WQCV",
+            "seq": 514,
+            "entity_id": "AGR-QDRN",
+            "type": "superseded",
+            "replaced_by": "AGR-7HAL",
+            "effective_from": 1786022272
+          },
+          {
+            "event_id": "EV-4SHRY3",
+            "seq": 496,
+            "entity_id": "AGR-WG26",
+            "type": "amended",
+            "units": 80,
+            "unit_rate": 94.6,
+            "effective_from": "2026-02-19T15:04:22.000Z"
+          },
+          {
+            "event_id": "EV-N8TH8T",
+            "seq": 765,
+            "entity_id": "AGR-7UBT",
+            "type": "amended",
+            "unit_rate": 671.53,
+            "effective_from": "2026-07-13T09:52:36.000Z"
+          },
+          {
+            "event_id": "EV-QDMQQ8",
+            "seq": 375,
+            "entity_id": "AGR-F26Z",
+            "type": "amended",
+            "units": 1,
+            "effective_from": "2026-05-17T19:10:26.000Z"
+          },
+          {
+            "event_id": "EV-SK9ZNW",
+            "seq": 508,
+            "entity_id": "AGR-EW4M",
+            "type": "amended",
+            "unit_rate": "1,392.68",
+            "effective_from": "2026-05-31T05:27:02.000Z"
+          },
+          {
+            "event_id": "EV-7RM2NU",
+            "seq": 1028,
+            "entity_id": "AGR-UNVS",
+            "type": "cancelled",
+            "effective_from": "2026-05-23T02:58:00.000Z"
+          },
+          {
+            "event_id": "EV-RQT4G3",
+            "seq": 1029,
+            "entity_id": "AGR-EP36",
+            "type": "amended",
+            "unit_rate": "1,634.84",
+            "effective_from": "2026-07-08T20:02:07.000Z"
+          },
+          {
+            "event_id": "EV-UZ3GXY",
+            "seq": 1059,
+            "entity_id": "AGR-EP36",
+            "type": "cancelled",
+            "effective_from": "2026-08-17T03:22:25.000Z"
+          },
+          {
+            "event_id": "EV-EZCS58",
+            "seq": 1146,
+            "entity_id": "AGR-J8J8",
+            "type": "amended",
+            "units": 62,
+            "effective_from": 1779365263
+          },
+          {
+            "event_id": "EV-Y6HAGV",
+            "seq": 289,
+            "entity_id": "AGR-KEXK",
+            "type": "amended",
+            "units": 58,
+            "effective_from": 1779400179
+          },
+          {
+            "event_id": "EV-DXEN2R",
+            "seq": 718,
+            "entity_id": "AGR-WHX9",
+            "type": "amended",
+            "units": 7,
+            "effective_from": "2026-07-04T09:21:19.000Z"
+          },
+          {
+            "event_id": "EV-KL2LFH",
+            "seq": 843,
+            "entity_id": "AGR-GQ72",
+            "type": "amended",
+            "units": 91,
+            "effective_from": 1781733438
+          },
+          {
+            "event_id": "EV-B54PAU",
+            "seq": 89,
+            "entity_id": "AGR-BXXA",
+            "type": "opened",
+            "units": 67,
+            "unit_rate": 469.77,
+            "effective_from": "2026-04-08T06:27:08.000Z"
+          },
+          {
+            "event_id": "EV-7ZN67Z",
+            "seq": 755,
+            "entity_id": "AGR-6NJG",
+            "type": "amended",
+            "unit_rate": 218.24,
+            "effective_from": 1784268551
+          },
+          {
+            "event_id": "EV-SXEHNS",
+            "seq": 228,
+            "entity_id": "AGR-G6X8",
+            "type": "amended",
+            "unit_rate": 1356.68,
+            "effective_from": 1771631184
+          },
+          {
+            "event_id": "EV-4LA258",
+            "seq": 663,
+            "entity_id": "AGR-KYUM",
+            "type": "reversed",
+            "reverses": "EV-T2FQ9A",
+            "effective_from": "2026-04-14T14:26:28.000Z"
+          },
+          {
+            "event_id": "EV-FHU4VZ",
+            "seq": 3,
+            "entity_id": "AGR-4AZT",
+            "type": "opened",
+            "units": 16,
+            "unit_rate": 1288.93,
+            "effective_from": "2026-02-21T13:20:29.000Z"
+          },
+          {
+            "event_id": "EV-J6Z33R",
+            "seq": 579,
+            "entity_id": "AGR-2ZVN",
+            "type": "amended",
+            "units": 13,
+            "effective_from": 1780673679
+          },
+          {
+            "event_id": "EV-KMZ5MF",
+            "seq": 511,
+            "entity_id": "AGR-F54J",
+            "type": "amended",
+            "units": 20,
+            "effective_from": 1784543337
+          },
+          {
+            "event_id": "EV-CQRHXF",
+            "seq": 11,
+            "entity_id": "AGR-BKWP",
+            "type": "opened",
+            "units": 96,
+            "unit_rate": 343.01,
+            "effective_from": 1788164907
+          },
+          {
+            "event_id": "EV-RKL54S",
+            "seq": 912,
+            "entity_id": "AGR-ED52",
+            "type": "reinstated",
+            "effective_from": "2026-07-24T19:30:09.000Z"
+          },
+          {
+            "event_id": "EV-FK4LYG",
+            "seq": 666,
+            "entity_id": "AGR-4PXU",
+            "type": "amended",
+            "units": 6,
+            "effective_from": "2026-02-03T10:55:19.000Z"
+          },
+          {
+            "event_id": "EV-CFDKLN",
+            "seq": 977,
+            "entity_id": "AGR-TZBJ",
+            "type": "amended",
+            "unit_rate": 381.95,
+            "effective_from": "2026-04-23T05:33:17.000Z"
+          },
+          {
+            "event_id": "EV-BEBNMP",
+            "seq": 255,
+            "entity_id": "AGR-AQ9Q",
+            "type": "amended",
+            "units": 4,
+            "unit_rate": 2453.93,
+            "effective_from": 1769165785
+          },
+          {
+            "event_id": "EV-YKURRX",
+            "seq": 483,
+            "entity_id": "AGR-5BW4",
+            "type": "cancelled",
+            "effective_from": "2026-02-25T14:13:20.000Z"
+          },
+          {
+            "event_id": "EV-ERLF39",
+            "seq": 476,
+            "entity_id": "AGR-F26Z",
+            "type": "cancelled",
+            "effective_from": 1787509766
+          },
+          {
+            "event_id": "EV-AHDF2K",
+            "seq": 194,
+            "entity_id": "AGR-QRUH",
+            "type": "opened",
+            "units": 48,
+            "unit_rate": 1364.08,
+            "effective_from": 1767756961
+          },
+          {
+            "event_id": "EV-FWWRWU",
+            "seq": 130,
+            "entity_id": "AGR-5NFU",
+            "type": "amended",
+            "units": 62,
+            "effective_from": "2026-02-20T15:58:48.000Z"
+          },
+          {
+            "event_id": "EV-EV7CCU",
+            "seq": 768,
+            "entity_id": "AGR-NLLS",
+            "type": "cancelled",
+            "effective_from": 1767723139
+          },
+          {
+            "event_id": "EV-RCY2BS",
+            "seq": 259,
+            "entity_id": "AGR-GGFR",
+            "type": "opened",
+            "units": 37,
+            "unit_rate": 1435.43,
+            "effective_from": "2026-03-15T03:18:01.000Z"
+          },
+          {
+            "event_id": "EV-977JWU",
+            "seq": 507,
+            "entity_id": "AGR-4AZT",
+            "type": "amended",
+            "unit_rate": "1,528.85",
+            "effective_from": "2026-04-06T09:27:53.000Z"
+          },
+          {
+            "event_id": "EV-VU5KNV",
+            "seq": 16,
+            "entity_id": "AGR-HKVR",
+            "type": "opened",
+            "units": 68,
+            "unit_rate": 25,
+            "effective_from": "2026-08-23T12:06:59.000Z"
+          },
+          {
+            "event_id": "EV-8Z2HTV",
+            "seq": 829,
+            "entity_id": "AGR-BVY4",
+            "type": "reinstated",
+            "effective_from": "2026-06-25T12:24:57.000Z"
+          },
+          {
+            "event_id": "EV-W4Z9RM",
+            "seq": 1032,
+            "entity_id": "AGR-6HHQ",
+            "type": "amended",
+            "units": 10,
+            "effective_from": 1779731002
+          },
+          {
+            "event_id": "EV-WJT8X4",
+            "seq": 1094,
+            "entity_id": "AGR-RGMY",
+            "type": "cancelled",
+            "effective_from": "2026-08-26T18:19:24.000Z"
+          },
+          {
+            "event_id": "EV-A3WJB8",
+            "seq": 1120,
+            "entity_id": "AGR-VDJJ",
+            "type": "cancelled",
+            "effective_from": "2026-05-31T16:25:10.000Z"
+          },
+          {
+            "event_id": "EV-2KNGU3",
+            "seq": 1105,
+            "entity_id": "AGR-L7Z6",
+            "type": "amended",
+            "units": 21,
+            "effective_from": 1774705452
+          },
+          {
+            "event_id": "EV-G465TG",
+            "seq": 918,
+            "entity_id": "AGR-MDA8",
+            "type": "cancelled",
+            "effective_from": 1774928775
+          },
+          {
+            "event_id": "EV-U75T2U",
+            "seq": 125,
+            "entity_id": "AGR-SU6Z",
+            "type": "reversed",
+            "reverses": "EV-U4D66E",
+            "effective_from": "2026-07-22T06:13:08.000Z"
+          },
+          {
+            "event_id": "EV-SJGRS7",
+            "seq": 121,
+            "entity_id": "AGR-MDA8",
+            "type": "amended",
+            "units": 12,
+            "effective_from": 1768851085
+          },
+          {
+            "event_id": "EV-463G4P",
+            "seq": 150,
+            "entity_id": "AGR-8E8X",
+            "type": "amended",
+            "units": 13,
+            "effective_from": "2026-01-18T07:10:38.000Z"
+          },
+          {
+            "event_id": "EV-X2E9SN",
+            "seq": 60,
+            "entity_id": "AGR-FHSL",
+            "type": "opened",
+            "units": 76,
+            "unit_rate": 329.73,
+            "effective_from": "2026-01-06T12:37:44.000Z"
+          },
+          {
+            "event_id": "EV-H46T2W",
+            "seq": 356,
+            "entity_id": "AGR-SBS2",
+            "type": "opened",
+            "units": 29,
+            "unit_rate": 1087.07,
+            "effective_from": "2026-01-12T10:35:50.000Z"
+          },
+          {
+            "event_id": "EV-ACGP25",
+            "seq": 43,
+            "entity_id": "AGR-SU6Z",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 1345.83,
+            "effective_from": "2026-01-13T04:32:42.000Z"
+          },
+          {
+            "event_id": "EV-ZTFGW2",
+            "seq": 940,
+            "entity_id": "AGR-MDA8",
+            "type": "reinstated",
+            "effective_from": "2026-05-25T16:56:53.000Z"
+          },
+          {
+            "event_id": "EV-J9Q5TW",
+            "seq": 706,
+            "entity_id": "AGR-7JWD",
+            "type": "amended",
+            "unit_rate": "1,467.42",
+            "effective_from": "2026-04-02T17:33:22.000Z"
+          },
+          {
+            "event_id": "EV-FBBLB9",
+            "seq": 88,
+            "entity_id": "AGR-JTQH",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 1943.09,
+            "effective_from": 1786487482
+          },
+          {
+            "event_id": "EV-CKE85C",
+            "seq": 185,
+            "entity_id": "AGR-FHSL",
+            "type": "amended",
+            "units": 85,
+            "effective_from": 1776332026
+          },
+          {
+            "event_id": "EV-AAX7GF",
+            "seq": 449,
+            "entity_id": "AGR-48KT",
+            "type": "reversed",
+            "reverses": "EV-5PGKPU",
+            "effective_from": "2026-06-15T03:09:13.000Z"
+          },
+          {
+            "event_id": "EV-JJEGQ6",
+            "seq": 703,
+            "entity_id": "AGR-2PPH",
+            "type": "reversed",
+            "reverses": "EV-D4T3DA",
+            "effective_from": "2026-01-26T02:12:00.000Z"
+          },
+          {
+            "event_id": "EV-3ASWN9",
+            "seq": 867,
+            "entity_id": "AGR-CUAS",
+            "type": "cancelled",
+            "effective_from": "2026-08-30T14:24:40.000Z"
+          },
+          {
+            "event_id": "EV-UD3AND",
+            "seq": 314,
+            "entity_id": "AGR-YRSA",
+            "type": "amended",
+            "unit_rate": "1,010.39",
+            "effective_from": "2026-02-02T19:50:56.000Z"
+          },
+          {
+            "event_id": "EV-FMNG3D",
+            "seq": 651,
+            "entity_id": "AGR-GKM2",
+            "type": "amended",
+            "units": 25,
+            "effective_from": "2026-03-17T14:54:27.000Z"
+          },
+          {
+            "event_id": "EV-D4T3DA",
+            "seq": 355,
+            "entity_id": "AGR-2PPH",
+            "type": "amended",
+            "units": 40,
+            "effective_from": "2026-06-16T11:35:57.000Z"
+          },
+          {
+            "event_id": "EV-B6TSFF",
+            "seq": 622,
+            "entity_id": "AGR-GQ72",
+            "type": "amended",
+            "units": 90,
+            "effective_from": 1768387279
+          },
+          {
+            "event_id": "EV-TCTCAL",
+            "seq": 657,
+            "entity_id": "AGR-4AZT",
+            "type": "reinstated",
+            "effective_from": 1778691752
+          },
+          {
+            "event_id": "EV-MG469P",
+            "seq": 991,
+            "entity_id": "AGR-TW9Z",
+            "type": "reinstated",
+            "effective_from": "2026-02-25T04:58:00.000Z"
+          },
+          {
+            "event_id": "EV-JL374K",
+            "seq": 1050,
+            "entity_id": "AGR-F54J",
+            "type": "cancelled",
+            "effective_from": "2026-03-28T00:56:15.000Z"
+          },
+          {
+            "event_id": "EV-3ZRNGX",
+            "seq": 1134,
+            "entity_id": "AGR-ABSE",
+            "type": "cancelled",
+            "effective_from": "2026-07-01T14:23:59.000Z"
+          },
+          {
+            "event_id": "EV-DMZ4NF",
+            "seq": 273,
+            "entity_id": "AGR-G6X8",
+            "type": "cancelled",
+            "effective_from": "2026-07-13T15:05:39.000Z"
+          },
+          {
+            "event_id": "EV-PT6PNA",
+            "seq": 456,
+            "entity_id": "AGR-7BGU",
+            "type": "amended",
+            "units": 20,
+            "effective_from": 1786377850
+          },
+          {
+            "event_id": "EV-T2FQ9A",
+            "seq": 647,
+            "entity_id": "AGR-KYUM",
+            "type": "amended",
+            "units": 38,
+            "effective_from": "2026-04-10T22:13:46.000Z"
+          },
+          {
+            "event_id": "EV-CD4GK2",
+            "seq": 153,
+            "entity_id": "AGR-BXXA",
+            "type": "amended",
+            "unit_rate": 382.9,
+            "effective_from": "2026-04-10T22:45:41.000Z"
+          },
+          {
+            "event_id": "EV-A6T5NV",
+            "seq": 1006,
+            "entity_id": "AGR-VDJJ",
+            "type": "amended",
+            "units": 171,
+            "effective_from": "2026-08-20T09:17:08.000Z"
+          },
+          {
+            "event_id": "EV-TE3F5T",
+            "seq": 320,
+            "entity_id": "AGR-6HHQ",
+            "type": "amended",
+            "units": 2,
+            "effective_from": "2026-05-09T02:39:15.000Z"
+          },
+          {
+            "event_id": "EV-MS8YQ4",
+            "seq": 537,
+            "entity_id": "AGR-2ZVN",
+            "type": "amended",
+            "units": 1,
+            "effective_from": "2026-06-04T17:29:04.000Z"
+          },
+          {
+            "event_id": "EV-HYLGUR",
+            "seq": 385,
+            "entity_id": "AGR-KQXX",
+            "type": "amended",
+            "units": 31,
+            "unit_rate": 629.99,
+            "effective_from": 1771205044
+          },
+          {
+            "event_id": "EV-PBG9AR",
+            "seq": 280,
+            "entity_id": "AGR-UZY7",
+            "type": "amended",
+            "units": 35,
+            "effective_from": "2026-03-31T19:37:39.000Z"
+          },
+          {
+            "event_id": "EV-NA2Q4P",
+            "seq": 620,
+            "entity_id": "AGR-AQ9Q",
+            "type": "cancelled",
+            "effective_from": 1784703259
+          },
+          {
+            "event_id": "EV-8FW4BC",
+            "seq": 1073,
+            "entity_id": "AGR-GSNB",
+            "type": "amended",
+            "units": 65,
+            "effective_from": 1778509117
+          },
+          {
+            "event_id": "EV-Z8M3LX",
+            "seq": 1137,
+            "entity_id": "AGR-L7Z6",
+            "type": "cancelled",
+            "effective_from": "2026-06-30T04:23:15.000Z"
+          },
+          {
+            "event_id": "EV-F62VWD",
+            "seq": 1093,
+            "entity_id": "AGR-J8C2",
+            "type": "cancelled",
+            "effective_from": "2026-05-21T16:56:44.000Z"
+          },
+          {
+            "event_id": "EV-7GFAZ2",
+            "seq": 1033,
+            "entity_id": "AGR-6HHQ",
+            "type": "amended",
+            "unit_rate": "2,627.48",
+            "effective_from": "2026-07-08T21:44:02.000Z"
+          },
+          {
+            "event_id": "EV-ZWBU77",
+            "seq": 315,
+            "entity_id": "AGR-MUMQ",
+            "type": "cancelled",
+            "effective_from": 1773431360
+          },
+          {
+            "event_id": "EV-L647TL",
+            "seq": 1047,
+            "entity_id": "AGR-RGMY",
+            "type": "amended",
+            "units": 75,
+            "effective_from": 1778799665
+          },
+          {
+            "event_id": "EV-5FHZMN",
+            "seq": 849,
+            "entity_id": "AGR-MDA8",
+            "type": "amended",
+            "unit_rate": "1,068.01",
+            "effective_from": "2026-04-26T16:54:10.000Z"
+          },
+          {
+            "event_id": "EV-7F3PTF",
+            "seq": 140,
+            "entity_id": "AGR-ZH3R",
+            "type": "opened",
+            "units": 90,
+            "unit_rate": 598.73,
+            "effective_from": "2026-05-30T07:25:50.000Z"
+          },
+          {
+            "event_id": "EV-RE5DLV",
+            "seq": 1122,
+            "entity_id": "AGR-8AY3",
+            "type": "superseded",
+            "replaced_by": "AGR-SBKS",
+            "effective_from": 1785677637
+          },
+          {
+            "event_id": "EV-4Y68JZ",
+            "seq": 409,
+            "entity_id": "AGR-VDJJ",
+            "type": "amended",
+            "units": 72,
+            "effective_from": "2026-08-14T11:48:18.000Z"
+          },
+          {
+            "event_id": "EV-VDXN64",
+            "seq": 618,
+            "entity_id": "AGR-CU6S",
+            "type": "reversed",
+            "reverses": "EV-JPCHZE",
+            "effective_from": "2026-05-19T00:03:13.000Z"
+          },
+          {
+            "event_id": "EV-WFFKRW",
+            "seq": 891,
+            "entity_id": "AGR-RFH5",
+            "type": "cancelled",
+            "effective_from": "2026-05-28T04:49:07.000Z"
+          },
+          {
+            "event_id": "EV-84FAHK",
+            "seq": 258,
+            "entity_id": "AGR-VDJJ",
+            "type": "reversed",
+            "reverses": "EV-A8GS9V",
+            "effective_from": "2026-07-17T20:15:24.000Z"
+          },
+          {
+            "event_id": "EV-VZJWGA",
+            "seq": 905,
+            "entity_id": "AGR-WHX9",
+            "type": "amended",
+            "units": 29,
+            "effective_from": "2026-03-07T09:40:24.000Z"
+          },
+          {
+            "event_id": "EV-5GTNUQ",
+            "seq": 584,
+            "entity_id": "AGR-GKM2",
+            "type": "opened",
+            "units": 3,
+            "unit_rate": 398.02,
+            "effective_from": "2026-01-27T14:20:43.000Z"
+          },
+          {
+            "event_id": "EV-7WSWMH",
+            "seq": 863,
+            "entity_id": "AGR-37HS",
+            "type": "cancelled",
+            "effective_from": "2026-04-07T19:12:03.000Z"
+          },
+          {
+            "event_id": "EV-WFB74Z",
+            "seq": 614,
+            "entity_id": "AGR-68LD",
+            "type": "amended",
+            "units": 16,
+            "effective_from": "2026-02-01T16:17:25.000Z"
+          },
+          {
+            "event_id": "EV-HQ4NHV",
+            "seq": 55,
+            "entity_id": "AGR-GVEM",
+            "type": "amended",
+            "units": 85,
+            "effective_from": 1776872296
+          },
+          {
+            "event_id": "EV-N5PTZ6",
+            "seq": 520,
+            "entity_id": "AGR-5NXB",
+            "type": "reversed",
+            "reverses": "EV-RQZ3B3",
+            "effective_from": "2026-09-01T23:59:22.000Z"
+          },
+          {
+            "event_id": "EV-TB42ES",
+            "seq": 770,
+            "entity_id": "AGR-48KT",
+            "type": "amended",
+            "unit_rate": "1,008.91",
+            "effective_from": "2026-06-21T22:14:44.000Z"
+          },
+          {
+            "event_id": "EV-TK8SQE",
+            "seq": 174,
+            "entity_id": "AGR-MUMQ",
+            "type": "amended",
+            "units": 87,
+            "unit_rate": 77,
+            "effective_from": "2026-02-01T02:37:37.000Z"
+          },
+          {
+            "event_id": "EV-EGD9FW",
+            "seq": 336,
+            "entity_id": "AGR-8K37",
+            "type": "amended",
+            "units": 12,
+            "effective_from": "2026-08-22T01:55:55.000Z"
+          },
+          {
+            "event_id": "EV-A3RQ89",
+            "seq": 1102,
+            "entity_id": "AGR-NQK8",
+            "type": "reinstated",
+            "effective_from": "2026-08-31T07:32:36.000Z"
+          },
+          {
+            "event_id": "EV-8FSGYN",
+            "seq": 388,
+            "entity_id": "AGR-WASN",
+            "type": "opened",
+            "units": 64,
+            "unit_rate": 25,
+            "effective_from": "2026-01-31T03:30:30.000Z"
+          },
+          {
+            "event_id": "EV-7SQS3B",
+            "seq": 203,
+            "entity_id": "AGR-BVY4",
+            "type": "amended",
+            "units": 16,
+            "unit_rate": "1,256.53",
+            "effective_from": 1767791072
+          },
+          {
+            "event_id": "EV-9QJDNB",
+            "seq": 99,
+            "entity_id": "AGR-YRSA",
+            "type": "opened",
+            "units": 2,
+            "unit_rate": 1401.4,
+            "effective_from": "2026-06-28T09:57:45.000Z"
+          },
+          {
+            "event_id": "EV-PPXB9S",
+            "seq": 869,
+            "entity_id": "AGR-J8J8",
+            "type": "amended",
+            "units": 54,
+            "unit_rate": 290.21,
+            "effective_from": 1777614869
+          },
+          {
+            "event_id": "EV-9CCK98",
+            "seq": 167,
+            "entity_id": "AGR-UZY7",
+            "type": "amended",
+            "units": 24,
+            "unit_rate": 344.92,
+            "effective_from": "2026-03-14T18:41:54.000Z"
+          },
+          {
+            "event_id": "EV-NX44B6",
+            "seq": 987,
+            "entity_id": "AGR-5NXB",
+            "type": "cancelled",
+            "effective_from": 1782721640
+          },
+          {
+            "event_id": "EV-BT2DB2",
+            "seq": 382,
+            "entity_id": "AGR-KQXX",
+            "type": "amended",
+            "units": 11,
+            "effective_from": "2026-06-14T08:34:26.000Z"
+          },
+          {
+            "event_id": "EV-Y9RF4H",
+            "seq": 773,
+            "entity_id": "AGR-NLLS",
+            "type": "reinstated",
+            "effective_from": 1780770618
+          },
+          {
+            "event_id": "EV-J37Q5F",
+            "seq": 950,
+            "entity_id": "AGR-EP36",
+            "type": "amended",
+            "units": 16,
+            "effective_from": 1783173846
+          },
+          {
+            "event_id": "EV-KXPDEU",
+            "seq": 823,
+            "entity_id": "AGR-KYUM",
+            "type": "amended",
+            "unit_rate": 522.96,
+            "effective_from": "2026-08-15T05:05:08.000Z"
+          },
+          {
+            "event_id": "EV-FMD228",
+            "seq": 878,
+            "entity_id": "AGR-4SMN",
+            "type": "amended",
+            "unit_rate": "1,553.80",
+            "effective_from": "2026-07-19T23:53:34.000Z"
+          },
+          {
+            "event_id": "EV-BUEX2N",
+            "seq": 431,
+            "entity_id": "AGR-UZY7",
+            "type": "amended",
+            "units": 23,
+            "effective_from": 1785258099
+          },
+          {
+            "event_id": "EV-DFLBC6",
+            "seq": 293,
+            "entity_id": "AGR-EZNL",
+            "type": "amended",
+            "unit_rate": 470.72,
+            "effective_from": 1787810726
+          },
+          {
+            "event_id": "EV-N9T99M",
+            "seq": 7,
+            "entity_id": "AGR-GVEM",
+            "type": "opened",
+            "units": 78,
+            "unit_rate": 166.29,
+            "effective_from": "2026-03-12T12:58:32.000Z"
+          },
+          {
+            "event_id": "EV-DF8H2E",
+            "seq": 983,
+            "entity_id": "AGR-TZBJ",
+            "type": "cancelled",
+            "effective_from": 1780891636
+          },
+          {
+            "event_id": "EV-F9GFEB",
+            "seq": 758,
+            "entity_id": "AGR-ZWYK",
+            "type": "cancelled",
+            "effective_from": "2026-04-29T13:56:43.000Z"
+          },
+          {
+            "event_id": "EV-8XPJ2L",
+            "seq": 341,
+            "entity_id": "AGR-WYR6",
+            "type": "amended",
+            "units": 58,
+            "unit_rate": 506.56,
+            "effective_from": 1769177540
+          },
+          {
+            "event_id": "EV-A9UTG6",
+            "seq": 1068,
+            "entity_id": "AGR-RGMY",
+            "type": "amended",
+            "unit_rate": 122.03,
+            "effective_from": 1779005143
+          },
+          {
+            "event_id": "EV-ZJ495B",
+            "seq": 787,
+            "entity_id": "AGR-4PXU",
+            "type": "amended",
+            "units": 10,
+            "effective_from": 1772138316
+          },
+          {
+            "event_id": "EV-E7P83H",
+            "seq": 191,
+            "entity_id": "AGR-JTQH",
+            "type": "amended",
+            "unit_rate": 1777.52,
+            "effective_from": "2026-07-18T15:10:15.000Z"
+          },
+          {
+            "event_id": "EV-WL9S8D",
+            "seq": 650,
+            "entity_id": "AGR-U7Z4",
+            "type": "cancelled",
+            "effective_from": "2026-03-09T21:46:36.000Z"
+          },
+          {
+            "event_id": "EV-EFC6AU",
+            "seq": 636,
+            "entity_id": "AGR-WYR6",
+            "type": "cancelled",
+            "effective_from": "2026-05-22T03:53:13.000Z"
+          },
+          {
+            "event_id": "EV-6BUPVC",
+            "seq": 1036,
+            "entity_id": "AGR-UNVS",
+            "type": "reinstated",
+            "effective_from": "2026-02-11T03:38:47.000Z"
+          },
+          {
+            "event_id": "EV-B2VK87",
+            "seq": 1085,
+            "entity_id": "AGR-6HHQ",
+            "type": "cancelled",
+            "effective_from": "2026-07-26T19:04:01.000Z"
+          },
+          {
+            "event_id": "EV-2ZRK6S",
+            "seq": 780,
+            "entity_id": "AGR-AQ9Q",
+            "type": "reinstated",
+            "effective_from": 1784452679
+          },
+          {
+            "event_id": "EV-TVS7WZ",
+            "seq": 195,
+            "entity_id": "AGR-6NJG",
+            "type": "amended",
+            "unit_rate": 164.6,
+            "effective_from": "2026-08-02T15:09:26.000Z"
+          },
+          {
+            "event_id": "EV-3UKNQW",
+            "seq": 71,
+            "entity_id": "AGR-2CBQ",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 1395.09,
+            "effective_from": "2026-04-01T09:38:48.000Z"
+          },
+          {
+            "event_id": "EV-XD584F",
+            "seq": 460,
+            "entity_id": "AGR-Q4LW",
+            "type": "opened",
+            "units": 71,
+            "unit_rate": 376.72,
+            "effective_from": "2026-03-05T16:44:42.000Z"
+          },
+          {
+            "event_id": "EV-FDUHWK",
+            "seq": 326,
+            "entity_id": "AGR-EQ2L",
+            "type": "reversed",
+            "reverses": "EV-YZ6BU7",
+            "effective_from": "2026-04-26T03:02:42.000Z"
+          },
+          {
+            "event_id": "EV-W6JWDA",
+            "seq": 246,
+            "entity_id": "AGR-ED52",
+            "type": "amended",
+            "units": 12,
+            "unit_rate": 1271.56,
+            "effective_from": "2026-01-30T19:04:40.000Z"
+          },
+          {
+            "event_id": "EV-H99LJG",
+            "seq": 77,
+            "entity_id": "AGR-MBC8",
+            "type": "opened",
+            "units": 62,
+            "unit_rate": 396.19,
+            "effective_from": 1782987601
+          },
+          {
+            "event_id": "EV-5ZBPPG",
+            "seq": 249,
+            "entity_id": "AGR-CU6S",
+            "type": "opened",
+            "units": 28,
+            "unit_rate": 191.79,
+            "effective_from": "2026-02-09T16:15:25.000Z"
+          },
+          {
+            "event_id": "EV-GDMAWK",
+            "seq": 548,
+            "entity_id": "AGR-Q4LW",
+            "type": "amended",
+            "units": 61,
+            "effective_from": "2026-04-09T11:46:56.000Z"
+          },
+          {
+            "event_id": "EV-KFJPU3",
+            "seq": 1098,
+            "entity_id": "AGR-CZNH",
+            "type": "amended",
+            "unit_rate": "1,182.20",
+            "effective_from": 1772080244
+          },
+          {
+            "event_id": "EV-6LXXX4",
+            "seq": 724,
+            "entity_id": "AGR-8XQH",
+            "type": "amended",
+            "units": 15,
+            "effective_from": "2026-05-25T22:44:57.000Z"
+          },
+          {
+            "event_id": "EV-VXHN6U",
+            "seq": 740,
+            "entity_id": "AGR-GQ72",
+            "type": "amended",
+            "units": 94,
+            "effective_from": 1772012816
+          },
+          {
+            "event_id": "EV-3VLAG5",
+            "seq": 304,
+            "entity_id": "AGR-QDRN",
+            "type": "amended",
+            "units": 30,
+            "effective_from": "2026-03-24T01:41:12.000Z"
+          },
+          {
+            "event_id": "EV-FK4M6E",
+            "seq": 792,
+            "entity_id": "AGR-UZY7",
+            "type": "amended",
+            "unit_rate": 352.1,
+            "effective_from": "2026-06-16T03:12:25.000Z"
+          },
+          {
+            "event_id": "EV-S4N2FR",
+            "seq": 479,
+            "entity_id": "AGR-ZWYK",
+            "type": "amended",
+            "units": 19,
+            "effective_from": "2026-02-16T20:43:56.000Z"
+          },
+          {
+            "event_id": "EV-5UBG3Z",
+            "seq": 208,
+            "entity_id": "AGR-U7Z4",
+            "type": "amended",
+            "units": 20,
+            "effective_from": 1782719420
+          },
+          {
+            "event_id": "EV-NSKV4Q",
+            "seq": 960,
+            "entity_id": "AGR-W88M",
+            "type": "amended",
+            "unit_rate": "1,223.70",
+            "effective_from": "2026-08-24T23:18:55.000Z"
+          },
+          {
+            "event_id": "EV-MDX83A",
+            "seq": 997,
+            "entity_id": "AGR-TZBJ",
+            "type": "reinstated",
+            "effective_from": "2026-07-24T03:21:23.000Z"
+          },
+          {
+            "event_id": "EV-5U9R69",
+            "seq": 128,
+            "entity_id": "AGR-EP36",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 1366.91,
+            "effective_from": "2026-04-18T03:54:00.000Z"
+          },
+          {
+            "event_id": "EV-FFPZ48",
+            "seq": 633,
+            "entity_id": "AGR-KYUM",
+            "type": "amended",
+            "units": 42,
+            "effective_from": 1773707404
+          },
+          {
+            "event_id": "EV-WLFZMD",
+            "seq": 589,
+            "entity_id": "AGR-4SMN",
+            "type": "amended",
+            "units": 14,
+            "effective_from": 1773982199
+          },
+          {
+            "event_id": "EV-7NJ8G4",
+            "seq": 437,
+            "entity_id": "AGR-A388",
+            "type": "reinstated",
+            "effective_from": "2026-08-29T09:18:39.000Z"
+          },
+          {
+            "event_id": "EV-YP8PJY",
+            "seq": 1111,
+            "entity_id": "AGR-F54J",
+            "type": "reinstated",
+            "effective_from": "2026-04-26T01:25:22.000Z"
+          },
+          {
+            "event_id": "EV-NZBMGY",
+            "seq": 82,
+            "entity_id": "AGR-ER79",
+            "type": "opened",
+            "units": 37,
+            "unit_rate": 1409.01,
+            "effective_from": "2026-08-09T14:17:53.000Z"
+          },
+          {
+            "event_id": "EV-4W27XQ",
+            "seq": 954,
+            "entity_id": "AGR-QNEJ",
+            "type": "cancelled",
+            "effective_from": "2026-08-31T08:23:33.000Z"
+          },
+          {
+            "event_id": "EV-L2BEZN",
+            "seq": 730,
+            "entity_id": "AGR-8K37",
+            "type": "amended",
+            "units": 15,
+            "effective_from": "2026-05-25T04:30:08.000Z"
+          },
+          {
+            "event_id": "EV-Z9QRGJ",
+            "seq": 239,
+            "entity_id": "AGR-GVEM",
+            "type": "reversed",
+            "reverses": "EV-XMPXFX",
+            "effective_from": 1783455883
+          },
+          {
+            "event_id": "EV-ZU3PK8",
+            "seq": 880,
+            "entity_id": "AGR-8AY3",
+            "type": "amended",
+            "units": 36,
+            "effective_from": "2026-03-08T21:47:52.000Z"
+          },
+          {
+            "event_id": "EV-F76455",
+            "seq": 558,
+            "entity_id": "AGR-WS5S",
+            "type": "amended",
+            "units": 34,
+            "effective_from": "2026-06-20T04:28:09.000Z"
+          },
+          {
+            "event_id": "EV-RJQ227",
+            "seq": 596,
+            "entity_id": "AGR-EQ2L",
+            "type": "cancelled",
+            "effective_from": 1781897985
+          },
+          {
+            "event_id": "EV-HG33B4",
+            "seq": 469,
+            "entity_id": "AGR-U7Z4",
+            "type": "amended",
+            "unit_rate": 502.75,
+            "effective_from": "2026-01-14T10:26:06.000Z"
+          },
+          {
+            "event_id": "EV-FSMLVE",
+            "seq": 225,
+            "entity_id": "AGR-8XQH",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 985.38,
+            "effective_from": "2026-01-23T16:52:30.000Z"
+          },
+          {
+            "event_id": "EV-4AQB8M",
+            "seq": 177,
+            "entity_id": "AGR-42AH",
+            "type": "amended",
+            "units": 92,
+            "effective_from": "2026-03-12T20:40:49.000Z"
+          },
+          {
+            "event_id": "EV-PTYR6M",
+            "seq": 580,
+            "entity_id": "AGR-VW9N",
+            "type": "amended",
+            "unit_rate": 531.49,
+            "effective_from": "2026-05-28T19:02:09.000Z"
+          },
+          {
+            "event_id": "EV-R2P6SG",
+            "seq": 743,
+            "entity_id": "AGR-2ZVN",
+            "type": "cancelled",
+            "effective_from": "2026-07-19T03:03:29.000Z"
+          },
+          {
+            "event_id": "EV-9UAJJX",
+            "seq": 373,
+            "entity_id": "AGR-ZWYK",
+            "type": "opened",
+            "units": 20,
+            "unit_rate": 865.96,
+            "effective_from": "2026-01-06T05:56:13.000Z"
+          },
+          {
+            "event_id": "EV-L4RB4P",
+            "seq": 643,
+            "entity_id": "AGR-2CBQ",
+            "type": "reinstated",
+            "effective_from": "2026-05-13T05:19:25.000Z"
+          },
+          {
+            "event_id": "EV-HKXSAU",
+            "seq": 421,
+            "entity_id": "AGR-NQK8",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 1507.6,
+            "effective_from": "2026-02-04T08:31:59.000Z"
+          },
+          {
+            "event_id": "EV-KR888U",
+            "seq": 980,
+            "entity_id": "AGR-F6B3",
+            "type": "cancelled",
+            "effective_from": 1784207170
+          },
+          {
+            "event_id": "EV-3PQ5EY",
+            "seq": 1021,
+            "entity_id": "AGR-JTQH",
+            "type": "amended",
+            "unit_rate": "1,639.70",
+            "effective_from": "2026-06-28T05:42:56.000Z"
+          },
+          {
+            "event_id": "EV-2JBE9J",
+            "seq": 860,
+            "entity_id": "AGR-EP36",
+            "type": "reversed",
+            "reverses": "EV-XTTXMP",
+            "effective_from": 1781980366
+          },
+          {
+            "event_id": "EV-4EF3ER",
+            "seq": 818,
+            "entity_id": "AGR-WS5S",
+            "type": "superseded",
+            "replaced_by": "AGR-FY2M",
+            "effective_from": 1776686083
+          },
+          {
+            "event_id": "EV-CY7KM2",
+            "seq": 331,
+            "entity_id": "AGR-J8J8",
+            "type": "opened",
+            "units": 90,
+            "unit_rate": 659.19,
+            "effective_from": "2026-04-20T21:14:56.000Z"
+          },
+          {
+            "event_id": "EV-RDS4JP",
+            "seq": 837,
+            "entity_id": "AGR-8XQH",
+            "type": "cancelled",
+            "effective_from": 1781695516
+          },
+          {
+            "event_id": "EV-FCC94B",
+            "seq": 831,
+            "entity_id": "AGR-VDJJ",
+            "type": "amended",
+            "unit_rate": 205.64,
+            "effective_from": 1769028618
+          },
+          {
+            "event_id": "EV-ZK6MBX",
+            "seq": 909,
+            "entity_id": "AGR-ABSE",
+            "type": "amended",
+            "units": 60,
+            "effective_from": "2026-05-28T05:03:18.000Z"
+          },
+          {
+            "event_id": "EV-J27AK9",
+            "seq": 1061,
+            "entity_id": "AGR-GQ72",
+            "type": "amended",
+            "units": 281,
+            "effective_from": "2026-03-08T04:16:54.000Z"
+          },
+          {
+            "event_id": "EV-F8U9SD",
+            "seq": 393,
+            "entity_id": "AGR-FUDC",
+            "type": "amended",
+            "units": 8,
+            "effective_from": "2026-08-16T11:14:51.000Z"
+          },
+          {
+            "event_id": "EV-H92L27",
+            "seq": 1064,
+            "entity_id": "AGR-L7Z6",
+            "type": "amended",
+            "unit_rate": 1219.19,
+            "effective_from": 1771217397
+          },
+          {
+            "event_id": "EV-F4MB7Q",
+            "seq": 1055,
+            "entity_id": "AGR-8AY3",
+            "type": "amended",
+            "units": 99,
+            "effective_from": "2026-05-12T11:29:21.000Z"
+          },
+          {
+            "event_id": "EV-YK8EZP",
+            "seq": 364,
+            "entity_id": "AGR-2CBQ",
+            "type": "amended",
+            "units": 24,
+            "effective_from": "2026-05-17T02:42:47.000Z"
+          },
+          {
+            "event_id": "EV-HHBFTU",
+            "seq": 209,
+            "entity_id": "AGR-UNVS",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 1174.2,
+            "effective_from": "2026-03-24T14:13:14.000Z"
+          },
+          {
+            "event_id": "EV-LELFFE",
+            "seq": 1127,
+            "entity_id": "AGR-J8J8",
+            "type": "reversed",
+            "reverses": "EV-EDJ7DA",
+            "effective_from": 1779311052
+          },
+          {
+            "event_id": "EV-EFQUDS",
+            "seq": 474,
+            "entity_id": "AGR-WG26",
+            "type": "amended",
+            "units": 60,
+            "effective_from": "2026-02-04T05:08:58.000Z"
+          },
+          {
+            "event_id": "EV-V6TP86",
+            "seq": 985,
+            "entity_id": "AGR-7BGU",
+            "type": "amended",
+            "unit_rate": "1,106.92",
+            "effective_from": "2026-01-11T09:54:34.000Z"
+          },
+          {
+            "event_id": "EV-QPZWPL",
+            "seq": 611,
+            "entity_id": "AGR-CMME",
+            "type": "amended",
+            "units": 28,
+            "effective_from": 1767835349
+          },
+          {
+            "event_id": "EV-CM5TBM",
+            "seq": 262,
+            "entity_id": "AGR-G6X8",
+            "type": "amended",
+            "units": 21,
+            "unit_rate": 1240.81,
+            "effective_from": "2026-04-15T04:44:24.000Z"
+          },
+          {
+            "event_id": "EV-RT8H99",
+            "seq": 1066,
+            "entity_id": "AGR-JTQH",
+            "type": "amended",
+            "units": 28,
+            "effective_from": 1782877372
+          },
+          {
+            "event_id": "EV-NKDAJZ",
+            "seq": 480,
+            "entity_id": "AGR-AAKK",
+            "type": "amended",
+            "units": 9,
+            "unit_rate": "1,345.91",
+            "effective_from": "2026-05-12T07:22:15.000Z"
+          },
+          {
+            "event_id": "EV-T6DAZW",
+            "seq": 323,
+            "entity_id": "AGR-MBC8",
+            "type": "amended",
+            "units": 35,
+            "effective_from": "2026-07-05T04:27:14.000Z"
+          },
+          {
+            "event_id": "EV-GFPMX3",
+            "seq": 269,
+            "entity_id": "AGR-48KT",
+            "type": "amended",
+            "units": 1,
+            "unit_rate": 854.74,
+            "effective_from": 1784530723
+          },
+          {
+            "event_id": "EV-8ZVTC9",
+            "seq": 403,
+            "entity_id": "AGR-UZY7",
+            "type": "reversed",
+            "reverses": "EV-PBG9AR",
+            "effective_from": "2026-04-23T16:42:45.000Z"
+          },
+          {
+            "event_id": "EV-84DK8K",
+            "seq": 78,
+            "entity_id": "AGR-QDRN",
+            "type": "opened",
+            "units": 17,
+            "unit_rate": 1112.32,
+            "effective_from": 1767953957
+          },
+          {
+            "event_id": "EV-Q45JBK",
+            "seq": 748,
+            "entity_id": "AGR-2PPH",
+            "type": "amended",
+            "units": 28,
+            "effective_from": "2026-06-27T08:54:30.000Z"
+          },
+          {
+            "event_id": "EV-WQA7GE",
+            "seq": 1113,
+            "entity_id": "AGR-GQ72",
+            "type": "cancelled",
+            "effective_from": "2026-02-02T22:32:03.000Z"
+          },
+          {
+            "event_id": "EV-MGTHZ6",
+            "seq": 1081,
+            "entity_id": "AGR-J8C2",
+            "type": "reversed",
+            "reverses": "EV-NYWKQY",
+            "effective_from": 1784923721
+          },
+          {
+            "event_id": "EV-UKAMWD",
+            "seq": 821,
+            "entity_id": "AGR-TW9Z",
+            "type": "amended",
+            "units": 81,
+            "unit_rate": 417.61,
+            "effective_from": "2026-01-25T20:49:14.000Z"
+          },
+          {
+            "event_id": "EV-5FD72L",
+            "seq": 782,
+            "entity_id": "AGR-7A2G",
+            "type": "cancelled",
+            "effective_from": "2026-04-22T16:29:09.000Z"
+          },
+          {
+            "event_id": "EV-V863MB",
+            "seq": 137,
+            "entity_id": "AGR-37HS",
+            "type": "opened",
+            "units": 37,
+            "unit_rate": 726.01,
+            "effective_from": "2026-07-22T05:47:07.000Z"
+          },
+          {
+            "event_id": "EV-HEMWAE",
+            "seq": 1091,
+            "entity_id": "AGR-GSNB",
+            "type": "amended",
+            "unit_rate": 467.64,
+            "effective_from": "2026-05-23T13:28:31.000Z"
+          },
+          {
+            "event_id": "EV-EN2RV4",
+            "seq": 67,
+            "entity_id": "AGR-EQ2L",
+            "type": "opened",
+            "units": 29,
+            "unit_rate": 415.81,
+            "effective_from": "2026-08-17T18:58:04.000Z"
+          },
+          {
+            "event_id": "EV-YZ6BU7",
+            "seq": 143,
+            "entity_id": "AGR-EQ2L",
+            "type": "amended",
+            "units": 42,
+            "effective_from": "2026-08-30T15:31:52.000Z"
+          },
+          {
+            "event_id": "EV-3LZ6LN",
+            "seq": 797,
+            "entity_id": "AGR-8XQH",
+            "type": "amended",
+            "unit_rate": "1,166.99",
+            "effective_from": "2026-06-11T22:27:43.000Z"
+          },
+          {
+            "event_id": "EV-PHGNMX",
+            "seq": 92,
+            "entity_id": "AGR-FUDC",
+            "type": "opened",
+            "units": 11,
+            "unit_rate": 1103.65,
+            "effective_from": "2026-04-12T20:35:46.000Z"
+          },
+          {
+            "event_id": "EV-HH4FYA",
+            "seq": 441,
+            "entity_id": "AGR-F26Z",
+            "type": "amended",
+            "units": 8,
+            "unit_rate": 4312.33,
+            "effective_from": "2026-02-18T21:32:00.000Z"
+          },
+          {
+            "event_id": "EV-P6AYE3",
+            "seq": 594,
+            "entity_id": "AGR-LARF",
+            "type": "cancelled",
+            "effective_from": "2026-06-16T08:52:36.000Z"
+          },
+          {
+            "event_id": "EV-RAY7FE",
+            "seq": 525,
+            "entity_id": "AGR-J8C2",
+            "type": "opened",
+            "units": 18,
+            "unit_rate": 792.57,
+            "effective_from": "2026-05-31T12:11:24.000Z"
+          },
+          {
+            "event_id": "EV-AD659H",
+            "seq": 114,
+            "entity_id": "AGR-5NFU",
+            "type": "opened",
+            "units": 74,
+            "unit_rate": 665.4,
+            "effective_from": "2026-01-06T12:10:32.000Z"
+          },
+          {
+            "event_id": "EV-UXGP7U",
+            "seq": 48,
+            "entity_id": "AGR-G6X8",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 979.74,
+            "effective_from": "2026-01-11T14:30:11.000Z"
+          },
+          {
+            "event_id": "EV-R52EZ4",
+            "seq": 645,
+            "entity_id": "AGR-ED52",
+            "type": "amended",
+            "unit_rate": "1,088.42",
+            "effective_from": "2026-06-11T12:26:11.000Z"
+          },
+          {
+            "event_id": "EV-9J3UKT",
+            "seq": 220,
+            "entity_id": "AGR-YRSA",
+            "type": "reversed",
+            "reverses": "EV-S4FJDB",
+            "effective_from": 1779519271
+          },
+          {
+            "event_id": "EV-XDJQ84",
+            "seq": 467,
+            "entity_id": "AGR-68LD",
+            "type": "opened",
+            "units": 11,
+            "unit_rate": 1775.37,
+            "effective_from": "2026-06-02T08:28:46.000Z"
+          },
+          {
+            "event_id": "EV-5PGKPU",
+            "seq": 333,
+            "entity_id": "AGR-48KT",
+            "type": "amended",
+            "units": 20,
+            "effective_from": 1782600987
+          },
+          {
+            "event_id": "EV-68CP4W",
+            "seq": 873,
+            "entity_id": "AGR-5NFU",
+            "type": "amended",
+            "unit_rate": 347.82,
+            "effective_from": "2026-07-13T15:23:03.000Z"
+          },
+          {
+            "event_id": "EV-ZN46J9",
+            "seq": 546,
+            "entity_id": "AGR-SU6Z",
+            "type": "cancelled",
+            "effective_from": 1785718387
+          },
+          {
+            "event_id": "EV-H3UQ9C",
+            "seq": 648,
+            "entity_id": "AGR-MBC8",
+            "type": "amended",
+            "unit_rate": 499.83,
+            "effective_from": 1768952529
+          },
+          {
+            "event_id": "EV-SHGUDJ",
+            "seq": 945,
+            "entity_id": "AGR-CU6S",
+            "type": "cancelled",
+            "effective_from": "2026-07-19T07:49:40.000Z"
+          },
+          {
+            "event_id": "EV-GL4ZV5",
+            "seq": 144,
+            "entity_id": "AGR-LARF",
+            "type": "opened",
+            "units": 1,
+            "unit_rate": 1233.94,
+            "effective_from": "2026-01-11T21:11:18.000Z"
+          },
+          {
+            "event_id": "EV-Z97M5X",
+            "seq": 329,
+            "entity_id": "AGR-HEQ6",
+            "type": "amended",
+            "units": 13,
+            "effective_from": "2026-08-14T23:28:45.000Z"
+          },
+          {
+            "event_id": "EV-Q3TTVA",
+            "seq": 998,
+            "entity_id": "AGR-2PPH",
+            "type": "reinstated",
+            "effective_from": 1767926595
+          },
+          {
+            "event_id": "EV-ZGWD9G",
+            "seq": 802,
+            "entity_id": "AGR-2PPH",
+            "type": "cancelled",
+            "effective_from": "2026-06-10T02:00:12.000Z"
+          },
+          {
+            "event_id": "EV-JB8FY9",
+            "seq": 847,
+            "entity_id": "AGR-NQK8",
+            "type": "amended",
+            "unit_rate": 1633.88,
+            "effective_from": "2026-07-08T16:47:09.000Z"
+          },
+          {
+            "event_id": "EV-TV997N",
+            "seq": 683,
+            "entity_id": "AGR-42AH",
+            "type": "reinstated",
+            "effective_from": "2026-06-13T16:24:34.000Z"
+          },
+          {
+            "event_id": "EV-9P857F",
+            "seq": 704,
+            "entity_id": "AGR-HKVR",
+            "type": "amended",
+            "unit_rate": 120.61,
+            "effective_from": "2026-08-07T15:38:41.000Z"
+          },
+          {
+            "event_id": "EV-PU4WYA",
+            "seq": 277,
+            "entity_id": "AGR-8E8X",
+            "type": "amended",
+            "unit_rate": "1,067.04",
+            "effective_from": "2026-05-17T00:04:02.000Z"
+          },
+          {
+            "event_id": "EV-73CD7W",
+            "seq": 547,
+            "entity_id": "AGR-QRUH",
+            "type": "amended",
+            "units": 6,
+            "effective_from": "2026-01-30T07:44:56.000Z"
+          },
+          {
+            "event_id": "EV-S5WPXL",
+            "seq": 962,
+            "entity_id": "AGR-RFH5",
+            "type": "reinstated",
+            "effective_from": "2026-07-03T12:25:13.000Z"
+          },
+          {
+            "event_id": "EV-GMW5DA",
+            "seq": 400,
+            "entity_id": "AGR-8K37",
+            "type": "reversed",
+            "reverses": "EV-EGD9FW",
+            "effective_from": "2026-08-27T22:03:06.000Z"
+          },
+          {
+            "event_id": "EV-94M8BP",
+            "seq": 200,
+            "entity_id": "AGR-4SMN",
+            "type": "opened",
+            "units": 3,
+            "unit_rate": 1856.19,
+            "effective_from": 1783061701
+          },
+          {
+            "event_id": "EV-5AUK2X",
+            "seq": 52,
+            "entity_id": "AGR-4AZT",
+            "type": "amended",
+            "units": 12,
+            "effective_from": "2026-03-29T03:37:11.000Z"
+          },
+          {
+            "event_id": "EV-BWDEQN",
+            "seq": 32,
+            "entity_id": "AGR-PXCJ",
+            "type": "opened",
+            "units": 77,
+            "unit_rate": 209.38,
+            "effective_from": "2026-03-01T22:18:30.000Z"
+          },
+          {
+            "event_id": "EV-8K43XD",
+            "seq": 1067,
+            "entity_id": "AGR-MJVK",
+            "type": "amended",
+            "unit_rate": "1,659.09",
+            "effective_from": "2026-06-28T06:02:26.000Z"
+          },
+          {
+            "event_id": "EV-JX3S7N",
+            "seq": 969,
+            "entity_id": "AGR-WHX9",
+            "type": "reversed",
+            "reverses": "EV-VZJWGA",
+            "effective_from": "2026-01-22T08:47:10.000Z"
+          },
+          {
+            "event_id": "EV-NYSPPA",
+            "seq": 1039,
+            "entity_id": "AGR-CZNH",
+            "type": "amended",
+            "units": 12,
+            "effective_from": "2026-02-04T23:30:07.000Z"
+          },
+          {
+            "event_id": "EV-URHP33",
+            "seq": 457,
+            "entity_id": "AGR-7A2G",
+            "type": "amended",
+            "units": 95,
+            "effective_from": "2026-08-14T19:21:39.000Z"
+          },
+          {
+            "event_id": "EV-DGQYG8",
+            "seq": 168,
+            "entity_id": "AGR-PXCJ",
+            "type": "cancelled",
+            "effective_from": 1779606011
+          },
+          {
+            "event_id": "EV-4RL4YP",
+            "seq": 609,
+            "entity_id": "AGR-8K37",
+            "type": "amended",
+            "units": 8,
+            "effective_from": 1774283940
+          },
+          {
+            "event_id": "EV-EE6A3C",
+            "seq": 296,
+            "entity_id": "AGR-QDRN",
+            "type": "amended",
+            "unit_rate": 851.11,
+            "effective_from": "2026-03-05T07:15:07.000Z"
+          },
+          {
+            "event_id": "EV-2J3295",
+            "seq": 660,
+            "entity_id": "AGR-2ZVN",
+            "type": "amended",
+            "unit_rate": "1,650.85",
+            "effective_from": "2026-07-29T22:32:03.000Z"
+          },
+          {
+            "event_id": "EV-TQYHCN",
+            "seq": 784,
+            "entity_id": "AGR-2PPH",
+            "type": "amended",
+            "unit_rate": 570.6,
+            "effective_from": 1771134900
+          },
+          {
+            "event_id": "EV-E6AGL2",
+            "seq": 602,
+            "entity_id": "AGR-4AZT",
+            "type": "cancelled",
+            "effective_from": "2026-04-13T06:42:43.000Z"
+          },
+          {
+            "event_id": "EV-7YTVRP",
+            "seq": 721,
+            "entity_id": "AGR-7UBT",
+            "type": "amended",
+            "units": 24,
+            "effective_from": 1774547947
+          },
+          {
+            "event_id": "EV-ZKVY85",
+            "seq": 517,
+            "entity_id": "AGR-SU6Z",
+            "type": "amended",
+            "units": 8,
+            "effective_from": "2026-07-25T06:06:57.000Z"
+          },
+          {
+            "event_id": "EV-X7DNMN",
+            "seq": 361,
+            "entity_id": "AGR-QNEJ",
+            "type": "opened",
+            "units": 32,
+            "unit_rate": 3613.77,
+            "effective_from": "2026-04-17T19:36:10.000Z"
+          },
+          {
+            "event_id": "EV-688TDJ",
+            "seq": 917,
+            "entity_id": "AGR-CMME",
+            "type": "amended",
+            "units": 18,
+            "effective_from": 1769500205
+          },
+          {
+            "event_id": "EV-LHEMC2",
+            "seq": 676,
+            "entity_id": "AGR-NLLS",
+            "type": "amended",
+            "unit_rate": 141.37,
+            "effective_from": "2026-03-29T02:13:51.000Z"
+          },
+          {
+            "event_id": "EV-4N7JF7",
+            "seq": 1014,
+            "entity_id": "AGR-68LD",
+            "type": "cancelled",
+            "effective_from": 1787701555
+          },
+          {
+            "event_id": "EV-A9QLNX",
+            "seq": 1008,
+            "entity_id": "AGR-WHX9",
+            "type": "amended",
+            "units": 19,
+            "unit_rate": "1,049.97",
+            "effective_from": "2026-01-14T06:21:17.000Z"
+          },
+          {
+            "event_id": "EV-JCHQJ9",
+            "seq": 567,
+            "entity_id": "AGR-KQXX",
+            "type": "amended",
+            "unit_rate": 471.09,
+            "effective_from": "2026-05-04T07:05:41.000Z"
+          },
+          {
+            "event_id": "EV-JEELXK",
+            "seq": 252,
+            "entity_id": "AGR-4PXU",
+            "type": "opened",
+            "units": 28,
+            "unit_rate": 1607.39,
+            "effective_from": "2026-01-31T00:17:12.000Z"
+          },
+          {
+            "event_id": "EV-J4DZKS",
+            "seq": 993,
+            "entity_id": "AGR-5NFU",
+            "type": "reinstated",
+            "effective_from": "2026-08-29T23:22:38.000Z"
+          },
+          {
+            "event_id": "EV-SUV74C",
+            "seq": 965,
+            "entity_id": "AGR-W88M",
+            "type": "cancelled",
+            "effective_from": 1775745977
+          },
+          {
+            "event_id": "EV-E55VPS",
+            "seq": 656,
+            "entity_id": "AGR-Q4LW",
+            "type": "amended",
+            "unit_rate": 369.63,
+            "effective_from": "2026-04-11T00:32:21.000Z"
+          },
+          {
+            "event_id": "EV-77LPWQ",
+            "seq": 573,
+            "entity_id": "AGR-ED52",
+            "type": "amended",
+            "units": 8,
+            "effective_from": "2026-03-30T09:23:25.000Z"
+          },
+          {
+            "event_id": "EV-8AEJGK",
+            "seq": 604,
+            "entity_id": "AGR-2CBQ",
+            "type": "cancelled",
+            "effective_from": "2026-01-10T13:22:08.000Z"
+          },
+          {
+            "event_id": "EV-S4DG6X",
+            "seq": 1114,
+            "entity_id": "AGR-GSNB",
+            "type": "superseded",
+            "replaced_by": "AGR-Y4DC",
+            "effective_from": "2026-05-25T16:46:10.000Z"
+          },
+          {
+            "event_id": "EV-FVQF7G",
+            "seq": 883,
+            "entity_id": "AGR-UZY7",
+            "type": "amended",
+            "units": 187,
+            "effective_from": "2026-04-08T08:36:11.000Z"
+          },
+          {
+            "event_id": "EV-H876JU",
+            "seq": 186,
+            "entity_id": "AGR-MBC8",
+            "type": "amended",
+            "units": 45,
+            "effective_from": "2026-04-08T08:31:10.000Z"
+          },
+          {
+            "event_id": "EV-EGSYJR",
+            "seq": 164,
+            "entity_id": "AGR-F6B3",
+            "type": "amended",
+            "units": 36,
+            "effective_from": "2026-04-26T15:43:58.000Z"
+          },
+          {
+            "event_id": "EV-J4GECG",
+            "seq": 712,
+            "entity_id": "AGR-TZBJ",
+            "type": "amended",
+            "units": 63,
+            "effective_from": "2026-04-10T02:04:23.000Z"
+          },
+          {
+            "event_id": "EV-YCA494",
+            "seq": 561,
+            "entity_id": "AGR-7UBT",
+            "type": "amended",
+            "units": 25,
+            "unit_rate": 567.81,
+            "effective_from": "2026-08-05T12:56:44.000Z"
+          },
+          {
+            "event_id": "EV-7HQJFP",
+            "seq": 855,
+            "entity_id": "AGR-8F4E",
+            "type": "cancelled",
+            "effective_from": 1779975947
+          },
+          {
+            "event_id": "EV-AQF2TL",
+            "seq": 893,
+            "entity_id": "AGR-WHX9",
+            "type": "amended",
+            "units": 10,
+            "unit_rate": 909.51,
+            "effective_from": "2026-05-13T08:41:04.000Z"
+          },
+          {
+            "event_id": "EV-7WN6JF",
+            "seq": 910,
+            "entity_id": "AGR-TW9Z",
+            "type": "amended",
+            "units": 85,
+            "effective_from": 1779645752
+          },
+          {
+            "event_id": "EV-8ZJ5XU",
+            "seq": 264,
+            "entity_id": "AGR-WS5S",
+            "type": "opened",
+            "units": 11,
+            "unit_rate": 49.75,
+            "effective_from": "2026-02-15T15:43:11.000Z"
+          },
+          {
+            "event_id": "EV-U8MTND",
+            "seq": 1110,
+            "entity_id": "AGR-4SMN",
+            "type": "cancelled",
+            "effective_from": "2026-05-11T03:15:23.000Z"
+          },
+          {
+            "event_id": "EV-VWEPQR",
+            "seq": 267,
+            "entity_id": "AGR-ZH3R",
+            "type": "amended",
+            "units": 85,
+            "effective_from": "2026-01-21T10:49:18.000Z"
+          },
+          {
+            "event_id": "EV-UZF5DY",
+            "seq": 750,
+            "entity_id": "AGR-RFH5",
+            "type": "amended",
+            "unit_rate": "2,454.17",
+            "effective_from": "2026-03-08T15:02:09.000Z"
+          },
+          {
+            "event_id": "EV-XCZFY9",
+            "seq": 709,
+            "entity_id": "AGR-NQK8",
+            "type": "reversed",
+            "reverses": "EV-JV3J85",
+            "effective_from": "2026-05-24T05:14:25.000Z"
+          },
+          {
+            "event_id": "EV-LC8ULY",
+            "seq": 615,
+            "entity_id": "AGR-J8C2",
+            "type": "amended",
+            "unit_rate": 739.65,
+            "effective_from": "2026-02-12T14:21:56.000Z"
+          },
+          {
+            "event_id": "EV-LCNERG",
+            "seq": 395,
+            "entity_id": "AGR-WG26",
+            "type": "opened",
+            "units": 88,
+            "unit_rate": 25,
+            "effective_from": "2026-01-19T16:02:57.000Z"
+          },
+          {
+            "event_id": "EV-AF5RQF",
+            "seq": 179,
+            "entity_id": "AGR-ZH3R",
+            "type": "amended",
+            "units": 67,
+            "effective_from": "2026-07-10T21:53:31.000Z"
+          },
+          {
+            "event_id": "EV-E98KJC",
+            "seq": 674,
+            "entity_id": "AGR-WASN",
+            "type": "reinstated",
+            "effective_from": 1773243975
+          },
+          {
+            "event_id": "EV-DZZCK2",
+            "seq": 808,
+            "entity_id": "AGR-SBS2",
+            "type": "amended",
+            "unit_rate": 715.61,
+            "effective_from": "2026-07-15T10:57:44.000Z"
+          },
+          {
+            "event_id": "EV-2L6XWH",
+            "seq": 1056,
+            "entity_id": "AGR-GQ72",
+            "type": "amended",
+            "unit_rate": 194.42,
+            "effective_from": "2026-02-10T12:38:57.000Z"
+          },
+          {
+            "event_id": "EV-DRVHNQ",
+            "seq": 695,
+            "entity_id": "AGR-MDA8",
+            "type": "amended",
+            "units": 8,
+            "effective_from": "2026-03-22T16:47:04.000Z"
+          },
+          {
+            "event_id": "EV-682S48",
+            "seq": 283,
+            "entity_id": "AGR-FUDC",
+            "type": "amended",
+            "unit_rate": 869.81,
+            "effective_from": "2026-07-22T23:57:48.000Z"
+          },
+          {
+            "event_id": "EV-NEK74R",
+            "seq": 885,
+            "entity_id": "AGR-ER79",
+            "type": "reversed",
+            "reverses": "EV-2AT58X",
+            "effective_from": "2026-07-08T03:14:50.000Z"
+          },
+          {
+            "event_id": "EV-JPDRTN",
+            "seq": 841,
+            "entity_id": "AGR-NQK8",
+            "type": "amended",
+            "units": 13,
+            "effective_from": 1780640035
+          },
+          {
+            "event_id": "EV-WASC2C",
+            "seq": 700,
+            "entity_id": "AGR-ZH3R",
+            "type": "superseded",
+            "replaced_by": "AGR-5GSU",
+            "effective_from": "2026-04-12T18:14:10.000Z"
+          },
+          {
+            "event_id": "EV-S2HYP6",
+            "seq": 952,
+            "entity_id": "AGR-TW9Z",
+            "type": "amended",
+            "units": 83,
+            "effective_from": "2026-06-25T12:08:30.000Z"
+          },
+          {
+            "event_id": "EV-NYWKQY",
+            "seq": 957,
+            "entity_id": "AGR-J8C2",
+            "type": "amended",
+            "units": 47,
+            "effective_from": "2026-06-09T10:49:30.000Z"
+          },
+          {
+            "event_id": "EV-WDLLFK",
+            "seq": 1053,
+            "entity_id": "AGR-ER79",
+            "type": "amended",
+            "units": 10,
+            "effective_from": "2026-07-13T18:10:35.000Z"
+          },
+          {
+            "event_id": "EV-3M7Y2H",
+            "seq": 853,
+            "entity_id": "AGR-UNVS",
+            "type": "amended",
+            "unit_rate": 1607.27,
+            "effective_from": "2026-02-24T00:04:05.000Z"
+          },
+          {
+            "event_id": "EV-BRQ6JR",
+            "seq": 658,
+            "entity_id": "AGR-HKVR",
+            "type": "amended",
+            "units": 76,
+            "effective_from": "2026-08-06T01:58:02.000Z"
+          },
+          {
+            "event_id": "EV-5EXPKR",
+            "seq": 805,
+            "entity_id": "AGR-QRUH",
+            "type": "amended",
+            "units": 23,
+            "effective_from": "2026-03-01T22:27:00.000Z"
+          },
+          {
+            "event_id": "EV-A2Q662",
+            "seq": 543,
+            "entity_id": "AGR-WYR6",
+            "type": "amended",
+            "unit_rate": 425.47,
+            "effective_from": "2026-03-11T23:58:05.000Z"
+          },
+          {
+            "event_id": "EV-8RCUPL",
+            "seq": 463,
+            "entity_id": "AGR-HEQ6",
+            "type": "amended",
+            "unit_rate": 796.18,
+            "effective_from": "2026-05-07T11:24:21.000Z"
+          },
+          {
+            "event_id": "EV-YNCR4H",
+            "seq": 625,
+            "entity_id": "AGR-NQK8",
+            "type": "amended",
+            "unit_rate": 1495.7,
+            "effective_from": 1775997698
+          },
+          {
+            "event_id": "EV-5KDW8K",
+            "seq": 286,
+            "entity_id": "AGR-42AH",
+            "type": "amended",
+            "unit_rate": 244.57,
+            "effective_from": "2026-04-23T05:01:58.000Z"
+          },
+          {
+            "event_id": "EV-ZL9EUJ",
+            "seq": 157,
+            "entity_id": "AGR-AQ9Q",
+            "type": "amended",
+            "units": 18,
+            "unit_rate": 2776.32,
+            "effective_from": "2026-02-02T08:42:16.000Z"
+          },
+          {
+            "event_id": "EV-WHJJRN",
+            "seq": 1011,
+            "entity_id": "AGR-6NJG",
+            "type": "cancelled",
+            "effective_from": "2026-04-24T12:04:58.000Z"
+          },
+          {
+            "event_id": "EV-PK2JFX",
+            "seq": 961,
+            "entity_id": "AGR-TW9Z",
+            "type": "amended",
+            "unit_rate": 318.11,
+            "effective_from": "2026-02-09T11:33:49.000Z"
+          },
+          {
+            "event_id": "EV-7EPJZD",
+            "seq": 1136,
+            "entity_id": "AGR-L7Z6",
+            "type": "amended",
+            "unit_rate": "1,262.08",
+            "effective_from": 1776971240
+          },
+          {
+            "event_id": "EV-NP652S",
+            "seq": 477,
+            "entity_id": "AGR-8AY3",
+            "type": "amended",
+            "unit_rate": 244.22,
+            "effective_from": 1771138550
+          },
+          {
+            "event_id": "EV-USUPH9",
+            "seq": 478,
+            "entity_id": "AGR-U6F5",
+            "type": "reinstated",
+            "effective_from": "2026-06-14T07:28:39.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
