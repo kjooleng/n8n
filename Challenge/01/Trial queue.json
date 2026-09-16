@@ -1,0 +1,728 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "ebfe8689-a18e-4fa1-b6c7-bff27654bd99",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        976
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-01/practice/queue",
+        "options": {}
+      },
+      "id": "7087f2c3-8473-460f-b2f9-58b8ec24c625",
+      "name": "Fetch Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -144,
+        976
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "queue",
+        "options": {}
+      },
+      "id": "a6d5ff2a-4b82-466b-8a16-b935ff5b9314",
+      "name": "Split Queue",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        80,
+        976
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "reader",
+              "type": "string",
+              "value": "={{ $json.reader }}"
+            },
+            {
+              "id": "a1b",
+              "name": "real_reader",
+              "type": "string",
+              "value": "={{ $json.reader }}"
+            },
+            {
+              "id": "a2",
+              "name": "title_id",
+              "type": "string",
+              "value": "={{ $json.title_id }}"
+            },
+            {
+              "id": "a3",
+              "name": "queue_seq",
+              "type": "number",
+              "value": "={{ $json.queue_seq }}"
+            },
+            {
+              "id": "a4",
+              "name": "current_behind",
+              "type": "string",
+              "value": "={{ $json.waiting_behind }}"
+            },
+            {
+              "id": "a5",
+              "name": "hops",
+              "type": "number",
+              "value": 0
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c0f59561-fc78-4213-89b9-d2b73bb9913f",
+      "name": "Init Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        304,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "reader",
+        "options": {}
+      },
+      "id": "a55d7698-76de-45e4-8e05-395077d64b28",
+      "name": "Hop 1 Match",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        752,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b0",
+              "name": "reader",
+              "type": "string",
+              "value": "={{ $json.real_reader }}"
+            },
+            {
+              "id": "b1",
+              "name": "hops",
+              "type": "number",
+              "value": "={{ $json.hops + 1 }}"
+            },
+            {
+              "id": "b2",
+              "name": "current_behind",
+              "type": "string",
+              "value": "={{ $json.waiting_behind }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "222f1606-9570-42a0-9e7d-1a481e17fe6c",
+      "name": "Hop 1 Advance",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "reader",
+        "joinMode": "keepNonMatches",
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "id": "11fade2c-7502-448a-a21c-b4bdf9cb4b04",
+      "name": "Hop 1 Resolved",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        752,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "id": "5cbe63ca-77fb-4e51-a80b-631fc6b92f4d",
+      "name": "Collect All",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2992,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "reader",
+        "options": {}
+      },
+      "id": "3be873ec-cc62-4899-9e5f-2dd4ea19b52f",
+      "name": "Hop 2 Match",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1424,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0",
+              "name": "reader",
+              "type": "string",
+              "value": "={{ $json.real_reader }}"
+            },
+            {
+              "id": "c1",
+              "name": "hops",
+              "type": "number",
+              "value": "={{ $json.hops + 1 }}"
+            },
+            {
+              "id": "c2",
+              "name": "current_behind",
+              "type": "string",
+              "value": "={{ $json.waiting_behind }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "c74ad8a8-29a9-4340-b258-b29a68688421",
+      "name": "Hop 2 Advance",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1648,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "reader",
+        "joinMode": "keepNonMatches",
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "id": "05caf780-38bf-440b-bc98-0310c8e2eef0",
+      "name": "Hop 2 Resolved",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1424,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "reader",
+        "options": {}
+      },
+      "id": "2dad335e-5739-47e4-bb58-17f49b5bba3e",
+      "name": "Hop 3 Match",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2096,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d0",
+              "name": "reader",
+              "type": "string",
+              "value": "={{ $json.real_reader }}"
+            },
+            {
+              "id": "d1",
+              "name": "hops",
+              "type": "number",
+              "value": "={{ $json.hops + 1 }}"
+            },
+            {
+              "id": "d2",
+              "name": "current_behind",
+              "type": "string",
+              "value": "={{ $json.waiting_behind }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "e1812b27-42cf-4546-b7a8-35fa72927833",
+      "name": "Hop 3 Advance",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2320,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "reader",
+        "joinMode": "keepNonMatches",
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "id": "eedae67e-90ec-456b-a784-73acb1dcab55",
+      "name": "Hop 3 Resolved",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2096,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "reader",
+        "joinMode": "keepNonMatches",
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "id": "a26c1394-4be8-4995-989a-d208c5c6a968",
+      "name": "Hop 4 Resolved",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2768,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1",
+              "name": "reader",
+              "type": "string",
+              "value": "={{ $json.real_reader }}"
+            },
+            {
+              "id": "e2",
+              "name": "title_id",
+              "type": "string",
+              "value": "={{ $json.title_id }}"
+            },
+            {
+              "id": "e3",
+              "name": "position",
+              "type": "number",
+              "value": "={{ $json.hops + 1 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4a2273b7-30e2-4e1f-ba39-8947f17053c5",
+      "name": "Set Position",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3216,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rm1",
+              "name": "reader",
+              "type": "string",
+              "value": "={{ $json.current_behind }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "1d1d22ab-974f-41d8-9313-1d00f70e04fe",
+      "name": "Rename R1m",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        528,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rm2",
+              "name": "reader",
+              "type": "string",
+              "value": "={{ $json.current_behind }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "9ad98312-b408-4435-9a08-f4c88f9d3f19",
+      "name": "Rename R2m",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1200,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rm3",
+              "name": "reader",
+              "type": "string",
+              "value": "={{ $json.current_behind }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "6e428db2-ee42-4063-9e73-d7948249d955",
+      "name": "Rename R3m",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1872,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rr4",
+              "name": "reader",
+              "type": "string",
+              "value": "={{ $json.current_behind }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "5b7d294b-feed-49a8-96a5-3ff3235154cc",
+      "name": "Rename R4r",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2544,
+        128
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Fetch Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Queue": {
+      "main": [
+        [
+          {
+            "node": "Split Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Queue": {
+      "main": [
+        [
+          {
+            "node": "Init Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hop 1 Match",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Hop 1 Resolved",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Hop 2 Match",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Hop 2 Resolved",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Hop 3 Match",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Hop 3 Resolved",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Hop 4 Resolved",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Init Fields": {
+      "main": [
+        [
+          {
+            "node": "Rename R1m",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hop 1 Match": {
+      "main": [
+        [
+          {
+            "node": "Hop 1 Advance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hop 1 Advance": {
+      "main": [
+        [
+          {
+            "node": "Rename R2m",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hop 1 Resolved": {
+      "main": [
+        [
+          {
+            "node": "Collect All",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect All": {
+      "main": [
+        [
+          {
+            "node": "Set Position",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hop 2 Match": {
+      "main": [
+        [
+          {
+            "node": "Hop 2 Advance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hop 2 Advance": {
+      "main": [
+        [
+          {
+            "node": "Rename R3m",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hop 2 Resolved": {
+      "main": [
+        [
+          {
+            "node": "Collect All",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Hop 3 Match": {
+      "main": [
+        [
+          {
+            "node": "Hop 3 Advance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hop 3 Advance": {
+      "main": [
+        [
+          {
+            "node": "Rename R4r",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hop 3 Resolved": {
+      "main": [
+        [
+          {
+            "node": "Collect All",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Hop 4 Resolved": {
+      "main": [
+        [
+          {
+            "node": "Collect All",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Rename R1m": {
+      "main": [
+        [
+          {
+            "node": "Hop 1 Match",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hop 1 Resolved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename R2m": {
+      "main": [
+        [
+          {
+            "node": "Hop 2 Match",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hop 2 Resolved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename R3m": {
+      "main": [
+        [
+          {
+            "node": "Hop 3 Match",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hop 3 Resolved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename R4r": {
+      "main": [
+        [
+          {
+            "node": "Hop 4 Resolved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
