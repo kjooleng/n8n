@@ -1,0 +1,2142 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "46afce55-7ca0-4cba-9822-e2b2420cde86",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-01/practice/catalogue",
+        "options": {}
+      },
+      "id": "36b442e1-e53e-4633-8e92-dcd27b253b76",
+      "name": "Fetch Page 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-01/practice/catalogue",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "cursor",
+              "value": "={{ $json.next_cursor }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "db556888-8521-4ae9-964a-ea3fa6f20d12",
+      "name": "Fetch Page 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        464,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "records",
+        "options": {}
+      },
+      "id": "7938ea8a-6bf2-4c3c-a0f6-c1719edd81af",
+      "name": "Split Page 2 Records",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        640,
+        256
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "646cf815-c717-4c4c-a081-d5f461a0fd68",
+      "name": "Append Pages",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        896,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "records",
+        "options": {}
+      },
+      "id": "57f15dfc-4ee4-4c3c-8664-3746140ead28",
+      "name": "Split Page 1 Records",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        544,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "ref",
+        "options": {}
+      },
+      "id": "b08a6c97-c8db-4fb9-b5a0-b6a7b10e0161",
+      "name": "Dedupe By Ref",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.replaces }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "id": "e874a34a-8f54-4aad-9914-2e9b10bb9e4d"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1acb624-95d5-4384-96ea-622fbaa2fc59",
+      "name": "Has Withdrawal Notice",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "replaces",
+              "renameField": true,
+              "outputFieldName": "withdrawnList"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "83b057d8-cf87-4aa5-bdbb-04217a0c72a6",
+      "name": "Aggregate Withdrawn",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "8a38c50a-e664-4ebe-b2db-f2186125bc1e",
+      "name": "Attach Withdrawn List",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1712,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.withdrawnList.includes($json.copy_id) || $json.withdrawnList.includes($json.barcode) }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "id": "98712439-e123-4565-bf48-86ab080563aa"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6ccc496b-e98d-4682-9459-034e93f9ef1e",
+      "name": "Keep Active Only",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1904,
+        112
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Fetch Page 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Page 1": {
+      "main": [
+        [
+          {
+            "node": "Fetch Page 2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Page 1 Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Page 2": {
+      "main": [
+        [
+          {
+            "node": "Split Page 2 Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Page 2 Records": {
+      "main": [
+        [
+          {
+            "node": "Append Pages",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Append Pages": {
+      "main": [
+        [
+          {
+            "node": "Dedupe By Ref",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Page 1 Records": {
+      "main": [
+        [
+          {
+            "node": "Append Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedupe By Ref": {
+      "main": [
+        [
+          {
+            "node": "Has Withdrawal Notice",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Attach Withdrawn List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Withdrawal Notice": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Withdrawn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Withdrawn": {
+      "main": [
+        [
+          {
+            "node": "Attach Withdrawn List",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Attach Withdrawn List": {
+      "main": [
+        [
+          {
+            "node": "Keep Active Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Fetch Page 1": [
+      {
+        "practice": true,
+        "note": "The practice world. Free, unmetered, the same for everybody, and never changing. Nothing you compute here is an answer to anything.",
+        "page": 1,
+        "pages": 2,
+        "next_cursor": "p2",
+        "rows": 18,
+        "records": [
+          {
+            "ref": 6096,
+            "copy_id": "CP-GXWX",
+            "barcode": "BC-948435",
+            "shelf": "S3",
+            "condition": 2,
+            "replaces": ""
+          },
+          {
+            "ref": 4300,
+            "copy_id": "CP-N8DX",
+            "barcode": "BC-989442",
+            "shelf": "S2",
+            "condition": 2,
+            "replaces": ""
+          },
+          {
+            "ref": 8269,
+            "copy_id": "CP-89K2",
+            "barcode": "BC-662061",
+            "shelf": "S2",
+            "condition": 3,
+            "replaces": ""
+          },
+          {
+            "ref": 6921,
+            "copy_id": "CP-HKBK",
+            "barcode": "BC-564541",
+            "shelf": "S4",
+            "condition": 3,
+            "replaces": ""
+          },
+          {
+            "ref": 1093,
+            "copy_id": "CP-WJJY",
+            "barcode": "BC-630786",
+            "shelf": "S4",
+            "condition": 4,
+            "replaces": ""
+          },
+          {
+            "ref": 7181,
+            "copy_id": "CP-T35N",
+            "barcode": "BC-303905",
+            "shelf": "S1",
+            "condition": 3,
+            "replaces": ""
+          },
+          {
+            "ref": 1658,
+            "copy_id": "CP-PLU5",
+            "barcode": "BC-503811",
+            "shelf": "S4",
+            "condition": 2,
+            "replaces": ""
+          },
+          {
+            "ref": 1710,
+            "copy_id": "CP-THXQ",
+            "barcode": "BC-716315",
+            "shelf": "S1",
+            "condition": 2,
+            "replaces": ""
+          },
+          {
+            "ref": 8973,
+            "copy_id": "CP-T3FU",
+            "barcode": "BC-662292",
+            "shelf": "S1",
+            "condition": 3,
+            "replaces": ""
+          },
+          {
+            "ref": 9942,
+            "copy_id": "CP-YRTM",
+            "barcode": "BC-369953",
+            "shelf": "S1",
+            "condition": 2,
+            "replaces": "CP-89K2"
+          },
+          {
+            "ref": 4475,
+            "copy_id": "CP-ELA4",
+            "barcode": "BC-854550",
+            "shelf": "S2",
+            "condition": 5,
+            "replaces": ""
+          },
+          {
+            "ref": 2236,
+            "copy_id": "CP-JSUY",
+            "barcode": "BC-934258",
+            "shelf": "S1",
+            "condition": 5,
+            "replaces": ""
+          },
+          {
+            "ref": 5189,
+            "copy_id": "CP-NEJF",
+            "barcode": "BC-817995",
+            "shelf": "S2",
+            "condition": 4,
+            "replaces": ""
+          },
+          {
+            "ref": 3791,
+            "copy_id": "CP-LEU5",
+            "barcode": "BC-788526",
+            "shelf": "S4",
+            "condition": 4,
+            "replaces": ""
+          },
+          {
+            "ref": 4461,
+            "copy_id": "CP-FZPU",
+            "barcode": "BC-282947",
+            "shelf": "S3",
+            "condition": 1,
+            "replaces": "BC-303905"
+          },
+          {
+            "ref": 6771,
+            "copy_id": "CP-TCCS",
+            "barcode": "BC-712811",
+            "shelf": "S1",
+            "condition": 4,
+            "replaces": ""
+          },
+          {
+            "ref": 6415,
+            "copy_id": "CP-6PN7",
+            "barcode": "BC-507484",
+            "shelf": "S3",
+            "condition": 2,
+            "replaces": ""
+          },
+          {
+            "ref": 9232,
+            "copy_id": "CP-K223",
+            "barcode": "BC-314711",
+            "shelf": "S3",
+            "condition": 2,
+            "replaces": ""
+          }
+        ],
+        "check_yourself": "On the last page.",
+        "read_me": [
+          "The pages OVERLAP. Some rows are on both, so concatenating them counts those twice.",
+          "copy_id and barcode both identify a copy. A withdrawal notice fills in replaces with ONE of them, and which one varies: older notices name the copy, newer ones name the barcode. You are being told this here on purpose. Nothing else you meet will tell you.",
+          "A copy named by any replaces value has been withdrawn."
+        ],
+        "unmetered": true
+      }
+    ],
+    "Fetch Page 2": [
+      {
+        "practice": true,
+        "note": "The practice world. Free, unmetered, the same for everybody, and never changing. Nothing you compute here is an answer to anything.",
+        "page": 2,
+        "pages": 2,
+        "next_cursor": null,
+        "rows": 19,
+        "records": [
+          {
+            "ref": 6771,
+            "copy_id": "CP-TCCS",
+            "barcode": "BC-712811",
+            "shelf": "S1",
+            "condition": 4,
+            "replaces": ""
+          },
+          {
+            "ref": 6415,
+            "copy_id": "CP-6PN7",
+            "barcode": "BC-507484",
+            "shelf": "S3",
+            "condition": 2,
+            "replaces": ""
+          },
+          {
+            "ref": 9232,
+            "copy_id": "CP-K223",
+            "barcode": "BC-314711",
+            "shelf": "S3",
+            "condition": 2,
+            "replaces": ""
+          },
+          {
+            "ref": 8412,
+            "copy_id": "CP-E2FJ",
+            "barcode": "BC-260370",
+            "shelf": "S1",
+            "condition": 3,
+            "replaces": ""
+          },
+          {
+            "ref": 8380,
+            "copy_id": "CP-RJZU",
+            "barcode": "BC-906756",
+            "shelf": "S3",
+            "condition": 4,
+            "replaces": ""
+          },
+          {
+            "ref": 9846,
+            "copy_id": "CP-KQJH",
+            "barcode": "BC-239309",
+            "shelf": "S4",
+            "condition": 4,
+            "replaces": ""
+          },
+          {
+            "ref": 2810,
+            "copy_id": "CP-AQCU",
+            "barcode": "BC-607120",
+            "shelf": "S4",
+            "condition": 2,
+            "replaces": "CP-THXQ"
+          },
+          {
+            "ref": 4467,
+            "copy_id": "CP-6KTL",
+            "barcode": "BC-403511",
+            "shelf": "S3",
+            "condition": 4,
+            "replaces": ""
+          },
+          {
+            "ref": 1853,
+            "copy_id": "CP-VF2R",
+            "barcode": "BC-676518",
+            "shelf": "S4",
+            "condition": 5,
+            "replaces": ""
+          },
+          {
+            "ref": 4457,
+            "copy_id": "CP-V4GP",
+            "barcode": "BC-783122",
+            "shelf": "S1",
+            "condition": 3,
+            "replaces": ""
+          },
+          {
+            "ref": 4559,
+            "copy_id": "CP-SPVN",
+            "barcode": "BC-194117",
+            "shelf": "S3",
+            "condition": 3,
+            "replaces": ""
+          },
+          {
+            "ref": 5814,
+            "copy_id": "CP-ND97",
+            "barcode": "BC-400315",
+            "shelf": "S1",
+            "condition": 5,
+            "replaces": "BC-934258"
+          },
+          {
+            "ref": 5656,
+            "copy_id": "CP-JF9X",
+            "barcode": "BC-798106",
+            "shelf": "S2",
+            "condition": 1,
+            "replaces": ""
+          },
+          {
+            "ref": 4049,
+            "copy_id": "CP-GUFE",
+            "barcode": "BC-735158",
+            "shelf": "S2",
+            "condition": 1,
+            "replaces": ""
+          },
+          {
+            "ref": 2851,
+            "copy_id": "CP-YN36",
+            "barcode": "BC-534107",
+            "shelf": "S4",
+            "condition": 1,
+            "replaces": ""
+          },
+          {
+            "ref": 7845,
+            "copy_id": "CP-M9C2",
+            "barcode": "BC-355649",
+            "shelf": "S1",
+            "condition": 5,
+            "replaces": "CP-6PN7"
+          },
+          {
+            "ref": 9868,
+            "copy_id": "CP-SRXL",
+            "barcode": "BC-209419",
+            "shelf": "S4",
+            "condition": 2,
+            "replaces": ""
+          },
+          {
+            "ref": 1215,
+            "copy_id": "CP-7TC6",
+            "barcode": "BC-119674",
+            "shelf": "S2",
+            "condition": 2,
+            "replaces": ""
+          },
+          {
+            "ref": 6717,
+            "copy_id": "CP-6C4K",
+            "barcode": "BC-417818",
+            "shelf": "S3",
+            "condition": 4,
+            "replaces": "BC-906756"
+          }
+        ],
+        "check_yourself": {
+          "distinct copies / sum of ref": "34/187512",
+          "copies not withdrawn": "28"
+        },
+        "read_me": [
+          "The pages OVERLAP. Some rows are on both, so concatenating them counts those twice.",
+          "copy_id and barcode both identify a copy. A withdrawal notice fills in replaces with ONE of them, and which one varies: older notices name the copy, newer ones name the barcode. You are being told this here on purpose. Nothing else you meet will tell you.",
+          "A copy named by any replaces value has been withdrawn."
+        ],
+        "unmetered": true
+      }
+    ],
+    "Split Page 2 Records": [
+      {
+        "ref": 6771,
+        "copy_id": "CP-TCCS",
+        "barcode": "BC-712811",
+        "shelf": "S1",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 6415,
+        "copy_id": "CP-6PN7",
+        "barcode": "BC-507484",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 9232,
+        "copy_id": "CP-K223",
+        "barcode": "BC-314711",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 8412,
+        "copy_id": "CP-E2FJ",
+        "barcode": "BC-260370",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 8380,
+        "copy_id": "CP-RJZU",
+        "barcode": "BC-906756",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 9846,
+        "copy_id": "CP-KQJH",
+        "barcode": "BC-239309",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 2810,
+        "copy_id": "CP-AQCU",
+        "barcode": "BC-607120",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": "CP-THXQ"
+      },
+      {
+        "ref": 4467,
+        "copy_id": "CP-6KTL",
+        "barcode": "BC-403511",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 1853,
+        "copy_id": "CP-VF2R",
+        "barcode": "BC-676518",
+        "shelf": "S4",
+        "condition": 5,
+        "replaces": ""
+      },
+      {
+        "ref": 4457,
+        "copy_id": "CP-V4GP",
+        "barcode": "BC-783122",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 4559,
+        "copy_id": "CP-SPVN",
+        "barcode": "BC-194117",
+        "shelf": "S3",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 5814,
+        "copy_id": "CP-ND97",
+        "barcode": "BC-400315",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": "BC-934258"
+      },
+      {
+        "ref": 5656,
+        "copy_id": "CP-JF9X",
+        "barcode": "BC-798106",
+        "shelf": "S2",
+        "condition": 1,
+        "replaces": ""
+      },
+      {
+        "ref": 4049,
+        "copy_id": "CP-GUFE",
+        "barcode": "BC-735158",
+        "shelf": "S2",
+        "condition": 1,
+        "replaces": ""
+      },
+      {
+        "ref": 2851,
+        "copy_id": "CP-YN36",
+        "barcode": "BC-534107",
+        "shelf": "S4",
+        "condition": 1,
+        "replaces": ""
+      },
+      {
+        "ref": 7845,
+        "copy_id": "CP-M9C2",
+        "barcode": "BC-355649",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": "CP-6PN7"
+      },
+      {
+        "ref": 9868,
+        "copy_id": "CP-SRXL",
+        "barcode": "BC-209419",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 1215,
+        "copy_id": "CP-7TC6",
+        "barcode": "BC-119674",
+        "shelf": "S2",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 6717,
+        "copy_id": "CP-6C4K",
+        "barcode": "BC-417818",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": "BC-906756"
+      }
+    ],
+    "Append Pages": [
+      {
+        "ref": 6096,
+        "copy_id": "CP-GXWX",
+        "barcode": "BC-948435",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 4300,
+        "copy_id": "CP-N8DX",
+        "barcode": "BC-989442",
+        "shelf": "S2",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 8269,
+        "copy_id": "CP-89K2",
+        "barcode": "BC-662061",
+        "shelf": "S2",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 6921,
+        "copy_id": "CP-HKBK",
+        "barcode": "BC-564541",
+        "shelf": "S4",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 1093,
+        "copy_id": "CP-WJJY",
+        "barcode": "BC-630786",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 7181,
+        "copy_id": "CP-T35N",
+        "barcode": "BC-303905",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 1658,
+        "copy_id": "CP-PLU5",
+        "barcode": "BC-503811",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 1710,
+        "copy_id": "CP-THXQ",
+        "barcode": "BC-716315",
+        "shelf": "S1",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 8973,
+        "copy_id": "CP-T3FU",
+        "barcode": "BC-662292",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 9942,
+        "copy_id": "CP-YRTM",
+        "barcode": "BC-369953",
+        "shelf": "S1",
+        "condition": 2,
+        "replaces": "CP-89K2"
+      },
+      {
+        "ref": 4475,
+        "copy_id": "CP-ELA4",
+        "barcode": "BC-854550",
+        "shelf": "S2",
+        "condition": 5,
+        "replaces": ""
+      },
+      {
+        "ref": 2236,
+        "copy_id": "CP-JSUY",
+        "barcode": "BC-934258",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": ""
+      },
+      {
+        "ref": 5189,
+        "copy_id": "CP-NEJF",
+        "barcode": "BC-817995",
+        "shelf": "S2",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 3791,
+        "copy_id": "CP-LEU5",
+        "barcode": "BC-788526",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 4461,
+        "copy_id": "CP-FZPU",
+        "barcode": "BC-282947",
+        "shelf": "S3",
+        "condition": 1,
+        "replaces": "BC-303905"
+      },
+      {
+        "ref": 6771,
+        "copy_id": "CP-TCCS",
+        "barcode": "BC-712811",
+        "shelf": "S1",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 6415,
+        "copy_id": "CP-6PN7",
+        "barcode": "BC-507484",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 9232,
+        "copy_id": "CP-K223",
+        "barcode": "BC-314711",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 6771,
+        "copy_id": "CP-TCCS",
+        "barcode": "BC-712811",
+        "shelf": "S1",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 6415,
+        "copy_id": "CP-6PN7",
+        "barcode": "BC-507484",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 9232,
+        "copy_id": "CP-K223",
+        "barcode": "BC-314711",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 8412,
+        "copy_id": "CP-E2FJ",
+        "barcode": "BC-260370",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 8380,
+        "copy_id": "CP-RJZU",
+        "barcode": "BC-906756",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 9846,
+        "copy_id": "CP-KQJH",
+        "barcode": "BC-239309",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 2810,
+        "copy_id": "CP-AQCU",
+        "barcode": "BC-607120",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": "CP-THXQ"
+      },
+      {
+        "ref": 4467,
+        "copy_id": "CP-6KTL",
+        "barcode": "BC-403511",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 1853,
+        "copy_id": "CP-VF2R",
+        "barcode": "BC-676518",
+        "shelf": "S4",
+        "condition": 5,
+        "replaces": ""
+      },
+      {
+        "ref": 4457,
+        "copy_id": "CP-V4GP",
+        "barcode": "BC-783122",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 4559,
+        "copy_id": "CP-SPVN",
+        "barcode": "BC-194117",
+        "shelf": "S3",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 5814,
+        "copy_id": "CP-ND97",
+        "barcode": "BC-400315",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": "BC-934258"
+      },
+      {
+        "ref": 5656,
+        "copy_id": "CP-JF9X",
+        "barcode": "BC-798106",
+        "shelf": "S2",
+        "condition": 1,
+        "replaces": ""
+      },
+      {
+        "ref": 4049,
+        "copy_id": "CP-GUFE",
+        "barcode": "BC-735158",
+        "shelf": "S2",
+        "condition": 1,
+        "replaces": ""
+      },
+      {
+        "ref": 2851,
+        "copy_id": "CP-YN36",
+        "barcode": "BC-534107",
+        "shelf": "S4",
+        "condition": 1,
+        "replaces": ""
+      },
+      {
+        "ref": 7845,
+        "copy_id": "CP-M9C2",
+        "barcode": "BC-355649",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": "CP-6PN7"
+      },
+      {
+        "ref": 9868,
+        "copy_id": "CP-SRXL",
+        "barcode": "BC-209419",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 1215,
+        "copy_id": "CP-7TC6",
+        "barcode": "BC-119674",
+        "shelf": "S2",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 6717,
+        "copy_id": "CP-6C4K",
+        "barcode": "BC-417818",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": "BC-906756"
+      }
+    ],
+    "Split Page 1 Records": [
+      {
+        "ref": 6096,
+        "copy_id": "CP-GXWX",
+        "barcode": "BC-948435",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 4300,
+        "copy_id": "CP-N8DX",
+        "barcode": "BC-989442",
+        "shelf": "S2",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 8269,
+        "copy_id": "CP-89K2",
+        "barcode": "BC-662061",
+        "shelf": "S2",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 6921,
+        "copy_id": "CP-HKBK",
+        "barcode": "BC-564541",
+        "shelf": "S4",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 1093,
+        "copy_id": "CP-WJJY",
+        "barcode": "BC-630786",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 7181,
+        "copy_id": "CP-T35N",
+        "barcode": "BC-303905",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 1658,
+        "copy_id": "CP-PLU5",
+        "barcode": "BC-503811",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 1710,
+        "copy_id": "CP-THXQ",
+        "barcode": "BC-716315",
+        "shelf": "S1",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 8973,
+        "copy_id": "CP-T3FU",
+        "barcode": "BC-662292",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 9942,
+        "copy_id": "CP-YRTM",
+        "barcode": "BC-369953",
+        "shelf": "S1",
+        "condition": 2,
+        "replaces": "CP-89K2"
+      },
+      {
+        "ref": 4475,
+        "copy_id": "CP-ELA4",
+        "barcode": "BC-854550",
+        "shelf": "S2",
+        "condition": 5,
+        "replaces": ""
+      },
+      {
+        "ref": 2236,
+        "copy_id": "CP-JSUY",
+        "barcode": "BC-934258",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": ""
+      },
+      {
+        "ref": 5189,
+        "copy_id": "CP-NEJF",
+        "barcode": "BC-817995",
+        "shelf": "S2",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 3791,
+        "copy_id": "CP-LEU5",
+        "barcode": "BC-788526",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 4461,
+        "copy_id": "CP-FZPU",
+        "barcode": "BC-282947",
+        "shelf": "S3",
+        "condition": 1,
+        "replaces": "BC-303905"
+      },
+      {
+        "ref": 6771,
+        "copy_id": "CP-TCCS",
+        "barcode": "BC-712811",
+        "shelf": "S1",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 6415,
+        "copy_id": "CP-6PN7",
+        "barcode": "BC-507484",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 9232,
+        "copy_id": "CP-K223",
+        "barcode": "BC-314711",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      }
+    ],
+    "Dedupe By Ref": [
+      {
+        "ref": 6096,
+        "copy_id": "CP-GXWX",
+        "barcode": "BC-948435",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 4300,
+        "copy_id": "CP-N8DX",
+        "barcode": "BC-989442",
+        "shelf": "S2",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 8269,
+        "copy_id": "CP-89K2",
+        "barcode": "BC-662061",
+        "shelf": "S2",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 6921,
+        "copy_id": "CP-HKBK",
+        "barcode": "BC-564541",
+        "shelf": "S4",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 1093,
+        "copy_id": "CP-WJJY",
+        "barcode": "BC-630786",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 7181,
+        "copy_id": "CP-T35N",
+        "barcode": "BC-303905",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 1658,
+        "copy_id": "CP-PLU5",
+        "barcode": "BC-503811",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 1710,
+        "copy_id": "CP-THXQ",
+        "barcode": "BC-716315",
+        "shelf": "S1",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 8973,
+        "copy_id": "CP-T3FU",
+        "barcode": "BC-662292",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 9942,
+        "copy_id": "CP-YRTM",
+        "barcode": "BC-369953",
+        "shelf": "S1",
+        "condition": 2,
+        "replaces": "CP-89K2"
+      },
+      {
+        "ref": 4475,
+        "copy_id": "CP-ELA4",
+        "barcode": "BC-854550",
+        "shelf": "S2",
+        "condition": 5,
+        "replaces": ""
+      },
+      {
+        "ref": 2236,
+        "copy_id": "CP-JSUY",
+        "barcode": "BC-934258",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": ""
+      },
+      {
+        "ref": 5189,
+        "copy_id": "CP-NEJF",
+        "barcode": "BC-817995",
+        "shelf": "S2",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 3791,
+        "copy_id": "CP-LEU5",
+        "barcode": "BC-788526",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 4461,
+        "copy_id": "CP-FZPU",
+        "barcode": "BC-282947",
+        "shelf": "S3",
+        "condition": 1,
+        "replaces": "BC-303905"
+      },
+      {
+        "ref": 6771,
+        "copy_id": "CP-TCCS",
+        "barcode": "BC-712811",
+        "shelf": "S1",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 6415,
+        "copy_id": "CP-6PN7",
+        "barcode": "BC-507484",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 9232,
+        "copy_id": "CP-K223",
+        "barcode": "BC-314711",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 8412,
+        "copy_id": "CP-E2FJ",
+        "barcode": "BC-260370",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 8380,
+        "copy_id": "CP-RJZU",
+        "barcode": "BC-906756",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 9846,
+        "copy_id": "CP-KQJH",
+        "barcode": "BC-239309",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 2810,
+        "copy_id": "CP-AQCU",
+        "barcode": "BC-607120",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": "CP-THXQ"
+      },
+      {
+        "ref": 4467,
+        "copy_id": "CP-6KTL",
+        "barcode": "BC-403511",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": ""
+      },
+      {
+        "ref": 1853,
+        "copy_id": "CP-VF2R",
+        "barcode": "BC-676518",
+        "shelf": "S4",
+        "condition": 5,
+        "replaces": ""
+      },
+      {
+        "ref": 4457,
+        "copy_id": "CP-V4GP",
+        "barcode": "BC-783122",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 4559,
+        "copy_id": "CP-SPVN",
+        "barcode": "BC-194117",
+        "shelf": "S3",
+        "condition": 3,
+        "replaces": ""
+      },
+      {
+        "ref": 5814,
+        "copy_id": "CP-ND97",
+        "barcode": "BC-400315",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": "BC-934258"
+      },
+      {
+        "ref": 5656,
+        "copy_id": "CP-JF9X",
+        "barcode": "BC-798106",
+        "shelf": "S2",
+        "condition": 1,
+        "replaces": ""
+      },
+      {
+        "ref": 4049,
+        "copy_id": "CP-GUFE",
+        "barcode": "BC-735158",
+        "shelf": "S2",
+        "condition": 1,
+        "replaces": ""
+      },
+      {
+        "ref": 2851,
+        "copy_id": "CP-YN36",
+        "barcode": "BC-534107",
+        "shelf": "S4",
+        "condition": 1,
+        "replaces": ""
+      },
+      {
+        "ref": 7845,
+        "copy_id": "CP-M9C2",
+        "barcode": "BC-355649",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": "CP-6PN7"
+      },
+      {
+        "ref": 9868,
+        "copy_id": "CP-SRXL",
+        "barcode": "BC-209419",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 1215,
+        "copy_id": "CP-7TC6",
+        "barcode": "BC-119674",
+        "shelf": "S2",
+        "condition": 2,
+        "replaces": ""
+      },
+      {
+        "ref": 6717,
+        "copy_id": "CP-6C4K",
+        "barcode": "BC-417818",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": "BC-906756"
+      }
+    ],
+    "Has Withdrawal Notice": [
+      {
+        "ref": 9942,
+        "copy_id": "CP-YRTM",
+        "barcode": "BC-369953",
+        "shelf": "S1",
+        "condition": 2,
+        "replaces": "CP-89K2"
+      },
+      {
+        "ref": 4461,
+        "copy_id": "CP-FZPU",
+        "barcode": "BC-282947",
+        "shelf": "S3",
+        "condition": 1,
+        "replaces": "BC-303905"
+      },
+      {
+        "ref": 2810,
+        "copy_id": "CP-AQCU",
+        "barcode": "BC-607120",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": "CP-THXQ"
+      },
+      {
+        "ref": 5814,
+        "copy_id": "CP-ND97",
+        "barcode": "BC-400315",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": "BC-934258"
+      },
+      {
+        "ref": 7845,
+        "copy_id": "CP-M9C2",
+        "barcode": "BC-355649",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": "CP-6PN7"
+      },
+      {
+        "ref": 6717,
+        "copy_id": "CP-6C4K",
+        "barcode": "BC-417818",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": "BC-906756"
+      }
+    ],
+    "Attach Withdrawn List": [
+      {
+        "ref": 6096,
+        "copy_id": "CP-GXWX",
+        "barcode": "BC-948435",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 4300,
+        "copy_id": "CP-N8DX",
+        "barcode": "BC-989442",
+        "shelf": "S2",
+        "condition": 2,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 8269,
+        "copy_id": "CP-89K2",
+        "barcode": "BC-662061",
+        "shelf": "S2",
+        "condition": 3,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 6921,
+        "copy_id": "CP-HKBK",
+        "barcode": "BC-564541",
+        "shelf": "S4",
+        "condition": 3,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 1093,
+        "copy_id": "CP-WJJY",
+        "barcode": "BC-630786",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 7181,
+        "copy_id": "CP-T35N",
+        "barcode": "BC-303905",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 1658,
+        "copy_id": "CP-PLU5",
+        "barcode": "BC-503811",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 1710,
+        "copy_id": "CP-THXQ",
+        "barcode": "BC-716315",
+        "shelf": "S1",
+        "condition": 2,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 8973,
+        "copy_id": "CP-T3FU",
+        "barcode": "BC-662292",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 9942,
+        "copy_id": "CP-YRTM",
+        "barcode": "BC-369953",
+        "shelf": "S1",
+        "condition": 2,
+        "replaces": "CP-89K2",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 4475,
+        "copy_id": "CP-ELA4",
+        "barcode": "BC-854550",
+        "shelf": "S2",
+        "condition": 5,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 2236,
+        "copy_id": "CP-JSUY",
+        "barcode": "BC-934258",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 5189,
+        "copy_id": "CP-NEJF",
+        "barcode": "BC-817995",
+        "shelf": "S2",
+        "condition": 4,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 3791,
+        "copy_id": "CP-LEU5",
+        "barcode": "BC-788526",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 4461,
+        "copy_id": "CP-FZPU",
+        "barcode": "BC-282947",
+        "shelf": "S3",
+        "condition": 1,
+        "replaces": "BC-303905",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 6771,
+        "copy_id": "CP-TCCS",
+        "barcode": "BC-712811",
+        "shelf": "S1",
+        "condition": 4,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 6415,
+        "copy_id": "CP-6PN7",
+        "barcode": "BC-507484",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 9232,
+        "copy_id": "CP-K223",
+        "barcode": "BC-314711",
+        "shelf": "S3",
+        "condition": 2,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 8412,
+        "copy_id": "CP-E2FJ",
+        "barcode": "BC-260370",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 8380,
+        "copy_id": "CP-RJZU",
+        "barcode": "BC-906756",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 9846,
+        "copy_id": "CP-KQJH",
+        "barcode": "BC-239309",
+        "shelf": "S4",
+        "condition": 4,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 2810,
+        "copy_id": "CP-AQCU",
+        "barcode": "BC-607120",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": "CP-THXQ",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 4467,
+        "copy_id": "CP-6KTL",
+        "barcode": "BC-403511",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 1853,
+        "copy_id": "CP-VF2R",
+        "barcode": "BC-676518",
+        "shelf": "S4",
+        "condition": 5,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 4457,
+        "copy_id": "CP-V4GP",
+        "barcode": "BC-783122",
+        "shelf": "S1",
+        "condition": 3,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 4559,
+        "copy_id": "CP-SPVN",
+        "barcode": "BC-194117",
+        "shelf": "S3",
+        "condition": 3,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 5814,
+        "copy_id": "CP-ND97",
+        "barcode": "BC-400315",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": "BC-934258",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 5656,
+        "copy_id": "CP-JF9X",
+        "barcode": "BC-798106",
+        "shelf": "S2",
+        "condition": 1,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 4049,
+        "copy_id": "CP-GUFE",
+        "barcode": "BC-735158",
+        "shelf": "S2",
+        "condition": 1,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 2851,
+        "copy_id": "CP-YN36",
+        "barcode": "BC-534107",
+        "shelf": "S4",
+        "condition": 1,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 7845,
+        "copy_id": "CP-M9C2",
+        "barcode": "BC-355649",
+        "shelf": "S1",
+        "condition": 5,
+        "replaces": "CP-6PN7",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 9868,
+        "copy_id": "CP-SRXL",
+        "barcode": "BC-209419",
+        "shelf": "S4",
+        "condition": 2,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 1215,
+        "copy_id": "CP-7TC6",
+        "barcode": "BC-119674",
+        "shelf": "S2",
+        "condition": 2,
+        "replaces": "",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      },
+      {
+        "ref": 6717,
+        "copy_id": "CP-6C4K",
+        "barcode": "BC-417818",
+        "shelf": "S3",
+        "condition": 4,
+        "replaces": "BC-906756",
+        "withdrawnList": [
+          "CP-89K2",
+          "BC-303905",
+          "CP-THXQ",
+          "BC-934258",
+          "CP-6PN7",
+          "BC-906756"
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
