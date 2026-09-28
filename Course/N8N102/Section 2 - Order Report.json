@@ -1,0 +1,132 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8d6054da-52f6-44c9-8606-9889595d313a",
+      "name": "TriggerManual"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "89lKZCu0JpfX9ERm",
+          "mode": "list",
+          "cachedResultName": "n8n102_course_orders",
+          "cachedResultUrl": "/projects/bJslhVO14hDAzcpC/datatables/89lKZCu0JpfX9ERm"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "764e6ecc-b457-4249-8855-638428d4ca4e",
+      "name": "GetAllOrders"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "sum",
+              "field": "total"
+            },
+            {
+              "field": "order_id"
+            }
+          ]
+        },
+        "fieldsToSplitBy": "status",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "09530ab6-5dce-40c9-9ba9-e0c51c57601c",
+      "name": "SummarizeByStatus"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f7a5136e-1f8e-4def-bba5-b9281f22cc1d",
+              "name": "total_revenue",
+              "value": "={{ $json.sum_total }}",
+              "type": "string"
+            },
+            {
+              "id": "e1eb140d-21a7-4699-987c-f6d4b9047197",
+              "name": "order_count",
+              "value": "={{ $json.count_order_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "include": "selected",
+        "includeFields": "status",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        672,
+        0
+      ],
+      "id": "196316b9-694a-46c4-897f-cd619d84bbaa",
+      "name": "Edit Fields"
+    }
+  ],
+  "connections": {
+    "TriggerManual": {
+      "main": [
+        [
+          {
+            "node": "GetAllOrders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetAllOrders": {
+      "main": [
+        [
+          {
+            "node": "SummarizeByStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SummarizeByStatus": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
