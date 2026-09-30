@@ -1,0 +1,350 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -256
+      ],
+      "id": "dcb8d9d3-6199-461e-985c-a2fb6cce8eb4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-02/practice/data?lesson=earliest",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        -256
+      ],
+      "id": "7b58f6c1-8f70-4bab-bb9c-6b288307e15b",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -256
+      ],
+      "id": "4ac1b333-0a03-4526-8957-e6e2009147e1",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "379ef538-37cb-412a-8960-ae527910a840",
+              "name": "asset_tag",
+              "value": "={{ $json.asset_tag.toUpperCase().replaceAll(\" \", \"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "b2d8d59e-7ed1-48b0-8217-6b7ad2d8cea8",
+              "name": "checkpoint_code",
+              "value": "={{ $json.checkpoint_code.toUpperCase().replaceAll(\" \", \"\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        672,
+        -256
+      ],
+      "id": "14ef0f90-51e3-41ed-b9d1-3564f758d697",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "asset_tag,checkpoint_code",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        -256
+      ],
+      "id": "b0bab5ef-487a-4d4a-9bd3-fb01481b7490",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "asset_tag"
+            },
+            {
+              "fieldName": "checkpoint_code"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        -256
+      ],
+      "id": "50135d9b-c71f-4109-a86a-e4fdf5520b83",
+      "name": "Sort1"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "observed_at_ms"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        896,
+        -256
+      ],
+      "id": "68098331-7943-4749-9c17-a31780fcd6ca",
+      "name": "Sort"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Sort1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "HTTP Request": [
+      {
+        "practice": true,
+        "lesson": "earliest",
+        "task": "Trim and upper-case asset_tag and checkpoint_code. For each asset and checkpoint pair, keep the row with the smallest observed_at_ms. Sort the result by asset_tag, then checkpoint_code.",
+        "rows": [
+          {
+            "asset_tag": "PX-7",
+            "checkpoint_code": "DOCK-A",
+            "observed_at_ms": 415
+          },
+          {
+            "asset_tag": " lm-9 ",
+            "checkpoint_code": "shelf-c",
+            "observed_at_ms": 1040
+          },
+          {
+            "asset_tag": "qk-2",
+            "checkpoint_code": "dock-a",
+            "observed_at_ms": 405
+          },
+          {
+            "asset_tag": "px-7",
+            "checkpoint_code": "DOCK-B",
+            "observed_at_ms": 801
+          },
+          {
+            "asset_tag": "LM-9",
+            "checkpoint_code": "PACK-B",
+            "observed_at_ms": 715
+          },
+          {
+            "asset_tag": " QK-2 ",
+            "checkpoint_code": "DOCK-A",
+            "observed_at_ms": 411
+          },
+          {
+            "asset_tag": " px-7 ",
+            "checkpoint_code": "dock-a",
+            "observed_at_ms": 392
+          },
+          {
+            "asset_tag": "lm-9",
+            "checkpoint_code": "pack-b",
+            "observed_at_ms": 719
+          },
+          {
+            "asset_tag": "QK-2",
+            "checkpoint_code": "SHELF-C",
+            "observed_at_ms": 932
+          },
+          {
+            "asset_tag": "PX-7",
+            "checkpoint_code": " dock-b ",
+            "observed_at_ms": 790
+          }
+        ],
+        "next_cursor": null,
+        "check_yourself": {
+          "earliest_by_asset_and_checkpoint": [
+            {
+              "asset_tag": "LM-9",
+              "checkpoint_code": "PACK-B",
+              "observed_at_ms": 715
+            },
+            {
+              "asset_tag": "LM-9",
+              "checkpoint_code": "SHELF-C",
+              "observed_at_ms": 1040
+            },
+            {
+              "asset_tag": "PX-7",
+              "checkpoint_code": "DOCK-A",
+              "observed_at_ms": 392
+            },
+            {
+              "asset_tag": "PX-7",
+              "checkpoint_code": "DOCK-B",
+              "observed_at_ms": 790
+            },
+            {
+              "asset_tag": "QK-2",
+              "checkpoint_code": "DOCK-A",
+              "observed_at_ms": 405
+            },
+            {
+              "asset_tag": "QK-2",
+              "checkpoint_code": "SHELF-C",
+              "observed_at_ms": 932
+            }
+          ]
+        }
+      }
+    ],
+    "Split Out": [
+      {
+        "asset_tag": "PX-7",
+        "checkpoint_code": "DOCK-A",
+        "observed_at_ms": 415
+      },
+      {
+        "asset_tag": " lm-9 ",
+        "checkpoint_code": "shelf-c",
+        "observed_at_ms": 1040
+      },
+      {
+        "asset_tag": "qk-2",
+        "checkpoint_code": "dock-a",
+        "observed_at_ms": 405
+      },
+      {
+        "asset_tag": "px-7",
+        "checkpoint_code": "DOCK-B",
+        "observed_at_ms": 801
+      },
+      {
+        "asset_tag": "LM-9",
+        "checkpoint_code": "PACK-B",
+        "observed_at_ms": 715
+      },
+      {
+        "asset_tag": " QK-2 ",
+        "checkpoint_code": "DOCK-A",
+        "observed_at_ms": 411
+      },
+      {
+        "asset_tag": " px-7 ",
+        "checkpoint_code": "dock-a",
+        "observed_at_ms": 392
+      },
+      {
+        "asset_tag": "lm-9",
+        "checkpoint_code": "pack-b",
+        "observed_at_ms": 719
+      },
+      {
+        "asset_tag": "QK-2",
+        "checkpoint_code": "SHELF-C",
+        "observed_at_ms": 932
+      },
+      {
+        "asset_tag": "PX-7",
+        "checkpoint_code": " dock-b ",
+        "observed_at_ms": 790
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
