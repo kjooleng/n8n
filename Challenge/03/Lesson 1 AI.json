@@ -1,0 +1,291 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        -208
+      ],
+      "id": "23dd0694-6ec0-496b-bf9f-39c9710dc0c6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-03/practice/data?lesson=pages",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "cursor",
+                    "value": "={{ ($response.body || {}).next_cursor }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !($response.body && $response.body.next_cursor) }}"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -512,
+        -208
+      ],
+      "id": "19d21b1e-60a8-4615-a3e5-2fe8426630dd",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "card_id"
+            },
+            {
+              "aggregation": "sum",
+              "field": "quantity"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        -304
+      ],
+      "id": "d4e3b259-396c-4955-9894-08a786f416f6",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "sum",
+              "field": "quantity"
+            }
+          ]
+        },
+        "fieldsToSplitBy": "bin_label",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        -64,
+        -112
+      ],
+      "id": "f3b12ce7-6e53-49df-a4f6-04515a4a69b3",
+      "name": "Summarize1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "quantity_by_bin",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        384,
+        -112
+      ],
+      "id": "65cb3010-c9aa-4f83-9661-cd4c20b99e4c",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0d510f0e-565c-4e11-a2bd-a824bcc5dc65",
+              "name": "rows_collected",
+              "value": "={{ $json.count_card_id }}",
+              "type": "number"
+            },
+            {
+              "id": "3053ff0b-5048-49d4-ae93-774fd79f6687",
+              "name": "total_quantity",
+              "value": "={{ $json.sum_quantity }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        384,
+        -304
+      ],
+      "id": "d1ce5ca8-bac1-43c6-a7f3-3537604242cd",
+      "name": "Rows and Total Quantity"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7ae76c6c-2882-419a-9b3f-ed298772b971",
+              "name": "bin_label",
+              "value": "={{ $json.bin_label }}",
+              "type": "string"
+            },
+            {
+              "id": "c53867fc-40cb-4af5-96eb-1f44b3cffe4d",
+              "name": "quantity",
+              "value": "={{ $json.sum_quantity }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        160,
+        -112
+      ],
+      "id": "6f2a5db3-1f06-4170-81d1-1619c5578dd8",
+      "name": "Quantity by Bin"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        608,
+        -208
+      ],
+      "id": "d2cee945-89ce-47a0-bfe9-3e6c3da949b9",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -208
+      ],
+      "id": "8bebc234-20ca-4fec-9ffb-77caebc8adf6",
+      "name": "Split Out"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Rows and Total Quantity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize1": {
+      "main": [
+        [
+          {
+            "node": "Quantity by Bin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Rows and Total Quantity": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quantity by Bin": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Summarize1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
