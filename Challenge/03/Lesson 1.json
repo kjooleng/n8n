@@ -195,7 +195,7 @@
               "id": "0d510f0e-565c-4e11-a2bd-a824bcc5dc65",
               "name": "rows_collected",
               "value": "={{ $json.count_card_id }}",
-              "type": "string"
+              "type": "number"
             },
             {
               "id": "3053ff0b-5048-49d4-ae93-774fd79f6687",
@@ -636,32 +636,6 @@
       {
         "sum_quantity": 40,
         "bin_label": "green"
-      }
-    ],
-    "Rows and Total Quantity": [
-      {
-        "rows_collected": "11",
-        "total_quantity": 140
-      }
-    ],
-    "Merge": [
-      {
-        "rows_collected": "11",
-        "total_quantity": 140,
-        "quantity_by_bin": [
-          {
-            "bin_label": "amber",
-            "quantity": 43
-          },
-          {
-            "bin_label": "blue",
-            "quantity": 57
-          },
-          {
-            "bin_label": "green",
-            "quantity": 40
-          }
-        ]
       }
     ]
   },
