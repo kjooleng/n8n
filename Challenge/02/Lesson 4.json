@@ -1,0 +1,567 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        96
+      ],
+      "id": "f4b7ce2a-7fce-4292-979f-0fb0b6695cb2",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-02/practice/data?lesson=first-claim-wins",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        96
+      ],
+      "id": "0e21371c-4f6e-4e1c-b949-00ae1de4b16f",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "98bf4b79-1c85-4fd3-b1bd-f16abf89a5a0",
+              "name": "member_code",
+              "value": "={{ $json.member_code.toUpperCase().replaceAll(\" \", \"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "c01317b9-e035-4903-bc4e-b143f961aa0c",
+              "name": "benefit_code",
+              "value": "={{ $json.benefit_code.toUpperCase().replaceAll(\" \", \"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "063b8f22-47c5-4a2c-a201-831602b4e65b",
+              "name": "tier",
+              "value": "={{ $json.tier }}",
+              "type": "number"
+            },
+            {
+              "id": "8f620cf2-96b8-4bba-baa4-ea7addffa030",
+              "name": "requested_cents",
+              "value": "={{ $json.requested_cents }}",
+              "type": "number"
+            },
+            {
+              "id": "88bb46fe-78e0-4c9a-8b32-fe7dd3a89c0f",
+              "name": "request_seq",
+              "value": "={{ $json.request_seq }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        768,
+        0
+      ],
+      "id": "85808616-ebfb-480d-a9f4-98939707722d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "request_seq"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        608,
+        0
+      ],
+      "id": "88bda7bd-6728-4cd2-9002-97407f1e34ee",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "member_code, benefit_code, tier",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        960,
+        0
+      ],
+      "id": "1b8b0ee6-27cf-4a24-9a79-844ec8b0a803",
+      "name": "first_request_sequences"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "00d26bd4-0f1b-4f56-a2ae-0fc5b4e78223",
+      "name": "Split Rows"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "price_table",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        688,
+        208
+      ],
+      "id": "9231fa3e-8cd4-4d92-a203-4e026147bf9e",
+      "name": "Split Price"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "benefit_code",
+              "field2": "benefit_code"
+            },
+            {
+              "field1": "tier",
+              "field2": "tier"
+            },
+            {
+              "field1": "requested_cents",
+              "field2": "allowed_cents"
+            }
+          ]
+        },
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1168,
+        112
+      ],
+      "id": "77eded16-5cee-47d2-a75f-f2afd541a364",
+      "name": "MatchRequestSequence"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "sum",
+              "field": "requested_cents"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        112
+      ],
+      "id": "182f7fb6-9ec1-48b5-a842-2154692e90f5",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "sum_requested_cents",
+              "renameField": true,
+              "outputFieldName": "matched_total_cents"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        112
+      ],
+      "id": "bdedbeee-4fd8-4c74-a8b3-7b670bf6cbde",
+      "name": "Aggregate"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Rows",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "first_request_sequences",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "first_request_sequences": {
+      "main": [
+        [
+          {
+            "node": "MatchRequestSequence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Rows": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Price": {
+      "main": [
+        [
+          {
+            "node": "MatchRequestSequence",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "MatchRequestSequence": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "HTTP Request": [
+      {
+        "practice": true,
+        "lesson": "first-claim-wins",
+        "task": "Trim and upper-case member_code and benefit_code. Sort request_seq ascending and keep the first row for each member_code, benefit_code, and tier combination. A retained request matches only when requested_cents equals allowed_cents for its benefit and tier.",
+        "rows": [
+          {
+            "request_seq": 312,
+            "member_code": "m-7",
+            "benefit_code": "MEAL",
+            "tier": 1,
+            "requested_cents": 1800
+          },
+          {
+            "request_seq": 301,
+            "member_code": "a-2",
+            "benefit_code": "transit",
+            "tier": 1,
+            "requested_cents": 1200
+          },
+          {
+            "request_seq": 309,
+            "member_code": " A-2 ",
+            "benefit_code": "TRANSIT",
+            "tier": 1,
+            "requested_cents": 1200
+          },
+          {
+            "request_seq": 305,
+            "member_code": "K-4",
+            "benefit_code": " supplies ",
+            "tier": 2,
+            "requested_cents": 2500
+          },
+          {
+            "request_seq": 303,
+            "member_code": "Q-8",
+            "benefit_code": "meal",
+            "tier": 1,
+            "requested_cents": 1800
+          },
+          {
+            "request_seq": 311,
+            "member_code": " q-8 ",
+            "benefit_code": " MEAL ",
+            "tier": 1,
+            "requested_cents": 1700
+          },
+          {
+            "request_seq": 307,
+            "member_code": "R-5",
+            "benefit_code": "TRANSIT",
+            "tier": 1,
+            "requested_cents": 999
+          },
+          {
+            "request_seq": 308,
+            "member_code": " M-7 ",
+            "benefit_code": " meal ",
+            "tier": 1,
+            "requested_cents": 1700
+          },
+          {
+            "request_seq": 306,
+            "member_code": "S-1",
+            "benefit_code": "TRAINING",
+            "tier": 1,
+            "requested_cents": 3200
+          },
+          {
+            "request_seq": 314,
+            "member_code": " s-1 ",
+            "benefit_code": "training",
+            "tier": 1,
+            "requested_cents": 3000
+          },
+          {
+            "request_seq": 302,
+            "member_code": "N-6",
+            "benefit_code": "SUPPLIES",
+            "tier": 2,
+            "requested_cents": 2600
+          },
+          {
+            "request_seq": 310,
+            "member_code": " n-6 ",
+            "benefit_code": "supplies",
+            "tier": 2,
+            "requested_cents": 2500
+          }
+        ],
+        "price_table": [
+          {
+            "benefit_code": "MEAL",
+            "tier": 1,
+            "allowed_cents": 1800
+          },
+          {
+            "benefit_code": "SUPPLIES",
+            "tier": 2,
+            "allowed_cents": 2500
+          },
+          {
+            "benefit_code": "TRAINING",
+            "tier": 1,
+            "allowed_cents": 3200
+          },
+          {
+            "benefit_code": "TRANSIT",
+            "tier": 1,
+            "allowed_cents": 1200
+          }
+        ],
+        "next_cursor": null,
+        "check_yourself": {
+          "first_request_sequences": [
+            301,
+            302,
+            303,
+            305,
+            306,
+            307,
+            308
+          ],
+          "matched_request_sequences": [
+            301,
+            303,
+            305,
+            306
+          ],
+          "matched_total_cents": 8700
+        }
+      }
+    ],
+    "Split Rows": [
+      {
+        "request_seq": 312,
+        "member_code": "m-7",
+        "benefit_code": "MEAL",
+        "tier": 1,
+        "requested_cents": 1800
+      },
+      {
+        "request_seq": 301,
+        "member_code": "a-2",
+        "benefit_code": "transit",
+        "tier": 1,
+        "requested_cents": 1200
+      },
+      {
+        "request_seq": 309,
+        "member_code": " A-2 ",
+        "benefit_code": "TRANSIT",
+        "tier": 1,
+        "requested_cents": 1200
+      },
+      {
+        "request_seq": 305,
+        "member_code": "K-4",
+        "benefit_code": " supplies ",
+        "tier": 2,
+        "requested_cents": 2500
+      },
+      {
+        "request_seq": 303,
+        "member_code": "Q-8",
+        "benefit_code": "meal",
+        "tier": 1,
+        "requested_cents": 1800
+      },
+      {
+        "request_seq": 311,
+        "member_code": " q-8 ",
+        "benefit_code": " MEAL ",
+        "tier": 1,
+        "requested_cents": 1700
+      },
+      {
+        "request_seq": 307,
+        "member_code": "R-5",
+        "benefit_code": "TRANSIT",
+        "tier": 1,
+        "requested_cents": 999
+      },
+      {
+        "request_seq": 308,
+        "member_code": " M-7 ",
+        "benefit_code": " meal ",
+        "tier": 1,
+        "requested_cents": 1700
+      },
+      {
+        "request_seq": 306,
+        "member_code": "S-1",
+        "benefit_code": "TRAINING",
+        "tier": 1,
+        "requested_cents": 3200
+      },
+      {
+        "request_seq": 314,
+        "member_code": " s-1 ",
+        "benefit_code": "training",
+        "tier": 1,
+        "requested_cents": 3000
+      },
+      {
+        "request_seq": 302,
+        "member_code": "N-6",
+        "benefit_code": "SUPPLIES",
+        "tier": 2,
+        "requested_cents": 2600
+      },
+      {
+        "request_seq": 310,
+        "member_code": " n-6 ",
+        "benefit_code": "supplies",
+        "tier": 2,
+        "requested_cents": 2500
+      }
+    ],
+    "Split Price": [
+      {
+        "benefit_code": "MEAL",
+        "tier": 1,
+        "allowed_cents": 1800
+      },
+      {
+        "benefit_code": "SUPPLIES",
+        "tier": 2,
+        "allowed_cents": 2500
+      },
+      {
+        "benefit_code": "TRAINING",
+        "tier": 1,
+        "allowed_cents": 3200
+      },
+      {
+        "benefit_code": "TRANSIT",
+        "tier": 1,
+        "allowed_cents": 1200
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
