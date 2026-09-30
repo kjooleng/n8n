@@ -1,0 +1,200 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "10f20f0d-8835-4962-a037-32ec030d86f6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-03/practice/data?lesson=station-clock",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "087d9aef-d29b-47cb-948b-982b7be9c838",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "d97d1a49-835a-4bca-b3ca-1114caec5388",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "local-time",
+              "name": "local_time",
+              "type": "string",
+              "value": "={{ DateTime.fromISO($json.instant, { zone: 'utc' }).setZone($json.zone).toFormat('HH:mm') }}"
+            },
+            {
+              "id": "local-minute",
+              "name": "local_minute",
+              "type": "number",
+              "value": "={{ DateTime.fromISO($json.instant, { zone: 'utc' }).setZone($json.zone).hour * 60 + DateTime.fromISO($json.instant, { zone: 'utc' }).setZone($json.zone).minute }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "b1f7c4a2-5d3e-4a91-8c60-2e7f9a1d4b83",
+      "name": "Local Time",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Local Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "HTTP Request": [
+      {
+        "practice": true,
+        "lesson": "station-clock",
+        "task": "For every instant, show the local time in its zone with toDateTime().setZone(zone), and clock-face minutes as hour * 60 + minute, not elapsed time since midnight.",
+        "rows": [
+          {
+            "instant": "2026-03-29T00:40:00Z",
+            "place": "Howth",
+            "zone": "Europe/Dublin"
+          },
+          {
+            "instant": "2026-03-29T01:20:00Z",
+            "place": "Howth",
+            "zone": "Europe/Dublin"
+          },
+          {
+            "instant": "2026-03-29T00:50:00Z",
+            "place": "Piraeus",
+            "zone": "Europe/Athens"
+          },
+          {
+            "instant": "2026-03-29T01:10:00Z",
+            "place": "Piraeus",
+            "zone": "Europe/Athens"
+          },
+          {
+            "instant": "2026-03-29T01:30:00Z",
+            "place": "Kochi",
+            "zone": "Asia/Kolkata"
+          },
+          {
+            "instant": "2026-03-29T03:15:00Z",
+            "place": "Kochi",
+            "zone": "Asia/Kolkata"
+          }
+        ],
+        "check_yourself": {
+          "rows": [
+            {
+              "instant": "2026-03-29T00:40:00Z",
+              "place": "Howth",
+              "zone": "Europe/Dublin",
+              "local_time": "00:40",
+              "local_minute": 40
+            },
+            {
+              "instant": "2026-03-29T01:20:00Z",
+              "place": "Howth",
+              "zone": "Europe/Dublin",
+              "local_time": "02:20",
+              "local_minute": 140
+            },
+            {
+              "instant": "2026-03-29T00:50:00Z",
+              "place": "Piraeus",
+              "zone": "Europe/Athens",
+              "local_time": "02:50",
+              "local_minute": 170
+            },
+            {
+              "instant": "2026-03-29T01:10:00Z",
+              "place": "Piraeus",
+              "zone": "Europe/Athens",
+              "local_time": "04:10",
+              "local_minute": 250
+            },
+            {
+              "instant": "2026-03-29T01:30:00Z",
+              "place": "Kochi",
+              "zone": "Asia/Kolkata",
+              "local_time": "07:00",
+              "local_minute": 420
+            },
+            {
+              "instant": "2026-03-29T03:15:00Z",
+              "place": "Kochi",
+              "zone": "Asia/Kolkata",
+              "local_time": "08:45",
+              "local_minute": 525
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
