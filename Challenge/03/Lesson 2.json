@@ -1,0 +1,325 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        0
+      ],
+      "id": "af055a45-6c93-4da4-b76e-ecbd4ed9c413",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-03/practice/data?lesson=two-clocks",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "e18ad05c-282a-4426-affe-a4b6738d5dfc",
+      "name": "Fetch lesson data"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        0
+      ],
+      "id": "90d0ae0b-78ed-4a23-90d7-bff4043aab88",
+      "name": "Split rows into items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ee48f946-b5d2-48bd-8a79-53b3e236c24c",
+              "name": "lit_ms",
+              "value": "={{ $json.lit_at.toDateTime().toMillis() }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        32,
+        0
+      ],
+      "id": "f046df83-d0c4-4ec2-af3a-df6bdae4b9e5",
+      "name": "Convert lit_at to epoch ms"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "lit_ms"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        272,
+        112
+      ],
+      "id": "69af31e1-0513-45bd-8fd9-8c93d5a16caf",
+      "name": "Sort by lit_ms ascending"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        272,
+        -80
+      ],
+      "id": "4a0bd70f-f795-471c-aa0e-82221d0498e9",
+      "name": "Collect rows with lit_ms"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "lamp",
+              "renameField": true,
+              "outputFieldName": "order_by_instant"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        480,
+        112
+      ],
+      "id": "4fac1849-49fa-480b-a0dc-233259d48260",
+      "name": "Collect lamp order"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        688,
+        -32
+      ],
+      "id": "bca04b52-b150-4ddb-afe5-d573245bd0c9",
+      "name": "Combine rows + order"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Fetch lesson data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch lesson data": {
+      "main": [
+        [
+          {
+            "node": "Split rows into items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split rows into items": {
+      "main": [
+        [
+          {
+            "node": "Convert lit_at to epoch ms",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert lit_at to epoch ms": {
+      "main": [
+        [
+          {
+            "node": "Sort by lit_ms ascending",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Collect rows with lit_ms",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort by lit_ms ascending": {
+      "main": [
+        [
+          {
+            "node": "Collect lamp order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect rows with lit_ms": {
+      "main": [
+        [
+          {
+            "node": "Combine rows + order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect lamp order": {
+      "main": [
+        [
+          {
+            "node": "Combine rows + order",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Fetch lesson data": [
+      {
+        "practice": true,
+        "lesson": "two-clocks",
+        "task": "Turn every lit_at into milliseconds with toDateTime().toMillis(), then sort by that number. Text order is wrong here.",
+        "rows": [
+          {
+            "lamp": "Fastnet",
+            "lit_at": "2024-06-14T17:40:00+01:00"
+          },
+          {
+            "lamp": "Kovalam",
+            "lit_at": "2024-06-14T22:05:00+05:30"
+          },
+          {
+            "lamp": "Punta Brava",
+            "lit_at": "2024-06-14T13:50:00-03:00"
+          },
+          {
+            "lamp": "Hook Head",
+            "lit_at": "2024-06-14T16:45:00Z"
+          },
+          {
+            "lamp": "Muttom",
+            "lit_at": "2024-06-14T21:58:00+05:30"
+          },
+          {
+            "lamp": "Cabo Polonio",
+            "lit_at": "2024-06-14T13:31:00-03:00"
+          },
+          {
+            "lamp": "Loop Head",
+            "lit_at": "2024-06-14T17:33:00+01:00"
+          },
+          {
+            "lamp": "Tory Island",
+            "lit_at": "2024-06-14T16:52:00Z"
+          }
+        ],
+        "check_yourself": {
+          "rows": [
+            {
+              "lamp": "Fastnet",
+              "lit_at": "2024-06-14T17:40:00+01:00",
+              "lit_ms": 1718383200000
+            },
+            {
+              "lamp": "Kovalam",
+              "lit_at": "2024-06-14T22:05:00+05:30",
+              "lit_ms": 1718382900000
+            },
+            {
+              "lamp": "Punta Brava",
+              "lit_at": "2024-06-14T13:50:00-03:00",
+              "lit_ms": 1718383800000
+            },
+            {
+              "lamp": "Hook Head",
+              "lit_at": "2024-06-14T16:45:00Z",
+              "lit_ms": 1718383500000
+            },
+            {
+              "lamp": "Muttom",
+              "lit_at": "2024-06-14T21:58:00+05:30",
+              "lit_ms": 1718382480000
+            },
+            {
+              "lamp": "Cabo Polonio",
+              "lit_at": "2024-06-14T13:31:00-03:00",
+              "lit_ms": 1718382660000
+            },
+            {
+              "lamp": "Loop Head",
+              "lit_at": "2024-06-14T17:33:00+01:00",
+              "lit_ms": 1718382780000
+            },
+            {
+              "lamp": "Tory Island",
+              "lit_at": "2024-06-14T16:52:00Z",
+              "lit_ms": 1718383920000
+            }
+          ],
+          "order_by_instant": [
+            "Muttom",
+            "Cabo Polonio",
+            "Loop Head",
+            "Kovalam",
+            "Fastnet",
+            "Hook Head",
+            "Punta Brava",
+            "Tory Island"
+          ]
+        }
+      }
+    ]
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
