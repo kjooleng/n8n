@@ -1,0 +1,332 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "657e7555-77ca-48bb-9744-faa062dfb08f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-02/practice/data?lesson=latest-wins",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "0ce5ddbf-9032-4249-a0e0-7940daf8d5e6",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "revision",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "8ab82436-a70d-432b-bf48-c56aa89926eb",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "550967f7-4f09-428d-a7bd-a1568dc5ea7e",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "panel_id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        896,
+        0
+      ],
+      "id": "3c1b2459-74f2-44e0-a89a-552acb850fa6",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "panel_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "0dee9e1a-1f54-420f-96ea-51686b5fc5f2",
+      "name": "SortLatestPanel"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ae4c1e4e-ea71-4fc0-b793-7edcd3331829",
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "ENABLE",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "63eb9c7e-061f-48b6-b8d1-b0d9bd866271",
+      "name": "EnabledPanel"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "panel_id",
+              "renameField": true,
+              "outputFieldName": "enabled_panel_ids"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "ee8364b8-d34f-44b1-aa36-9eacca863eb2",
+      "name": "Aggregate"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "SortLatestPanel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SortLatestPanel": {
+      "main": [
+        [
+          {
+            "node": "EnabledPanel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EnabledPanel": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "HTTP Request": [
+      {
+        "practice": true,
+        "lesson": "latest-wins",
+        "task": "For each panel_id, keep only the row with the greatest numeric revision. ENABLE leaves that panel active and DISABLE removes it. Sort the retained rows by panel_id.",
+        "rows": [
+          {
+            "panel_id": "PANEL-C",
+            "revision": 14,
+            "decision": "ENABLE"
+          },
+          {
+            "panel_id": "PANEL-A",
+            "revision": 7,
+            "decision": "ENABLE"
+          },
+          {
+            "panel_id": "PANEL-D",
+            "revision": 98,
+            "decision": "DISABLE"
+          },
+          {
+            "panel_id": "PANEL-B",
+            "revision": 22,
+            "decision": "DISABLE"
+          },
+          {
+            "panel_id": "PANEL-E",
+            "revision": 33,
+            "decision": "DISABLE"
+          },
+          {
+            "panel_id": "PANEL-C",
+            "revision": 9,
+            "decision": "DISABLE"
+          },
+          {
+            "panel_id": "PANEL-B",
+            "revision": 105,
+            "decision": "ENABLE"
+          },
+          {
+            "panel_id": "PANEL-A",
+            "revision": 12,
+            "decision": "DISABLE"
+          },
+          {
+            "panel_id": "PANEL-D",
+            "revision": 101,
+            "decision": "ENABLE"
+          },
+          {
+            "panel_id": "PANEL-E",
+            "revision": 31,
+            "decision": "ENABLE"
+          }
+        ],
+        "next_cursor": null,
+        "check_yourself": {
+          "latest_by_panel": [
+            {
+              "panel_id": "PANEL-A",
+              "revision": 12,
+              "decision": "DISABLE"
+            },
+            {
+              "panel_id": "PANEL-B",
+              "revision": 105,
+              "decision": "ENABLE"
+            },
+            {
+              "panel_id": "PANEL-C",
+              "revision": 14,
+              "decision": "ENABLE"
+            },
+            {
+              "panel_id": "PANEL-D",
+              "revision": 101,
+              "decision": "ENABLE"
+            },
+            {
+              "panel_id": "PANEL-E",
+              "revision": 33,
+              "decision": "DISABLE"
+            }
+          ],
+          "enabled_panel_ids": [
+            "PANEL-B",
+            "PANEL-C",
+            "PANEL-D"
+          ]
+        }
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
