@@ -1,0 +1,566 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        -64
+      ],
+      "id": "c11aaf2b-c47d-4a51-b5fe-09cdb30fd076",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-02/practice/data?lesson=pages",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -448,
+        -64
+      ],
+      "id": "03b6405b-eb12-4ba2-8802-3bd135cd174b",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-02/practice/data?lesson=pages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "cursor",
+              "value": "={{ $json.next_cursor }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -224,
+        32
+      ],
+      "id": "4978476f-d94e-49b1-abbb-1ec454da53ea",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-02/practice/data?lesson=pages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "cursor",
+              "value": "={{ $json.next_cursor }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        128
+      ],
+      "id": "1d44bd04-d997-4cff-bcb8-ea86260b684e",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -256
+      ],
+      "id": "215213d3-5e4b-409b-bd69-a1b67fc8639c",
+      "name": "Split Rows 1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -64
+      ],
+      "id": "c3d34772-5df4-4b52-9320-9244e6e96067",
+      "name": "Split Rows2"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        224,
+        128
+      ],
+      "id": "09426bd4-e238-4251-9067-03fa0cfe6c59",
+      "name": "Split Rows3"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        448,
+        -80
+      ],
+      "id": "bb1bdf28-c622-4d11-9b8d-546546e15c6b",
+      "name": "Merge Rows"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "card_id"
+            },
+            {
+              "aggregation": "sum",
+              "field": "quantity"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        -160
+      ],
+      "id": "8b95c19e-2c8e-49d9-bd2f-4909d1b41e63",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "sum",
+              "field": "quantity"
+            }
+          ]
+        },
+        "fieldsToSplitBy": "bin_label",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        32
+      ],
+      "id": "7c352ecd-6c41-492a-a98e-88c75abb4112",
+      "name": "Summarize1"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "count_card_id",
+              "renameField": true,
+              "outputFieldName": "rows_collected"
+            },
+            {
+              "fieldToAggregate": "sum_quantity",
+              "renameField": true,
+              "outputFieldName": "total_quantity"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        896,
+        -160
+      ],
+      "id": "ff45bcd4-999b-4b51-90b5-b7862172c7b8",
+      "name": "Rows and Total Quantity"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "bin_label"
+            },
+            {
+              "fieldToAggregate": "sum_quantity",
+              "renameField": true,
+              "outputFieldName": "quantity"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        896,
+        32
+      ],
+      "id": "27f8955a-9d63-419a-a953-f908710c8f78",
+      "name": "Quantity by Bin"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Rows 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Rows2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Split Rows3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Rows 1": {
+      "main": [
+        [
+          {
+            "node": "Merge Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Rows2": {
+      "main": [
+        [
+          {
+            "node": "Merge Rows",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Split Rows3": {
+      "main": [
+        [
+          {
+            "node": "Merge Rows",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge Rows": {
+      "main": [
+        [
+          {
+            "node": "Summarize1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Rows and Total Quantity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize1": {
+      "main": [
+        [
+          {
+            "node": "Quantity by Bin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "HTTP Request": [
+      {
+        "practice": true,
+        "lesson": "pages",
+        "task": "Fetch the first response without cursor, append every row, then request each next_cursor until it is null. Report the row count, total quantity, and quantity by bin.",
+        "rows": [
+          {
+            "card_id": "C-17",
+            "bin_label": "amber",
+            "quantity": 9
+          },
+          {
+            "card_id": "C-04",
+            "bin_label": "blue",
+            "quantity": 14
+          },
+          {
+            "card_id": "C-29",
+            "bin_label": "green",
+            "quantity": 6
+          },
+          {
+            "card_id": "C-11",
+            "bin_label": "blue",
+            "quantity": 18
+          }
+        ],
+        "next_cursor": "p2-7f",
+        "check_yourself": {
+          "rows_collected": 11,
+          "total_quantity": 140,
+          "quantity_by_bin": [
+            {
+              "bin_label": "amber",
+              "quantity": 43
+            },
+            {
+              "bin_label": "blue",
+              "quantity": 57
+            },
+            {
+              "bin_label": "green",
+              "quantity": 40
+            }
+          ]
+        }
+      }
+    ],
+    "HTTP Request1": [
+      {
+        "practice": true,
+        "lesson": "pages",
+        "task": "Fetch the first response without cursor, append every row, then request each next_cursor until it is null. Report the row count, total quantity, and quantity by bin.",
+        "rows": [
+          {
+            "card_id": "C-31",
+            "bin_label": "amber",
+            "quantity": 7
+          },
+          {
+            "card_id": "C-08",
+            "bin_label": "green",
+            "quantity": 22
+          },
+          {
+            "card_id": "C-25",
+            "bin_label": "blue",
+            "quantity": 5
+          },
+          {
+            "card_id": "C-13",
+            "bin_label": "amber",
+            "quantity": 16
+          }
+        ],
+        "next_cursor": "p3-k2",
+        "check_yourself": {
+          "rows_collected": 11,
+          "total_quantity": 140,
+          "quantity_by_bin": [
+            {
+              "bin_label": "amber",
+              "quantity": 43
+            },
+            {
+              "bin_label": "blue",
+              "quantity": 57
+            },
+            {
+              "bin_label": "green",
+              "quantity": 40
+            }
+          ]
+        }
+      }
+    ],
+    "HTTP Request2": [
+      {
+        "practice": true,
+        "lesson": "pages",
+        "task": "Fetch the first response without cursor, append every row, then request each next_cursor until it is null. Report the row count, total quantity, and quantity by bin.",
+        "rows": [
+          {
+            "card_id": "C-02",
+            "bin_label": "green",
+            "quantity": 12
+          },
+          {
+            "card_id": "C-34",
+            "bin_label": "blue",
+            "quantity": 20
+          },
+          {
+            "card_id": "C-19",
+            "bin_label": "amber",
+            "quantity": 11
+          }
+        ],
+        "next_cursor": null,
+        "check_yourself": {
+          "rows_collected": 11,
+          "total_quantity": 140,
+          "quantity_by_bin": [
+            {
+              "bin_label": "amber",
+              "quantity": 43
+            },
+            {
+              "bin_label": "blue",
+              "quantity": 57
+            },
+            {
+              "bin_label": "green",
+              "quantity": 40
+            }
+          ]
+        }
+      }
+    ],
+    "Split Rows 1": [
+      {
+        "card_id": "C-17",
+        "bin_label": "amber",
+        "quantity": 9
+      },
+      {
+        "card_id": "C-04",
+        "bin_label": "blue",
+        "quantity": 14
+      },
+      {
+        "card_id": "C-29",
+        "bin_label": "green",
+        "quantity": 6
+      },
+      {
+        "card_id": "C-11",
+        "bin_label": "blue",
+        "quantity": 18
+      }
+    ],
+    "Split Rows2": [
+      {
+        "card_id": "C-31",
+        "bin_label": "amber",
+        "quantity": 7
+      },
+      {
+        "card_id": "C-08",
+        "bin_label": "green",
+        "quantity": 22
+      },
+      {
+        "card_id": "C-25",
+        "bin_label": "blue",
+        "quantity": 5
+      },
+      {
+        "card_id": "C-13",
+        "bin_label": "amber",
+        "quantity": 16
+      }
+    ],
+    "Split Rows3": [
+      {
+        "card_id": "C-02",
+        "bin_label": "green",
+        "quantity": 12
+      },
+      {
+        "card_id": "C-34",
+        "bin_label": "blue",
+        "quantity": 20
+      },
+      {
+        "card_id": "C-19",
+        "bin_label": "amber",
+        "quantity": 11
+      }
+    ],
+    "Summarize": [
+      {
+        "count_card_id": 11,
+        "sum_quantity": 140
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
