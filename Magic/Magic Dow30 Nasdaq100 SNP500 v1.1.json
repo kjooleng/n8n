@@ -1,0 +1,461 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {
+          "includeBinaries": true
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "530e72e1-1de4-4d63-b768-fd065c5355ee",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 9,
+              "triggerAtMinute": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -448,
+        96
+      ],
+      "id": "69cc4c14-3424-4ecd-a693-125021d8e0c9",
+      "name": "0901 Hrs SGT Monthly Trigger"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/files/Magic/*.*",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "628acca9-836d-4499-bb92-47fd3cf21f64",
+      "name": "Read Results"
+    },
+    {
+      "parameters": {
+        "executeOnce": false,
+        "command": "cd /files/Magic\npython \"Magic(Dow30 + Nasdaq100 + S&P500).py\"\n\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        96
+      ],
+      "id": "0baad35f-c2ce-4b09-a69a-3ca073f60c2e",
+      "name": "Python script to apply magic formula"
+    },
+    {
+      "parameters": {
+        "command": "cd /files/Magic\nrm *.csv\nrm *.xlsx"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        208
+      ],
+      "id": "96a665a9-05d9-48c9-a5cd-0b74fa986286",
+      "name": "Housekeeping"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ── 1. Sort all rows by Score ascending ──────────────────────────────\nconst rows = items.map(item => item.json);\nif (rows.length === 0) {\n  throw new Error('No rows extracted from the CSV - nothing to publish to Notion.');\n}\n\nrows.sort((a, b) => {\n  const sa = parseFloat(a.Score), sb = parseFloat(b.Score);\n  const aOk = !isNaN(sa), bOk = !isNaN(sb);\n  if (aOk && bOk) return sa - sb;\n  return aOk ? -1 : bOk ? 1 : 0;\n});\n\nconst headers = Object.keys(rows[0]);\nconst tableWidth = headers.length;\n\n// ── 2. Notion hard limits ────────────────────────────────────────────\n// No block array may hold more than 100 elements, and a single request\n// body must stay under 500 KB. Stay well inside both so page creation\n// and every append succeed.\nconst MAX_ROWS_PER_TABLE = 100;          // table_row blocks per table\nconst MAX_REQUEST_BYTES  = 150 * 1024;   // ~150 KB of JSON per API call\n\nfunction makeRow(cells, bold) {\n  return {\n    type: 'table_row',\n    table_row: {\n      cells: cells.map(cell => {\n        const txt = (cell == null || String(cell) === 'nan') ? '' : String(cell).slice(0, 2000);\n        return [{ type: 'text', text: { content: txt }, annotations: bold ? { bold: true } : {} }];\n      })\n    }\n  };\n}\n\nconst allRows = [\n  makeRow(headers, true),\n  ...rows.map(r => makeRow(headers.map(h => r[h] ?? ''), false))\n];\n\n// ── 3. Split rows into table blocks of at most 100 rows ──────────────\nconst tables = [];\nfor (let i = 0; i < allRows.length; i += MAX_ROWS_PER_TABLE) {\n  tables.push({\n    type: 'table',\n    table: {\n      table_width: tableWidth,\n      has_column_header: i === 0,   // only the first table carries the header\n      has_row_header: false,\n      children: allRows.slice(i, i + MAX_ROWS_PER_TABLE)\n    }\n  });\n}\n\n// ── 4. Pack tables into requests that fit the byte budget ────────────\nconst batches = [];\nlet current = [];\nlet currentBytes = 0;\nfor (const table of tables) {\n  const size = JSON.stringify(table).length;\n  if (current.length > 0 && currentBytes + size > MAX_REQUEST_BYTES) {\n    batches.push(current);\n    current = [];\n    currentBytes = 0;\n  }\n  current.push(table);\n  currentBytes += size;\n}\nif (current.length > 0) batches.push(current);\n\n// ── 5. Title date taken from the DATA, not from the container clock ──\n// The Python step writes ..._ranking_YYYY-MM-DD.csv, so read the date\n// from the file name (newest file wins). Only if that is unavailable do\n// we fall back to \"yesterday\" in Singapore time (UTC+8), computed from\n// UTC on purpose so the container's own timezone cannot shift it.\nconst MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];\nconst fmt = d => `${String(d.getUTCDate()).padStart(2,'0')}-${MONTHS[d.getUTCMonth()]}-${d.getUTCFullYear()}`;\n\nlet dataDate = null;\ntry {\n  for (const f of $('Read Results2').all()) {\n    const m = String(f.json.fileName || '').match(/(\\d{4})-(\\d{2})-(\\d{2})/);\n    if (!m) continue;\n    const d = new Date(`${m[1]}-${m[2]}-${m[3]}T00:00:00Z`);\n    if (!dataDate || d > dataDate) dataDate = d;\n  }\n} catch (e) {\n  // 'Read Results2' not available (e.g. single-node test run) - use fallback\n}\n\nlet dateLabel;\nif (dataDate) {\n  dateLabel = fmt(dataDate);\n} else {\n  const sgt = new Date(Date.now() + 8 * 3600 * 1000);  // read with getUTC* => SGT wall clock\n  sgt.setUTCDate(sgt.getUTCDate() - 1);\n  dateLabel = fmt(sgt);\n}\n\nconst title = `${dateLabel} Magic Formula Results (Dow30 + Nasdaq100 + SNP500)`;\n\n// ── 6. One item per API request ──────────────────────────────────────\n// Item 0 creates the page; each remaining item is appended in its own request.\nreturn batches.map((children, i) => ({\n  json: {\n    title,\n    dateLabel,\n    chunkIndex: i,\n    totalChunks: batches.length,\n    tableCount: children.length,\n    totalRows: allRows.length,\n    children\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        192
+      ],
+      "id": "a3976ab0-495f-4923-b9bb-834e2d7e9b33",
+      "name": "Build Table Blocks"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/files/Magic/*.csv",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        192
+      ],
+      "id": "ecbefdff-0f10-4626-8c44-95f309e39514",
+      "name": "Read Results2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        192
+      ],
+      "id": "5022fedd-b56f-485c-af7a-ef9bc8b0cd9a",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "sendTo": "kangjooleng@yahoo.com",
+        "subject": "={{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }} Magic Formula Results (Dow30 + Nasdaq100 + SNP500)",
+        "message": "=Attached Magic Formula Results (Dow30 + Nasdaq100 + SNP500) for {{ $today.minus({ days: 1 }).toFormat('dd-MMM-yyyy') }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data,data_1,data_2"
+              }
+            ]
+          },
+          "ccList": "kangjooleng@gmail.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "748364ed-e543-41b4-baaf-70d385a78a62",
+      "name": "Send Magic Formula Results to Email",
+      "webhookId": "13290714-32b4-429e-8ee8-3f3f844d4983",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U4v1W1uZ3ABwcgps",
+          "name": "jooleng.kang@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "cd /files/Magic\nrm *.csv\nrm *.xlsx"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -384
+      ],
+      "id": "b5e830fb-02dd-48a1-baa7-c17c12fd7aa2",
+      "name": "Housekeeping1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"parent\": { \"page_id\": \"34e30e12-316d-80ee-90a9-ed1c207a333c\" },\n  \"properties\": {\n    \"title\": [{ \"text\": { \"content\": $json.title } }]\n  },\n  \"children\": (() => {\n    const c = $json.children;\n    if (!Array.isArray(c) || c.length === 0) {\n      throw new Error('No Notion table blocks to publish: Build Table Blocks produced no usable children array, so an empty page would be created. This normally means a partial run reused stale cached data - reload the editor and run the whole workflow again.');\n    }\n    return c;\n  })()\n}) }}",
+        "options": {}
+      },
+      "id": "a3aea59c-590b-4ff0-bc66-11a1f7f03ca1",
+      "name": "Create Notion Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        192
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "notionApi": {
+          "id": "iTRjDS4HWnXmTg8a",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// The page was created from chunk 0 by 'Create Notion Page'.\n// Emit one item per remaining chunk so the HTTP node appends them one\n// request at a time, and pass through safely when there is nothing left.\nconst page = $input.first().json;\nconst chunks = $('Build Table Blocks').all();\n\nconst remaining = chunks.slice(1);\nif (remaining.length === 0) {\n  return [{ json: { pageId: page.id, pageUrl: page.url, chunkIndex: 0, children: [], hasBatches: false } }];\n}\n\nreturn remaining.map((item, i) => ({\n  json: {\n    pageId: page.id,\n    pageUrl: page.url,\n    chunkIndex: item.json.chunkIndex ?? i + 1,\n    tableCount: item.json.tableCount,\n    children: item.json.children,\n    hasBatches: true\n  }\n}));\n"
+      },
+      "id": "278bef4c-5be9-4bb8-83f1-4edf40240ecd",
+      "name": "Prepare Append Batches",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-more-batches",
+              "leftValue": "={{ $json.hasBatches }}",
+              "operator": {
+                "operation": "true",
+                "singleValue": true,
+                "type": "boolean"
+              },
+              "rightValue": ""
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          }
+        },
+        "options": {}
+      },
+      "id": "afbbff5e-0a84-44c7-9059-a7b46d53d4af",
+      "name": "Has More Batches?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/blocks/{{ $json.pageId }}/children",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ \"children\": $json.children }) }}",
+        "options": {}
+      },
+      "id": "990f59a2-ea29-430e-9179-4bfe91006a8e",
+      "name": "Append Notion Blocks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1664,
+        336
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "notionApi": {
+          "id": "iTRjDS4HWnXmTg8a",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b7d1c0a4-2d61-4c8e-9f0a-6a1e5c9d3f21",
+      "name": "Loop Over Chunks",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1440,
+        192
+      ]
+    }
+  ],
+  "connections": {
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send Magic Formula Results to Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "0901 Hrs SGT Monthly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Python script to apply magic formula",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Results": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Python script to apply magic formula": {
+      "main": [
+        [
+          {
+            "node": "Read Results",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Results2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Table Blocks": {
+      "main": [
+        [
+          {
+            "node": "Create Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Results2": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Build Table Blocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Notion Page": {
+      "main": [
+        [
+          {
+            "node": "Prepare Append Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Append Batches": {
+      "main": [
+        [
+          {
+            "node": "Has More Batches?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has More Batches?": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Chunks",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Housekeeping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Notion Blocks": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Chunks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Chunks": {
+      "main": [
+        [
+          {
+            "node": "Housekeeping",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append Notion Blocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
