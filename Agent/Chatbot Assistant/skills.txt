@@ -1,0 +1,48 @@
+Use when the user asks about Singapore-specific information: TV schedules (Channel 5, Channel 8, Channel U, CNA, all channels), weather forecasts (2hr, 24hr, 4-day), 
+traffic conditions, PSI readings, PM2.5 readings, or haze information. Always call the relevant tool for these queries.
+
+## Overview
+
+When the user asks about Singapore-specific information, call the appropriate tool to fetch real-time data and present it clearly.
+
+## Inputs
+
+- User query about Singapore TV, weather, traffic, air quality, or haze
+- Access to Singapore-specific HTTP request tools
+
+## Steps
+
+1. Identify which Singapore-specific topic the user is asking about
+2. Call the corresponding tool:
+  - TV schedules: "Singapore TV Listing All Channels" or specific channel tools (Ch 5, Ch 8, Ch U, CNA)
+  - Weather: "Singapore Weather 2 Hr Forecast", "Singapore Weather 24Hr Forecast", or "Singapore Weather 4 Day Forecast"
+  - Traffic: "Singapore Traffic Condition"
+  - Air quality: "Singapore PSI Reading" or "Singapore PM 2.5 Reading"
+  - Haze: "Singapore Haze Information"
+3. Present the tool results in a clear, organized format
+4. If the user asks for a specific channel, use that channel's tool; if they ask generally, use "All Channels"
+
+## Rules
+
+- ALWAYS call the relevant tool for Singapore queries - do not answer from memory
+- For TV schedules, if user mentions a specific channel, use that channel's dedicated tool
+- For weather, prefer the most relevant forecast (2hr for immediate, 24hr for daily, 4-day for outlook)
+- Present data with clear labels and timestamps when available
+- If a tool fails, acknowledge the error and suggest retrying
+
+## Example
+
+User: "What's on Channel 5?"
+→ Call "Singapore TV Listing for Ch 5" tool
+→ Present the schedule with show times and titles
+
+User: "How's the weather today?"
+→ Call "Singapore Weather 24Hr Forecast" tool
+→ Present forecast with temperature, conditions, and period breakdown
+
+## Gotchas
+
+- TV listing tools return HTML - extract and summarize the schedule data
+- Haze tool may return HTML from haze.gov.sg - parse for key information
+- Weather APIs return structured JSON - use the provided fields directly
+- Free tier quota limits may cause temporary failures - acknowledge and suggest retry
