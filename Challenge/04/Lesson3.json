@@ -1,0 +1,280 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        -32
+      ],
+      "id": "442c8c83-9256-446e-98f5-2e4e82189f79",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-04/practice/data?lesson=group",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -384,
+        -32
+      ],
+      "id": "2b15b1f1-a39d-4cc2-b01c-a6645e8e745d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -32
+      ],
+      "id": "16dd13ac-6fd1-4f7d-9134-8215b534a9fc",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "book"
+            }
+          ]
+        },
+        "fieldsToSplitBy": "shelf",
+        "options": {}
+      },
+      "id": "1cf08a82-b239-4f3f-a264-9e17bd4b3e49",
+      "name": "Summarize",
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "counts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        512,
+        -32
+      ],
+      "id": "61ddd536-8a8a-4769-b1cd-26e82f4eac66",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ba42c89a-3974-4e66-8496-1d07012ee88f",
+              "name": "shelf",
+              "value": "={{ $json.shelf }}",
+              "type": "string"
+            },
+            {
+              "id": "af9f3795-c198-4454-a5f4-b5fd5a3b9773",
+              "name": "count",
+              "value": "={{ $json.count_book }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        256,
+        -32
+      ],
+      "id": "c96a0107-73fe-4e0c-b75c-0733e010ef7b",
+      "name": "Edit Fields"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "HTTP Request": [
+      {
+        "task": "Count books on each shelf. Report every shelf count, without sorting or selecting a winner.",
+        "node_hint": "Use Summarize. Count book and split by shelf.",
+        "rows": [
+          {
+            "book": "Lanterns",
+            "shelf": "travel"
+          },
+          {
+            "book": "Fern Notes",
+            "shelf": "nature"
+          },
+          {
+            "book": "Blue Kite",
+            "shelf": "fiction"
+          },
+          {
+            "book": "Island Paths",
+            "shelf": "travel"
+          },
+          {
+            "book": "Cloud Almanac",
+            "shelf": "nature"
+          },
+          {
+            "book": "Little Orchard",
+            "shelf": "nature"
+          }
+        ],
+        "check_yourself": {
+          "counts": [
+            {
+              "shelf": "fiction",
+              "count": 1
+            },
+            {
+              "shelf": "nature",
+              "count": 3
+            },
+            {
+              "shelf": "travel",
+              "count": 2
+            }
+          ]
+        },
+        "practice": true,
+        "lesson": "group"
+      }
+    ],
+    "Split Out": [
+      {
+        "book": "Lanterns",
+        "shelf": "travel"
+      },
+      {
+        "book": "Fern Notes",
+        "shelf": "nature"
+      },
+      {
+        "book": "Blue Kite",
+        "shelf": "fiction"
+      },
+      {
+        "book": "Island Paths",
+        "shelf": "travel"
+      },
+      {
+        "book": "Cloud Almanac",
+        "shelf": "nature"
+      },
+      {
+        "book": "Little Orchard",
+        "shelf": "nature"
+      }
+    ],
+    "Summarize": [
+      {
+        "count_book": 2,
+        "shelf": "travel"
+      },
+      {
+        "count_book": 3,
+        "shelf": "nature"
+      },
+      {
+        "count_book": 1,
+        "shelf": "fiction"
+      }
+    ],
+    "Aggregate": [
+      {
+        "counts": [
+          {
+            "shelf": "travel",
+            "count": 2
+          },
+          {
+            "shelf": "nature",
+            "count": 3
+          },
+          {
+            "shelf": "fiction",
+            "count": 1
+          }
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
