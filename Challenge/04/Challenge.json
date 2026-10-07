@@ -1,0 +1,3477 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "82beee66-fb06-49a6-8ca6-44c3029bb51c",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -336,
+        976
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c04a0000-0000-4000-8000-000000000002",
+              "name": "username",
+              "type": "string",
+              "value": "kjooleng"
+            },
+            {
+              "id": "c04a0000-0000-4000-8000-000000000003",
+              "name": "key",
+              "type": "string",
+              "value": "MB-EXY5-M8PV"
+            },
+            {
+              "id": "c04a0000-0000-4000-8000-000000000004",
+              "name": "base",
+              "type": "string",
+              "value": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-04"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2536bab0-a340-425a-82d3-c6566052233c",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -112,
+        976
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Settings').first().json.base }}/data",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "value": "case"
+            },
+            {
+              "name": "username",
+              "value": "={{ $('Settings').first().json.username }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $('Settings').first().json.key }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "6ad5fdb2-9e1c-4a36-9f95-7fde21611054",
+      "name": "Open your case",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        128,
+        896
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Settings').first().json.base }}/data",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "value": "scans"
+            },
+            {
+              "name": "username",
+              "value": "={{ $('Settings').first().json.username }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $('Settings').first().json.key }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "2c8397ac-1144-487d-9898-09e0c65cc284",
+      "name": "Get scans",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        128,
+        1056
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "id": "8711ebb1-9141-491c-9399-1f7d9cc1a8fb",
+      "name": "Scan rows",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        336,
+        1056
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c04a0000-0000-4000-8000-000000000009",
+              "name": "b1",
+              "type": "string",
+              "value": "={{ $json.attendee_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7a916883-6c2c-4ad1-98ae-546b0c654269",
+      "name": "Stage 1 answer",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        944,
+        224
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Settings').first().json.base }}/check",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $('Settings').first().json.key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $('Settings').first().json.username }}"
+            },
+            {
+              "name": "stage",
+              "value": "1"
+            },
+            {
+              "name": "answer",
+              "value": "={{ $('Stage 1 answer').first().json.b1 }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "9da1fd42-c473-450e-b673-f2ec1503c61b",
+      "name": "Check stage 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1200,
+        224
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c04a0000-0000-4000-8000-000000000012",
+              "name": "b2",
+              "type": "string",
+              "value": "={{ $json.session }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ee842a3a-4ddf-4e6d-a3f8-5430a3681cd4",
+      "name": "Stage 2 answer",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        768,
+        736
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Settings').first().json.base }}/check",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $('Settings').first().json.key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $('Settings').first().json.username }}"
+            },
+            {
+              "name": "stage",
+              "value": "2"
+            },
+            {
+              "name": "answer",
+              "value": "={{ $('Stage 2 answer').first().json.b2 }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "0e2f3259-de78-416b-8a59-ef07cb24cc05",
+      "name": "Check stage 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1008,
+        736
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Settings').first().json.base }}/data",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "value": "kits"
+            },
+            {
+              "name": "username",
+              "value": "={{ $('Settings').first().json.username }}"
+            },
+            {
+              "name": "session",
+              "value": "={{ $('Stage 2 answer').first().json.b2 }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $('Settings').first().json.key }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "e2323b66-6d6e-423e-ad45-e463c851cffb",
+      "name": "Get kits",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1216,
+        896
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "id": "ebca5d6a-9a09-499f-99b8-25714cca8557",
+      "name": "Kit rows",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1440,
+        896
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c04a0000-0000-4000-8000-000000000017",
+              "name": "b3",
+              "type": "number",
+              "value": "={{ $json.count_attendee_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f94651a2-3859-42dc-8dd9-8ed86e6af36f",
+      "name": "Stage 3 answer",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        944,
+        1312
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Settings').first().json.base }}/check",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $('Settings').first().json.key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $('Settings').first().json.username }}"
+            },
+            {
+              "name": "stage",
+              "value": "3"
+            },
+            {
+              "name": "answer",
+              "value": "={{ $('Stage 3 answer').first().json.b3 }}"
+            },
+            {
+              "name": "opened_with",
+              "value": "={{ $('Stage 2 answer').first().json.b2 }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "fce3f655-ac70-4039-9fac-a25a8d7ba40a",
+      "name": "Check stage 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1184,
+        1312
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "content": "## README\n\nWorkshop scanners retry. Find the first arrival, busiest session and kits still waiting. **Starter, not a finished solution.**\n\n1. Enter your username and participant key in **Settings**.\n2. Use your registered Community Weekly Challenge identity. No staging password is needed.\n3. Run **Start** for case/scans. Add native nodes and connect results; checks start disabled.\n\nSubmit finished JSON with the key blank, no credentials and no pinned data.\n\n[Challenge brief](https://marketing.app.n8n.cloud/webhook/cwc/challenge) · [FAQ](https://marketing.app.n8n.cloud/webhook/cwc/faq) · [Submit](https://marketing.app.n8n.cloud/webhook/cwc/submit)",
+        "height": 636,
+        "width": 916,
+        "color": 4
+      },
+      "id": "7cba2f03-9660-4340-a2be-9d01cf78de1e",
+      "name": "1. Start here",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        656
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Stage 1 · First through the door\n\nFind the attendee with the earliest **ACCEPTED** scan. Timestamps are full UTC instants.\n\nHint: **Filter → Sort → Limit**.\n\nConnect your last node to **Stage 1 answer**. Replace its blank `b1` value with an expression from your result. Then enable **Check stage 1** when ready.",
+        "height": 430,
+        "width": 1066,
+        "color": 5
+      },
+      "id": "7ba64702-3743-424b-9b09-069168eaa2b0",
+      "name": "Stage 1: First through the door",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        608,
+        -16
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Stage 2 · Most popular room\n\nCount distinct attendees with an **ACCEPTED** scan in each session. Retry scans are one attendee, and each accepted attendee belongs to one session. The busiest session is unique.\n\nHint: **Filter → Remove Duplicates → Summarize → Sort → Limit**.\n\nConnect your result to **Stage 2 answer**, set `b2` to your session expression, then run. **Get kits** uses that result.",
+        "height": 618,
+        "width": 1058,
+        "color": 6
+      },
+      "id": "dbddbf70-f1b9-4228-9e3f-47b8fdede652",
+      "name": "Stage 2: Most popular room",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        608,
+        432
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Stage 3 · Kits still waiting\n\nUse **Kit rows** from the Stage 2 session. Count only **CONFIRMED** attendees who requested a kit and have not picked it up.\n\nHint: combine all three conditions in a **Filter**, then **Summarize** the count.\n\nConnect the count to **Stage 3 answer** and use an expression for `b3`. Enable checks only when ready. Export your finished workflow for the portal submission.",
+        "height": 406,
+        "width": 1058,
+        "color": 3
+      },
+      "id": "b2f70507-4ce0-47a2-a15a-b0fd21f05463",
+      "name": "Stage 3: Kits still waiting",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        608,
+        1072
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Challenge 04: The Welcome Desk\n\nAn n8n Community challenge: find the first arrival, the busiest session and the kits still waiting.\n\n**This is a starter, not a finished solution.** Data and checks are available while Challenge 04 is open.\n\n### Get started\n\n1. [Read the brief](https://marketing.app.n8n.cloud/webhook/cwc/challenge) and [register](https://marketing.app.n8n.cloud/webhook/cwc/register), or use your existing participant key.\n2. Import into your n8n instance. Enter your username and key in **Settings**, keep the production base and HTTP Authentication **None**, then run **Start**.\n3. Build with native nodes and connect your computed results to the answer nodes. Kits use your Stage 2 result. Enable checks when ready.\n4. [Submit](https://marketing.app.n8n.cloud/webhook/cwc/submit) your completed workflow JSON, answers and explanation. Blank the key and remove credentials and pinned data before exporting.\n\nNo Code, Function, AI, Agent, MCP or Tool nodes, hardcoded answers or hidden code. **11 points after verification on three unseen datasets.**\n\n### Useful links\n\n- [Home](https://marketing.app.n8n.cloud/webhook/cwc/site) · [Challenges](https://marketing.app.n8n.cloud/webhook/cwc/challenges)\n- [Your account](https://marketing.app.n8n.cloud/webhook/cwc/status) · [Recover key](https://marketing.app.n8n.cloud/webhook/cwc/reset) · [FAQ](https://marketing.app.n8n.cloud/webhook/cwc/faq)\n- [Results](https://marketing.app.n8n.cloud/webhook/cwc/results) · [Profiles](https://marketing.app.n8n.cloud/webhook/cwc/user)\n- [Learn and practise](https://marketing.app.n8n.cloud/webhook/cwc/learn) · [n8n Academy](https://learn.n8n.io/)\n- [Challenge help](https://marketing.app.n8n.cloud/webhook/cwc/community) · [Community forum](https://community.n8n.io/)\n- [n8n](https://n8n.io/) · [Documentation](https://docs.n8n.io/)\n\n",
+        "height": 1488,
+        "width": 992
+      },
+      "id": "6ad0db8c-417f-4c16-b09b-497188b65c74",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        -16
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ca9c465b-813e-4f3a-b4b3-b3f11448c47d",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "ACCEPTED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        240,
+        352
+      ],
+      "id": "c701bd4a-7990-4349-bd23-8cc7a36c7e02",
+      "name": "FilterAccept"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "at"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        416,
+        352
+      ],
+      "id": "f8e97e91-3a03-46c8-b7b3-c998a3698e82",
+      "name": "Sort"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        656,
+        224
+      ],
+      "id": "1b15f254-3f66-4837-a595-439f04f93758",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "attendee_id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        656,
+        592
+      ],
+      "id": "f429c5a5-fef9-4987-ba37-bf8601a88d9c",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "attendee_id"
+            }
+          ]
+        },
+        "fieldsToSplitBy": "session",
+        "options": {}
+      },
+      "id": "dbe653c3-4d94-46e0-ab5c-cdf26f57879b",
+      "name": "Summarize",
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        848,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "count_attendee_id",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        592
+      ],
+      "id": "e60992a0-c767-40aa-b2aa-456cfd0e5712",
+      "name": "Sort1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        592
+      ],
+      "id": "38f61611-57e5-4bf6-b543-bc0e034563f9",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ca9c465b-813e-4f3a-b4b3-b3f11448c47d",
+              "leftValue": "={{ $json.registration_status }}",
+              "rightValue": "CONFIRMED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "bd2b6266-a63b-41c0-b9a0-bc1c1a9c4b56",
+              "leftValue": "={{ $json.requested_kit }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a3e4fe43-04d3-4da3-8eb3-6fcb4248dab0",
+              "leftValue": "={{ $json.picked_up }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        656,
+        1248
+      ],
+      "id": "2bff7979-fcc7-469b-836b-49f9218aa013",
+      "name": "FilterConfirm"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "attendee_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        1392
+      ],
+      "id": "f575b2dc-49be-499e-a547-079ab899bdfd",
+      "name": "Summarize1"
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Open your case",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get scans",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get scans": {
+      "main": [
+        [
+          {
+            "node": "Scan rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scan rows": {
+      "main": [
+        [
+          {
+            "node": "FilterAccept",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 1 answer": {
+      "main": [
+        [
+          {
+            "node": "Check stage 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 2 answer": {
+      "main": [
+        [
+          {
+            "node": "Check stage 2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get kits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get kits": {
+      "main": [
+        [
+          {
+            "node": "Kit rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kit rows": {
+      "main": [
+        [
+          {
+            "node": "FilterConfirm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 3 answer": {
+      "main": [
+        [
+          {
+            "node": "Check stage 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FilterAccept": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Stage 1 answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Sort1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort1": {
+      "main": [
+        [
+          {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
+            "node": "Stage 2 answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FilterConfirm": {
+      "main": [
+        [
+          {
+            "node": "Summarize1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize1": {
+      "main": [
+        [
+          {
+            "node": "Stage 3 answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Open your case": [
+      {
+        "file": "case",
+        "title": "The Welcome Desk",
+        "you": "kjooleng",
+        "briefing": "Welcome, kjooleng. Your workshop has retry scans, rejected check-ins and kits waiting to be collected. Fetch scans once, solve the first two stages, then fetch kits using your Stage 2 session.",
+        "files": [
+          {
+            "file": "scans",
+            "description": "Shuffled check-in scans. ACCEPTED scans count; a retry is not a second attendee."
+          },
+          {
+            "file": "kits",
+            "parameter": "session",
+            "description": "A session roster. Use your Stage 2 session ID."
+          }
+        ],
+        "stages": [
+          {
+            "stage": 1,
+            "question": "Which attendee has the earliest ACCEPTED scan?",
+            "format": "AT-[A-Z2-9]{5}"
+          },
+          {
+            "stage": 2,
+            "question": "Which session has the most distinct attendees with an ACCEPTED scan?",
+            "format": "WS-[A-Z2-9]{4}",
+            "note": "Each attendee belongs to at most one accepted session. Count an attendee once."
+          },
+          {
+            "stage": 3,
+            "question": "In that busiest session, how many CONFIRMED attendees requested a kit but have not picked it up?",
+            "format": "integer 0 to 99"
+          }
+        ],
+        "fetches_remaining": 115
+      }
+    ],
+    "Get scans": [
+      {
+        "file": "scans",
+        "rows": [
+          {
+            "scan_id": "SC-3D3UF",
+            "attendee_id": "AT-XMGQ6",
+            "session": "WS-3WJ4",
+            "status": "REJECTED",
+            "at": "2026-10-05T08:37:09Z"
+          },
+          {
+            "scan_id": "SC-T2LBH",
+            "attendee_id": "AT-2E3BT",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:18:22Z"
+          },
+          {
+            "scan_id": "SC-5T9ZQ",
+            "attendee_id": "AT-2EHW2",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:30:54Z"
+          },
+          {
+            "scan_id": "SC-24JVY",
+            "attendee_id": "AT-3U8K5",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:52:58Z"
+          },
+          {
+            "scan_id": "SC-SLTN6",
+            "attendee_id": "AT-PSZ9V",
+            "session": "WS-XXZD",
+            "status": "REJECTED",
+            "at": "2026-10-05T08:08:04Z"
+          },
+          {
+            "scan_id": "SC-DVQFM",
+            "attendee_id": "AT-CZWDP",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:33:56Z"
+          },
+          {
+            "scan_id": "SC-MU39G",
+            "attendee_id": "AT-B2WNR",
+            "session": "WS-2B6S",
+            "status": "REJECTED",
+            "at": "2026-10-05T09:22:15Z"
+          },
+          {
+            "scan_id": "SC-NYJ6C",
+            "attendee_id": "AT-AXGAB",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:46:17Z"
+          },
+          {
+            "scan_id": "SC-B7S85",
+            "attendee_id": "AT-7DDLV",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:30:54Z"
+          },
+          {
+            "scan_id": "SC-ESQZM",
+            "attendee_id": "AT-6L39V",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:36:37Z"
+          },
+          {
+            "scan_id": "SC-LVBAN",
+            "attendee_id": "AT-UX93Y",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:26:17Z"
+          },
+          {
+            "scan_id": "SC-RWPRK",
+            "attendee_id": "AT-TUAUV",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:14:10Z"
+          },
+          {
+            "scan_id": "SC-FCGNP",
+            "attendee_id": "AT-NWXN5",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:07:46Z"
+          },
+          {
+            "scan_id": "SC-D2SYA",
+            "attendee_id": "AT-MVJ4J",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:36:47Z"
+          },
+          {
+            "scan_id": "SC-9LPQT",
+            "attendee_id": "AT-XEXES",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:07:13Z"
+          },
+          {
+            "scan_id": "SC-ZHJJA",
+            "attendee_id": "AT-ZSZSY",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:33:54Z"
+          },
+          {
+            "scan_id": "SC-4BJ7Y",
+            "attendee_id": "AT-RJNZT",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:06:50Z"
+          },
+          {
+            "scan_id": "SC-H2E6K",
+            "attendee_id": "AT-7MBHC",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:12:43Z"
+          },
+          {
+            "scan_id": "SC-EBZDH",
+            "attendee_id": "AT-TTQC3",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:02:24Z"
+          },
+          {
+            "scan_id": "SC-M7QHX",
+            "attendee_id": "AT-V7NB5",
+            "session": "WS-3WJ4",
+            "status": "REJECTED",
+            "at": "2026-10-05T09:07:03Z"
+          },
+          {
+            "scan_id": "SC-RU38P",
+            "attendee_id": "AT-84M2Z",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:51:01Z"
+          },
+          {
+            "scan_id": "SC-CFHTD",
+            "attendee_id": "AT-VC3CZ",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:40:33Z"
+          },
+          {
+            "scan_id": "SC-ZRPBY",
+            "attendee_id": "AT-DBZVL",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:05:21Z"
+          },
+          {
+            "scan_id": "SC-2953D",
+            "attendee_id": "AT-YYMN9",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:32:42Z"
+          },
+          {
+            "scan_id": "SC-YH3N3",
+            "attendee_id": "AT-H7XBP",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:45:21Z"
+          },
+          {
+            "scan_id": "SC-7G58S",
+            "attendee_id": "AT-XL6YC",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:59:32Z"
+          },
+          {
+            "scan_id": "SC-FDHUD",
+            "attendee_id": "AT-DLD74",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:14:34Z"
+          },
+          {
+            "scan_id": "SC-Q424M",
+            "attendee_id": "AT-WU95Y",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:21:17Z"
+          },
+          {
+            "scan_id": "SC-E9CJ2",
+            "attendee_id": "AT-84M2Z",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:57:15Z"
+          },
+          {
+            "scan_id": "SC-E9ZBR",
+            "attendee_id": "AT-XL6YC",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:05:20Z"
+          },
+          {
+            "scan_id": "SC-678CC",
+            "attendee_id": "AT-XD2A5",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:13:02Z"
+          },
+          {
+            "scan_id": "SC-CUDTN",
+            "attendee_id": "AT-WHR58",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:41:38Z"
+          },
+          {
+            "scan_id": "SC-S3T5B",
+            "attendee_id": "AT-67H68",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:55:13Z"
+          },
+          {
+            "scan_id": "SC-Q4SHT",
+            "attendee_id": "AT-JY8B6",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:44:42Z"
+          },
+          {
+            "scan_id": "SC-ENXHJ",
+            "attendee_id": "AT-E9W92",
+            "session": "WS-3WJ4",
+            "status": "REJECTED",
+            "at": "2026-10-05T08:24:05Z"
+          },
+          {
+            "scan_id": "SC-8NT7N",
+            "attendee_id": "AT-XDKXL",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:12:56Z"
+          },
+          {
+            "scan_id": "SC-22PF3",
+            "attendee_id": "AT-QDRXR",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:04:26Z"
+          },
+          {
+            "scan_id": "SC-CATSK",
+            "attendee_id": "AT-4RRRK",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:51:56Z"
+          },
+          {
+            "scan_id": "SC-JJFVN",
+            "attendee_id": "AT-L28Z7",
+            "session": "WS-FU9X",
+            "status": "REJECTED",
+            "at": "2026-10-05T09:44:02Z"
+          },
+          {
+            "scan_id": "SC-HGHYB",
+            "attendee_id": "AT-ZSZSY",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:38:00Z"
+          },
+          {
+            "scan_id": "SC-ST2RE",
+            "attendee_id": "AT-A6FL9",
+            "session": "WS-FU9X",
+            "status": "REJECTED",
+            "at": "2026-10-05T08:03:05Z"
+          },
+          {
+            "scan_id": "SC-N2VSN",
+            "attendee_id": "AT-2EHW2",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:32:04Z"
+          },
+          {
+            "scan_id": "SC-2K473",
+            "attendee_id": "AT-JF4W3",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:58:05Z"
+          },
+          {
+            "scan_id": "SC-TZH4E",
+            "attendee_id": "AT-F5HEN",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:03:26Z"
+          },
+          {
+            "scan_id": "SC-XW7DB",
+            "attendee_id": "AT-QSFKL",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:34:00Z"
+          },
+          {
+            "scan_id": "SC-XALW8",
+            "attendee_id": "AT-P23E4",
+            "session": "WS-3WJ4",
+            "status": "REJECTED",
+            "at": "2026-10-05T09:57:35Z"
+          },
+          {
+            "scan_id": "SC-DWNLU",
+            "attendee_id": "AT-YW4Y7",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:49:53Z"
+          },
+          {
+            "scan_id": "SC-CCZYE",
+            "attendee_id": "AT-QS4QE",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:23:50Z"
+          },
+          {
+            "scan_id": "SC-BT7FE",
+            "attendee_id": "AT-ESLG8",
+            "session": "WS-3WJ4",
+            "status": "REJECTED",
+            "at": "2026-10-05T09:03:31Z"
+          },
+          {
+            "scan_id": "SC-Q4NAT",
+            "attendee_id": "AT-RJNZT",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:03:18Z"
+          },
+          {
+            "scan_id": "SC-FDSW3",
+            "attendee_id": "AT-CE744",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:27:15Z"
+          },
+          {
+            "scan_id": "SC-83UME",
+            "attendee_id": "AT-6L39V",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:40:23Z"
+          },
+          {
+            "scan_id": "SC-QX4NM",
+            "attendee_id": "AT-4MNR8",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:52:55Z"
+          },
+          {
+            "scan_id": "SC-Y526L",
+            "attendee_id": "AT-KXBWW",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:14:25Z"
+          },
+          {
+            "scan_id": "SC-UV7MD",
+            "attendee_id": "AT-Z5YWQ",
+            "session": "WS-2B6S",
+            "status": "REJECTED",
+            "at": "2026-10-05T08:00:40Z"
+          },
+          {
+            "scan_id": "SC-NT73G",
+            "attendee_id": "AT-XEXES",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:15:43Z"
+          },
+          {
+            "scan_id": "SC-A88G3",
+            "attendee_id": "AT-KDA5W",
+            "session": "WS-2B6S",
+            "status": "REJECTED",
+            "at": "2026-10-05T08:40:35Z"
+          },
+          {
+            "scan_id": "SC-N49VD",
+            "attendee_id": "AT-Y6QRE",
+            "session": "WS-3WJ4",
+            "status": "REJECTED",
+            "at": "2026-10-05T08:25:22Z"
+          },
+          {
+            "scan_id": "SC-MYHQX",
+            "attendee_id": "AT-SRM59",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:53:20Z"
+          },
+          {
+            "scan_id": "SC-8NXFD",
+            "attendee_id": "AT-9F8B9",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:10:18Z"
+          },
+          {
+            "scan_id": "SC-LH8JB",
+            "attendee_id": "AT-ZSZSY",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:40:20Z"
+          },
+          {
+            "scan_id": "SC-NRNVK",
+            "attendee_id": "AT-6AEZ5",
+            "session": "WS-XXZD",
+            "status": "REJECTED",
+            "at": "2026-10-05T10:00:37Z"
+          },
+          {
+            "scan_id": "SC-XX9YS",
+            "attendee_id": "AT-UNM4B",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:15:24Z"
+          },
+          {
+            "scan_id": "SC-7LUA6",
+            "attendee_id": "AT-C5FFR",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:31:58Z"
+          },
+          {
+            "scan_id": "SC-SYX38",
+            "attendee_id": "AT-SUUAG",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:42:29Z"
+          },
+          {
+            "scan_id": "SC-73CKG",
+            "attendee_id": "AT-8323J",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:15:54Z"
+          },
+          {
+            "scan_id": "SC-7RTED",
+            "attendee_id": "AT-K5LZB",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:48:30Z"
+          },
+          {
+            "scan_id": "SC-J8M67",
+            "attendee_id": "AT-PPQ8B",
+            "session": "WS-2B6S",
+            "status": "REJECTED",
+            "at": "2026-10-05T08:58:54Z"
+          },
+          {
+            "scan_id": "SC-L8JAX",
+            "attendee_id": "AT-AXGAB",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:47:49Z"
+          },
+          {
+            "scan_id": "SC-FPGXZ",
+            "attendee_id": "AT-F5HEN",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:11:44Z"
+          },
+          {
+            "scan_id": "SC-23YRX",
+            "attendee_id": "AT-NAF9E",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:09:36Z"
+          },
+          {
+            "scan_id": "SC-Z8UVX",
+            "attendee_id": "AT-LPF58",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:04:07Z"
+          },
+          {
+            "scan_id": "SC-FMEA8",
+            "attendee_id": "AT-SDP83",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:47:05Z"
+          },
+          {
+            "scan_id": "SC-LRG62",
+            "attendee_id": "AT-WHR58",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:50:49Z"
+          },
+          {
+            "scan_id": "SC-WG8GP",
+            "attendee_id": "AT-LLSPY",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:35:22Z"
+          },
+          {
+            "scan_id": "SC-NN5J8",
+            "attendee_id": "AT-FQ59J",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:28:21Z"
+          },
+          {
+            "scan_id": "SC-RGZTY",
+            "attendee_id": "AT-V9XM3",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:41:18Z"
+          },
+          {
+            "scan_id": "SC-JVM8Y",
+            "attendee_id": "AT-CE744",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:25:53Z"
+          },
+          {
+            "scan_id": "SC-Z4G3T",
+            "attendee_id": "AT-BKNM6",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:09:17Z"
+          },
+          {
+            "scan_id": "SC-2KMWA",
+            "attendee_id": "AT-RRN8E",
+            "session": "WS-XXZD",
+            "status": "REJECTED",
+            "at": "2026-10-05T08:00:36Z"
+          },
+          {
+            "scan_id": "SC-PQNZB",
+            "attendee_id": "AT-6FRKB",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:46:39Z"
+          },
+          {
+            "scan_id": "SC-8GK2B",
+            "attendee_id": "AT-ZD75F",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:02:02Z"
+          },
+          {
+            "scan_id": "SC-AAZJA",
+            "attendee_id": "AT-SUUAG",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:38:03Z"
+          },
+          {
+            "scan_id": "SC-RPRP8",
+            "attendee_id": "AT-9559V",
+            "session": "WS-3WJ4",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:23:30Z"
+          },
+          {
+            "scan_id": "SC-DP8S3",
+            "attendee_id": "AT-RWL7Y",
+            "session": "WS-XXZD",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:05:25Z"
+          },
+          {
+            "scan_id": "SC-8RGUZ",
+            "attendee_id": "AT-DHKSA",
+            "session": "WS-FU9X",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T09:17:33Z"
+          },
+          {
+            "scan_id": "SC-8YYWU",
+            "attendee_id": "AT-XEXES",
+            "session": "WS-2B6S",
+            "status": "ACCEPTED",
+            "at": "2026-10-05T08:16:29Z"
+          }
+        ],
+        "fetches_remaining": 116
+      }
+    ],
+    "Check stage 1": [
+      {
+        "stage": 1,
+        "answer": "AT-TTQC3",
+        "correct": true,
+        "charged": true,
+        "message": "Right. Stage 1 is solved for your workshop.",
+        "checks_left_on_this_stage": 8,
+        "checks_left_this_window": 3
+      }
+    ],
+    "Check stage 2": [
+      {
+        "stage": 2,
+        "answer": "WS-FU9X",
+        "correct": true,
+        "charged": true,
+        "message": "Right. Stage 2 is solved for your workshop.",
+        "checks_left_on_this_stage": 9,
+        "checks_left_this_window": 3
+      }
+    ],
+    "Get kits": [
+      {
+        "file": "kits",
+        "session": "WS-FU9X",
+        "opened_with": {
+          "stage2": "WS-FU9X"
+        },
+        "rows": [
+          {
+            "attendee_id": "AT-L28Z7",
+            "registration_status": "WAITLISTED",
+            "requested_kit": true,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-CZWDP",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          },
+          {
+            "attendee_id": "AT-QDRXR",
+            "registration_status": "CONFIRMED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-NEWB4",
+            "registration_status": "CONFIRMED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-7B67P",
+            "registration_status": "CONFIRMED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-4NWKN",
+            "registration_status": "WAITLISTED",
+            "requested_kit": true,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-JXTBM",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-V3UK3",
+            "registration_status": "CANCELLED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-7GKSY",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          },
+          {
+            "attendee_id": "AT-6FRKB",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-7MBHC",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          },
+          {
+            "attendee_id": "AT-57EAY",
+            "registration_status": "CANCELLED",
+            "requested_kit": true,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-6KGAZ",
+            "registration_status": "WAITLISTED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-N342W",
+            "registration_status": "CONFIRMED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-DHKSA",
+            "registration_status": "CONFIRMED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-ADWA5",
+            "registration_status": "WAITLISTED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-K5LZB",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-8KP35",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          },
+          {
+            "attendee_id": "AT-QSFKL",
+            "registration_status": "CONFIRMED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-KQ5FK",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          },
+          {
+            "attendee_id": "AT-4MNR8",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          },
+          {
+            "attendee_id": "AT-7DDLV",
+            "registration_status": "CONFIRMED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-ZD75F",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          },
+          {
+            "attendee_id": "AT-XDKXL",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-A6FL9",
+            "registration_status": "CANCELLED",
+            "requested_kit": true,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-HA7N8",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          },
+          {
+            "attendee_id": "AT-PYEA4",
+            "registration_status": "WAITLISTED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-VC3CZ",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          },
+          {
+            "attendee_id": "AT-84M2Z",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          },
+          {
+            "attendee_id": "AT-6L39V",
+            "registration_status": "CONFIRMED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-XT2K9",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          },
+          {
+            "attendee_id": "AT-UX93Y",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-SHTVQ",
+            "registration_status": "CONFIRMED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-UVPQ5",
+            "registration_status": "CANCELLED",
+            "requested_kit": false,
+            "picked_up": false
+          },
+          {
+            "attendee_id": "AT-LPF58",
+            "registration_status": "CONFIRMED",
+            "requested_kit": true,
+            "picked_up": true
+          }
+        ],
+        "fetches_remaining": 116
+      }
+    ],
+    "Kit rows": [
+      {
+        "attendee_id": "AT-L28Z7",
+        "registration_status": "WAITLISTED",
+        "requested_kit": true,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-CZWDP",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      },
+      {
+        "attendee_id": "AT-QDRXR",
+        "registration_status": "CONFIRMED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-NEWB4",
+        "registration_status": "CONFIRMED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-7B67P",
+        "registration_status": "CONFIRMED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-4NWKN",
+        "registration_status": "WAITLISTED",
+        "requested_kit": true,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-JXTBM",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-V3UK3",
+        "registration_status": "CANCELLED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-7GKSY",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      },
+      {
+        "attendee_id": "AT-6FRKB",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-7MBHC",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      },
+      {
+        "attendee_id": "AT-57EAY",
+        "registration_status": "CANCELLED",
+        "requested_kit": true,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-6KGAZ",
+        "registration_status": "WAITLISTED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-N342W",
+        "registration_status": "CONFIRMED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-DHKSA",
+        "registration_status": "CONFIRMED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-ADWA5",
+        "registration_status": "WAITLISTED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-K5LZB",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-8KP35",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      },
+      {
+        "attendee_id": "AT-QSFKL",
+        "registration_status": "CONFIRMED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-KQ5FK",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      },
+      {
+        "attendee_id": "AT-4MNR8",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      },
+      {
+        "attendee_id": "AT-7DDLV",
+        "registration_status": "CONFIRMED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-ZD75F",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      },
+      {
+        "attendee_id": "AT-XDKXL",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-A6FL9",
+        "registration_status": "CANCELLED",
+        "requested_kit": true,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-HA7N8",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      },
+      {
+        "attendee_id": "AT-PYEA4",
+        "registration_status": "WAITLISTED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-VC3CZ",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      },
+      {
+        "attendee_id": "AT-84M2Z",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      },
+      {
+        "attendee_id": "AT-6L39V",
+        "registration_status": "CONFIRMED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-XT2K9",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      },
+      {
+        "attendee_id": "AT-UX93Y",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-SHTVQ",
+        "registration_status": "CONFIRMED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-UVPQ5",
+        "registration_status": "CANCELLED",
+        "requested_kit": false,
+        "picked_up": false
+      },
+      {
+        "attendee_id": "AT-LPF58",
+        "registration_status": "CONFIRMED",
+        "requested_kit": true,
+        "picked_up": true
+      }
+    ],
+    "FilterAccept": [
+      {
+        "scan_id": "SC-T2LBH",
+        "attendee_id": "AT-2E3BT",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:18:22Z"
+      },
+      {
+        "scan_id": "SC-5T9ZQ",
+        "attendee_id": "AT-2EHW2",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:30:54Z"
+      },
+      {
+        "scan_id": "SC-24JVY",
+        "attendee_id": "AT-3U8K5",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:52:58Z"
+      },
+      {
+        "scan_id": "SC-DVQFM",
+        "attendee_id": "AT-CZWDP",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:33:56Z"
+      },
+      {
+        "scan_id": "SC-NYJ6C",
+        "attendee_id": "AT-AXGAB",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:46:17Z"
+      },
+      {
+        "scan_id": "SC-B7S85",
+        "attendee_id": "AT-7DDLV",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:30:54Z"
+      },
+      {
+        "scan_id": "SC-ESQZM",
+        "attendee_id": "AT-6L39V",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:36:37Z"
+      },
+      {
+        "scan_id": "SC-LVBAN",
+        "attendee_id": "AT-UX93Y",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:26:17Z"
+      },
+      {
+        "scan_id": "SC-RWPRK",
+        "attendee_id": "AT-TUAUV",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:14:10Z"
+      },
+      {
+        "scan_id": "SC-FCGNP",
+        "attendee_id": "AT-NWXN5",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:07:46Z"
+      },
+      {
+        "scan_id": "SC-D2SYA",
+        "attendee_id": "AT-MVJ4J",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:36:47Z"
+      },
+      {
+        "scan_id": "SC-9LPQT",
+        "attendee_id": "AT-XEXES",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:07:13Z"
+      },
+      {
+        "scan_id": "SC-ZHJJA",
+        "attendee_id": "AT-ZSZSY",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:33:54Z"
+      },
+      {
+        "scan_id": "SC-4BJ7Y",
+        "attendee_id": "AT-RJNZT",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:06:50Z"
+      },
+      {
+        "scan_id": "SC-H2E6K",
+        "attendee_id": "AT-7MBHC",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:12:43Z"
+      },
+      {
+        "scan_id": "SC-EBZDH",
+        "attendee_id": "AT-TTQC3",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:02:24Z"
+      },
+      {
+        "scan_id": "SC-RU38P",
+        "attendee_id": "AT-84M2Z",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:51:01Z"
+      },
+      {
+        "scan_id": "SC-CFHTD",
+        "attendee_id": "AT-VC3CZ",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:40:33Z"
+      },
+      {
+        "scan_id": "SC-ZRPBY",
+        "attendee_id": "AT-DBZVL",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:05:21Z"
+      },
+      {
+        "scan_id": "SC-2953D",
+        "attendee_id": "AT-YYMN9",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:32:42Z"
+      },
+      {
+        "scan_id": "SC-YH3N3",
+        "attendee_id": "AT-H7XBP",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:45:21Z"
+      },
+      {
+        "scan_id": "SC-7G58S",
+        "attendee_id": "AT-XL6YC",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:59:32Z"
+      },
+      {
+        "scan_id": "SC-FDHUD",
+        "attendee_id": "AT-DLD74",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:14:34Z"
+      },
+      {
+        "scan_id": "SC-Q424M",
+        "attendee_id": "AT-WU95Y",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:21:17Z"
+      },
+      {
+        "scan_id": "SC-E9CJ2",
+        "attendee_id": "AT-84M2Z",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:57:15Z"
+      },
+      {
+        "scan_id": "SC-E9ZBR",
+        "attendee_id": "AT-XL6YC",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:05:20Z"
+      },
+      {
+        "scan_id": "SC-678CC",
+        "attendee_id": "AT-XD2A5",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:13:02Z"
+      },
+      {
+        "scan_id": "SC-CUDTN",
+        "attendee_id": "AT-WHR58",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:41:38Z"
+      },
+      {
+        "scan_id": "SC-S3T5B",
+        "attendee_id": "AT-67H68",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:55:13Z"
+      },
+      {
+        "scan_id": "SC-Q4SHT",
+        "attendee_id": "AT-JY8B6",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:44:42Z"
+      },
+      {
+        "scan_id": "SC-8NT7N",
+        "attendee_id": "AT-XDKXL",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:12:56Z"
+      },
+      {
+        "scan_id": "SC-22PF3",
+        "attendee_id": "AT-QDRXR",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:04:26Z"
+      },
+      {
+        "scan_id": "SC-CATSK",
+        "attendee_id": "AT-4RRRK",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:51:56Z"
+      },
+      {
+        "scan_id": "SC-HGHYB",
+        "attendee_id": "AT-ZSZSY",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:38:00Z"
+      },
+      {
+        "scan_id": "SC-N2VSN",
+        "attendee_id": "AT-2EHW2",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:32:04Z"
+      },
+      {
+        "scan_id": "SC-2K473",
+        "attendee_id": "AT-JF4W3",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:58:05Z"
+      },
+      {
+        "scan_id": "SC-TZH4E",
+        "attendee_id": "AT-F5HEN",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:03:26Z"
+      },
+      {
+        "scan_id": "SC-XW7DB",
+        "attendee_id": "AT-QSFKL",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:34:00Z"
+      },
+      {
+        "scan_id": "SC-DWNLU",
+        "attendee_id": "AT-YW4Y7",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:49:53Z"
+      },
+      {
+        "scan_id": "SC-CCZYE",
+        "attendee_id": "AT-QS4QE",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:23:50Z"
+      },
+      {
+        "scan_id": "SC-Q4NAT",
+        "attendee_id": "AT-RJNZT",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:03:18Z"
+      },
+      {
+        "scan_id": "SC-FDSW3",
+        "attendee_id": "AT-CE744",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:27:15Z"
+      },
+      {
+        "scan_id": "SC-83UME",
+        "attendee_id": "AT-6L39V",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:40:23Z"
+      },
+      {
+        "scan_id": "SC-QX4NM",
+        "attendee_id": "AT-4MNR8",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:52:55Z"
+      },
+      {
+        "scan_id": "SC-Y526L",
+        "attendee_id": "AT-KXBWW",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:14:25Z"
+      },
+      {
+        "scan_id": "SC-NT73G",
+        "attendee_id": "AT-XEXES",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:15:43Z"
+      },
+      {
+        "scan_id": "SC-MYHQX",
+        "attendee_id": "AT-SRM59",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:53:20Z"
+      },
+      {
+        "scan_id": "SC-8NXFD",
+        "attendee_id": "AT-9F8B9",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:10:18Z"
+      },
+      {
+        "scan_id": "SC-LH8JB",
+        "attendee_id": "AT-ZSZSY",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:40:20Z"
+      },
+      {
+        "scan_id": "SC-XX9YS",
+        "attendee_id": "AT-UNM4B",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:15:24Z"
+      },
+      {
+        "scan_id": "SC-7LUA6",
+        "attendee_id": "AT-C5FFR",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:31:58Z"
+      },
+      {
+        "scan_id": "SC-SYX38",
+        "attendee_id": "AT-SUUAG",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:42:29Z"
+      },
+      {
+        "scan_id": "SC-73CKG",
+        "attendee_id": "AT-8323J",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:15:54Z"
+      },
+      {
+        "scan_id": "SC-7RTED",
+        "attendee_id": "AT-K5LZB",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:48:30Z"
+      },
+      {
+        "scan_id": "SC-L8JAX",
+        "attendee_id": "AT-AXGAB",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:47:49Z"
+      },
+      {
+        "scan_id": "SC-FPGXZ",
+        "attendee_id": "AT-F5HEN",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:11:44Z"
+      },
+      {
+        "scan_id": "SC-23YRX",
+        "attendee_id": "AT-NAF9E",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:09:36Z"
+      },
+      {
+        "scan_id": "SC-Z8UVX",
+        "attendee_id": "AT-LPF58",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:04:07Z"
+      },
+      {
+        "scan_id": "SC-FMEA8",
+        "attendee_id": "AT-SDP83",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:47:05Z"
+      },
+      {
+        "scan_id": "SC-LRG62",
+        "attendee_id": "AT-WHR58",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:50:49Z"
+      },
+      {
+        "scan_id": "SC-WG8GP",
+        "attendee_id": "AT-LLSPY",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:35:22Z"
+      },
+      {
+        "scan_id": "SC-NN5J8",
+        "attendee_id": "AT-FQ59J",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:28:21Z"
+      },
+      {
+        "scan_id": "SC-RGZTY",
+        "attendee_id": "AT-V9XM3",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:41:18Z"
+      },
+      {
+        "scan_id": "SC-JVM8Y",
+        "attendee_id": "AT-CE744",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:25:53Z"
+      },
+      {
+        "scan_id": "SC-Z4G3T",
+        "attendee_id": "AT-BKNM6",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:09:17Z"
+      },
+      {
+        "scan_id": "SC-PQNZB",
+        "attendee_id": "AT-6FRKB",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:46:39Z"
+      },
+      {
+        "scan_id": "SC-8GK2B",
+        "attendee_id": "AT-ZD75F",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:02:02Z"
+      },
+      {
+        "scan_id": "SC-AAZJA",
+        "attendee_id": "AT-SUUAG",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:38:03Z"
+      },
+      {
+        "scan_id": "SC-RPRP8",
+        "attendee_id": "AT-9559V",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:23:30Z"
+      },
+      {
+        "scan_id": "SC-DP8S3",
+        "attendee_id": "AT-RWL7Y",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:05:25Z"
+      },
+      {
+        "scan_id": "SC-8RGUZ",
+        "attendee_id": "AT-DHKSA",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:17:33Z"
+      },
+      {
+        "scan_id": "SC-8YYWU",
+        "attendee_id": "AT-XEXES",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:16:29Z"
+      }
+    ],
+    "Sort": [
+      {
+        "scan_id": "SC-EBZDH",
+        "attendee_id": "AT-TTQC3",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:02:24Z"
+      },
+      {
+        "scan_id": "SC-TZH4E",
+        "attendee_id": "AT-F5HEN",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:03:26Z"
+      },
+      {
+        "scan_id": "SC-Z8UVX",
+        "attendee_id": "AT-LPF58",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:04:07Z"
+      },
+      {
+        "scan_id": "SC-ZRPBY",
+        "attendee_id": "AT-DBZVL",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:05:21Z"
+      },
+      {
+        "scan_id": "SC-DP8S3",
+        "attendee_id": "AT-RWL7Y",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:05:25Z"
+      },
+      {
+        "scan_id": "SC-9LPQT",
+        "attendee_id": "AT-XEXES",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:07:13Z"
+      },
+      {
+        "scan_id": "SC-FCGNP",
+        "attendee_id": "AT-NWXN5",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:07:46Z"
+      },
+      {
+        "scan_id": "SC-Z4G3T",
+        "attendee_id": "AT-BKNM6",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:09:17Z"
+      },
+      {
+        "scan_id": "SC-23YRX",
+        "attendee_id": "AT-NAF9E",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:09:36Z"
+      },
+      {
+        "scan_id": "SC-FPGXZ",
+        "attendee_id": "AT-F5HEN",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:11:44Z"
+      },
+      {
+        "scan_id": "SC-H2E6K",
+        "attendee_id": "AT-7MBHC",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:12:43Z"
+      },
+      {
+        "scan_id": "SC-678CC",
+        "attendee_id": "AT-XD2A5",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:13:02Z"
+      },
+      {
+        "scan_id": "SC-Y526L",
+        "attendee_id": "AT-KXBWW",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:14:25Z"
+      },
+      {
+        "scan_id": "SC-XX9YS",
+        "attendee_id": "AT-UNM4B",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:15:24Z"
+      },
+      {
+        "scan_id": "SC-NT73G",
+        "attendee_id": "AT-XEXES",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:15:43Z"
+      },
+      {
+        "scan_id": "SC-73CKG",
+        "attendee_id": "AT-8323J",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:15:54Z"
+      },
+      {
+        "scan_id": "SC-8YYWU",
+        "attendee_id": "AT-XEXES",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:16:29Z"
+      },
+      {
+        "scan_id": "SC-LVBAN",
+        "attendee_id": "AT-UX93Y",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:26:17Z"
+      },
+      {
+        "scan_id": "SC-NN5J8",
+        "attendee_id": "AT-FQ59J",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:28:21Z"
+      },
+      {
+        "scan_id": "SC-B7S85",
+        "attendee_id": "AT-7DDLV",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:30:54Z"
+      },
+      {
+        "scan_id": "SC-7LUA6",
+        "attendee_id": "AT-C5FFR",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:31:58Z"
+      },
+      {
+        "scan_id": "SC-ESQZM",
+        "attendee_id": "AT-6L39V",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:36:37Z"
+      },
+      {
+        "scan_id": "SC-AAZJA",
+        "attendee_id": "AT-SUUAG",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:38:03Z"
+      },
+      {
+        "scan_id": "SC-83UME",
+        "attendee_id": "AT-6L39V",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:40:23Z"
+      },
+      {
+        "scan_id": "SC-CFHTD",
+        "attendee_id": "AT-VC3CZ",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:40:33Z"
+      },
+      {
+        "scan_id": "SC-SYX38",
+        "attendee_id": "AT-SUUAG",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:42:29Z"
+      },
+      {
+        "scan_id": "SC-Q4SHT",
+        "attendee_id": "AT-JY8B6",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:44:42Z"
+      },
+      {
+        "scan_id": "SC-YH3N3",
+        "attendee_id": "AT-H7XBP",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:45:21Z"
+      },
+      {
+        "scan_id": "SC-NYJ6C",
+        "attendee_id": "AT-AXGAB",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:46:17Z"
+      },
+      {
+        "scan_id": "SC-PQNZB",
+        "attendee_id": "AT-6FRKB",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:46:39Z"
+      },
+      {
+        "scan_id": "SC-L8JAX",
+        "attendee_id": "AT-AXGAB",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:47:49Z"
+      },
+      {
+        "scan_id": "SC-DWNLU",
+        "attendee_id": "AT-YW4Y7",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:49:53Z"
+      },
+      {
+        "scan_id": "SC-RU38P",
+        "attendee_id": "AT-84M2Z",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:51:01Z"
+      },
+      {
+        "scan_id": "SC-MYHQX",
+        "attendee_id": "AT-SRM59",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:53:20Z"
+      },
+      {
+        "scan_id": "SC-E9CJ2",
+        "attendee_id": "AT-84M2Z",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:57:15Z"
+      },
+      {
+        "scan_id": "SC-7G58S",
+        "attendee_id": "AT-XL6YC",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:59:32Z"
+      },
+      {
+        "scan_id": "SC-8GK2B",
+        "attendee_id": "AT-ZD75F",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:02:02Z"
+      },
+      {
+        "scan_id": "SC-Q4NAT",
+        "attendee_id": "AT-RJNZT",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:03:18Z"
+      },
+      {
+        "scan_id": "SC-22PF3",
+        "attendee_id": "AT-QDRXR",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:04:26Z"
+      },
+      {
+        "scan_id": "SC-E9ZBR",
+        "attendee_id": "AT-XL6YC",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:05:20Z"
+      },
+      {
+        "scan_id": "SC-4BJ7Y",
+        "attendee_id": "AT-RJNZT",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:06:50Z"
+      },
+      {
+        "scan_id": "SC-8NXFD",
+        "attendee_id": "AT-9F8B9",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:10:18Z"
+      },
+      {
+        "scan_id": "SC-8NT7N",
+        "attendee_id": "AT-XDKXL",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:12:56Z"
+      },
+      {
+        "scan_id": "SC-RWPRK",
+        "attendee_id": "AT-TUAUV",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:14:10Z"
+      },
+      {
+        "scan_id": "SC-FDHUD",
+        "attendee_id": "AT-DLD74",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:14:34Z"
+      },
+      {
+        "scan_id": "SC-8RGUZ",
+        "attendee_id": "AT-DHKSA",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:17:33Z"
+      },
+      {
+        "scan_id": "SC-T2LBH",
+        "attendee_id": "AT-2E3BT",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:18:22Z"
+      },
+      {
+        "scan_id": "SC-Q424M",
+        "attendee_id": "AT-WU95Y",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:21:17Z"
+      },
+      {
+        "scan_id": "SC-RPRP8",
+        "attendee_id": "AT-9559V",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:23:30Z"
+      },
+      {
+        "scan_id": "SC-CCZYE",
+        "attendee_id": "AT-QS4QE",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:23:50Z"
+      },
+      {
+        "scan_id": "SC-JVM8Y",
+        "attendee_id": "AT-CE744",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:25:53Z"
+      },
+      {
+        "scan_id": "SC-FDSW3",
+        "attendee_id": "AT-CE744",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:27:15Z"
+      },
+      {
+        "scan_id": "SC-5T9ZQ",
+        "attendee_id": "AT-2EHW2",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:30:54Z"
+      },
+      {
+        "scan_id": "SC-N2VSN",
+        "attendee_id": "AT-2EHW2",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:32:04Z"
+      },
+      {
+        "scan_id": "SC-2953D",
+        "attendee_id": "AT-YYMN9",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:32:42Z"
+      },
+      {
+        "scan_id": "SC-ZHJJA",
+        "attendee_id": "AT-ZSZSY",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:33:54Z"
+      },
+      {
+        "scan_id": "SC-DVQFM",
+        "attendee_id": "AT-CZWDP",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:33:56Z"
+      },
+      {
+        "scan_id": "SC-XW7DB",
+        "attendee_id": "AT-QSFKL",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:34:00Z"
+      },
+      {
+        "scan_id": "SC-WG8GP",
+        "attendee_id": "AT-LLSPY",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:35:22Z"
+      },
+      {
+        "scan_id": "SC-D2SYA",
+        "attendee_id": "AT-MVJ4J",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:36:47Z"
+      },
+      {
+        "scan_id": "SC-HGHYB",
+        "attendee_id": "AT-ZSZSY",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:38:00Z"
+      },
+      {
+        "scan_id": "SC-LH8JB",
+        "attendee_id": "AT-ZSZSY",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:40:20Z"
+      },
+      {
+        "scan_id": "SC-RGZTY",
+        "attendee_id": "AT-V9XM3",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:41:18Z"
+      },
+      {
+        "scan_id": "SC-CUDTN",
+        "attendee_id": "AT-WHR58",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:41:38Z"
+      },
+      {
+        "scan_id": "SC-FMEA8",
+        "attendee_id": "AT-SDP83",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:47:05Z"
+      },
+      {
+        "scan_id": "SC-7RTED",
+        "attendee_id": "AT-K5LZB",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:48:30Z"
+      },
+      {
+        "scan_id": "SC-LRG62",
+        "attendee_id": "AT-WHR58",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:50:49Z"
+      },
+      {
+        "scan_id": "SC-CATSK",
+        "attendee_id": "AT-4RRRK",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:51:56Z"
+      },
+      {
+        "scan_id": "SC-QX4NM",
+        "attendee_id": "AT-4MNR8",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:52:55Z"
+      },
+      {
+        "scan_id": "SC-24JVY",
+        "attendee_id": "AT-3U8K5",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:52:58Z"
+      },
+      {
+        "scan_id": "SC-S3T5B",
+        "attendee_id": "AT-67H68",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:55:13Z"
+      },
+      {
+        "scan_id": "SC-2K473",
+        "attendee_id": "AT-JF4W3",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:58:05Z"
+      }
+    ],
+    "Limit": [
+      {
+        "scan_id": "SC-EBZDH",
+        "attendee_id": "AT-TTQC3",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:02:24Z"
+      }
+    ],
+    "Remove Duplicates": [
+      {
+        "scan_id": "SC-EBZDH",
+        "attendee_id": "AT-TTQC3",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:02:24Z"
+      },
+      {
+        "scan_id": "SC-TZH4E",
+        "attendee_id": "AT-F5HEN",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:03:26Z"
+      },
+      {
+        "scan_id": "SC-Z8UVX",
+        "attendee_id": "AT-LPF58",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:04:07Z"
+      },
+      {
+        "scan_id": "SC-ZRPBY",
+        "attendee_id": "AT-DBZVL",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:05:21Z"
+      },
+      {
+        "scan_id": "SC-DP8S3",
+        "attendee_id": "AT-RWL7Y",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:05:25Z"
+      },
+      {
+        "scan_id": "SC-9LPQT",
+        "attendee_id": "AT-XEXES",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:07:13Z"
+      },
+      {
+        "scan_id": "SC-FCGNP",
+        "attendee_id": "AT-NWXN5",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:07:46Z"
+      },
+      {
+        "scan_id": "SC-Z4G3T",
+        "attendee_id": "AT-BKNM6",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:09:17Z"
+      },
+      {
+        "scan_id": "SC-23YRX",
+        "attendee_id": "AT-NAF9E",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:09:36Z"
+      },
+      {
+        "scan_id": "SC-H2E6K",
+        "attendee_id": "AT-7MBHC",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:12:43Z"
+      },
+      {
+        "scan_id": "SC-678CC",
+        "attendee_id": "AT-XD2A5",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:13:02Z"
+      },
+      {
+        "scan_id": "SC-Y526L",
+        "attendee_id": "AT-KXBWW",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:14:25Z"
+      },
+      {
+        "scan_id": "SC-XX9YS",
+        "attendee_id": "AT-UNM4B",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:15:24Z"
+      },
+      {
+        "scan_id": "SC-73CKG",
+        "attendee_id": "AT-8323J",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:15:54Z"
+      },
+      {
+        "scan_id": "SC-LVBAN",
+        "attendee_id": "AT-UX93Y",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:26:17Z"
+      },
+      {
+        "scan_id": "SC-NN5J8",
+        "attendee_id": "AT-FQ59J",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:28:21Z"
+      },
+      {
+        "scan_id": "SC-B7S85",
+        "attendee_id": "AT-7DDLV",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:30:54Z"
+      },
+      {
+        "scan_id": "SC-7LUA6",
+        "attendee_id": "AT-C5FFR",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:31:58Z"
+      },
+      {
+        "scan_id": "SC-ESQZM",
+        "attendee_id": "AT-6L39V",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:36:37Z"
+      },
+      {
+        "scan_id": "SC-AAZJA",
+        "attendee_id": "AT-SUUAG",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:38:03Z"
+      },
+      {
+        "scan_id": "SC-CFHTD",
+        "attendee_id": "AT-VC3CZ",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:40:33Z"
+      },
+      {
+        "scan_id": "SC-Q4SHT",
+        "attendee_id": "AT-JY8B6",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:44:42Z"
+      },
+      {
+        "scan_id": "SC-YH3N3",
+        "attendee_id": "AT-H7XBP",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:45:21Z"
+      },
+      {
+        "scan_id": "SC-NYJ6C",
+        "attendee_id": "AT-AXGAB",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:46:17Z"
+      },
+      {
+        "scan_id": "SC-PQNZB",
+        "attendee_id": "AT-6FRKB",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:46:39Z"
+      },
+      {
+        "scan_id": "SC-DWNLU",
+        "attendee_id": "AT-YW4Y7",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:49:53Z"
+      },
+      {
+        "scan_id": "SC-RU38P",
+        "attendee_id": "AT-84M2Z",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:51:01Z"
+      },
+      {
+        "scan_id": "SC-MYHQX",
+        "attendee_id": "AT-SRM59",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:53:20Z"
+      },
+      {
+        "scan_id": "SC-7G58S",
+        "attendee_id": "AT-XL6YC",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T08:59:32Z"
+      },
+      {
+        "scan_id": "SC-8GK2B",
+        "attendee_id": "AT-ZD75F",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:02:02Z"
+      },
+      {
+        "scan_id": "SC-Q4NAT",
+        "attendee_id": "AT-RJNZT",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:03:18Z"
+      },
+      {
+        "scan_id": "SC-22PF3",
+        "attendee_id": "AT-QDRXR",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:04:26Z"
+      },
+      {
+        "scan_id": "SC-8NXFD",
+        "attendee_id": "AT-9F8B9",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:10:18Z"
+      },
+      {
+        "scan_id": "SC-8NT7N",
+        "attendee_id": "AT-XDKXL",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:12:56Z"
+      },
+      {
+        "scan_id": "SC-RWPRK",
+        "attendee_id": "AT-TUAUV",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:14:10Z"
+      },
+      {
+        "scan_id": "SC-FDHUD",
+        "attendee_id": "AT-DLD74",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:14:34Z"
+      },
+      {
+        "scan_id": "SC-8RGUZ",
+        "attendee_id": "AT-DHKSA",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:17:33Z"
+      },
+      {
+        "scan_id": "SC-T2LBH",
+        "attendee_id": "AT-2E3BT",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:18:22Z"
+      },
+      {
+        "scan_id": "SC-Q424M",
+        "attendee_id": "AT-WU95Y",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:21:17Z"
+      },
+      {
+        "scan_id": "SC-RPRP8",
+        "attendee_id": "AT-9559V",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:23:30Z"
+      },
+      {
+        "scan_id": "SC-CCZYE",
+        "attendee_id": "AT-QS4QE",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:23:50Z"
+      },
+      {
+        "scan_id": "SC-JVM8Y",
+        "attendee_id": "AT-CE744",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:25:53Z"
+      },
+      {
+        "scan_id": "SC-5T9ZQ",
+        "attendee_id": "AT-2EHW2",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:30:54Z"
+      },
+      {
+        "scan_id": "SC-2953D",
+        "attendee_id": "AT-YYMN9",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:32:42Z"
+      },
+      {
+        "scan_id": "SC-ZHJJA",
+        "attendee_id": "AT-ZSZSY",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:33:54Z"
+      },
+      {
+        "scan_id": "SC-DVQFM",
+        "attendee_id": "AT-CZWDP",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:33:56Z"
+      },
+      {
+        "scan_id": "SC-XW7DB",
+        "attendee_id": "AT-QSFKL",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:34:00Z"
+      },
+      {
+        "scan_id": "SC-WG8GP",
+        "attendee_id": "AT-LLSPY",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:35:22Z"
+      },
+      {
+        "scan_id": "SC-D2SYA",
+        "attendee_id": "AT-MVJ4J",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:36:47Z"
+      },
+      {
+        "scan_id": "SC-RGZTY",
+        "attendee_id": "AT-V9XM3",
+        "session": "WS-2B6S",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:41:18Z"
+      },
+      {
+        "scan_id": "SC-CUDTN",
+        "attendee_id": "AT-WHR58",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:41:38Z"
+      },
+      {
+        "scan_id": "SC-FMEA8",
+        "attendee_id": "AT-SDP83",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:47:05Z"
+      },
+      {
+        "scan_id": "SC-7RTED",
+        "attendee_id": "AT-K5LZB",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:48:30Z"
+      },
+      {
+        "scan_id": "SC-CATSK",
+        "attendee_id": "AT-4RRRK",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:51:56Z"
+      },
+      {
+        "scan_id": "SC-QX4NM",
+        "attendee_id": "AT-4MNR8",
+        "session": "WS-FU9X",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:52:55Z"
+      },
+      {
+        "scan_id": "SC-24JVY",
+        "attendee_id": "AT-3U8K5",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:52:58Z"
+      },
+      {
+        "scan_id": "SC-S3T5B",
+        "attendee_id": "AT-67H68",
+        "session": "WS-3WJ4",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:55:13Z"
+      },
+      {
+        "scan_id": "SC-2K473",
+        "attendee_id": "AT-JF4W3",
+        "session": "WS-XXZD",
+        "status": "ACCEPTED",
+        "at": "2026-10-05T09:58:05Z"
+      }
+    ],
+    "Limit1": [
+      {
+        "count_attendee_id": 16,
+        "session": "WS-FU9X"
+      }
+    ],
+    "Summarize1": [
+      {
+        "count_attendee_id": 5
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
