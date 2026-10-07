@@ -1,0 +1,7 @@
+https://api.frankfurter.dev/v1/latest
+
+base
+{{ $fromAI('base') }}
+
+symbols
+{{ $fromAI('target') }}
