@@ -1,0 +1,244 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        0
+      ],
+      "id": "34a7c5ff-c583-468e-bab7-9982385e8aa4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-04/practice/data?lesson=filter",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -400,
+        0
+      ],
+      "id": "5c82d315-3eb0-46b8-aa22-f2910a1ce13c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        0
+      ],
+      "id": "6d918065-e0e5-4add-9a11-1b118dfa8073",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ca9c465b-813e-4f3a-b4b3-b3f11448c47d",
+              "leftValue": "={{ $json.return_status }}",
+              "rightValue": "ACCEPTED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        48,
+        0
+      ],
+      "id": "aa104105-b0ed-4871-8748-4a28d43a47e9",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "return_id",
+              "renameField": true,
+              "outputFieldName": "retained_return_ids"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        272,
+        0
+      ],
+      "id": "64341172-a12f-4c38-8061-0b9a3480e620",
+      "name": "Aggregate"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "HTTP Request": [
+      {
+        "task": "Keep only library returns whose return_status is ACCEPTED.",
+        "node_hint": "Use Filter. Set return_status equal to ACCEPTED.",
+        "rows": [
+          {
+            "return_id": "LIB-R12",
+            "title": "River Maps",
+            "return_status": "ACCEPTED"
+          },
+          {
+            "return_id": "LIB-R28",
+            "title": "Night Garden",
+            "return_status": "DAMAGED"
+          },
+          {
+            "return_id": "LIB-R35",
+            "title": "Paper Boats",
+            "return_status": "ACCEPTED"
+          },
+          {
+            "return_id": "LIB-R46",
+            "title": "Quiet Streets",
+            "return_status": "UNDER_REVIEW"
+          },
+          {
+            "return_id": "LIB-R51",
+            "title": "Moss Atlas",
+            "return_status": "ACCEPTED"
+          }
+        ],
+        "check_yourself": {
+          "retained_return_ids": [
+            "LIB-R12",
+            "LIB-R35",
+            "LIB-R51"
+          ]
+        },
+        "practice": true,
+        "lesson": "filter"
+      }
+    ],
+    "Split Out": [
+      {
+        "return_id": "LIB-R12",
+        "title": "River Maps",
+        "return_status": "ACCEPTED"
+      },
+      {
+        "return_id": "LIB-R28",
+        "title": "Night Garden",
+        "return_status": "DAMAGED"
+      },
+      {
+        "return_id": "LIB-R35",
+        "title": "Paper Boats",
+        "return_status": "ACCEPTED"
+      },
+      {
+        "return_id": "LIB-R46",
+        "title": "Quiet Streets",
+        "return_status": "UNDER_REVIEW"
+      },
+      {
+        "return_id": "LIB-R51",
+        "title": "Moss Atlas",
+        "return_status": "ACCEPTED"
+      }
+    ],
+    "Filter": [
+      {
+        "return_id": "LIB-R12",
+        "title": "River Maps",
+        "return_status": "ACCEPTED"
+      },
+      {
+        "return_id": "LIB-R35",
+        "title": "Paper Boats",
+        "return_status": "ACCEPTED"
+      },
+      {
+        "return_id": "LIB-R51",
+        "title": "Moss Atlas",
+        "return_status": "ACCEPTED"
+      }
+    ],
+    "Aggregate": [
+      {
+        "retained_return_ids": [
+          "LIB-R12",
+          "LIB-R35",
+          "LIB-R51"
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
