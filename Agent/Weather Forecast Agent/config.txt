@@ -1,0 +1,1 @@
+{{ $fromAI('cityName', 'City name for weather forecast', 'string') }}
