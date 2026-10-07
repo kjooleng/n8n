@@ -1,0 +1,387 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        0
+      ],
+      "id": "c9ccb201-a7a6-42af-bd31-62b4a1512e03",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-04/practice/data?lesson=dedupe",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "8d8b1bac-9711-4fa9-a46a-ffef4ca9af95",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        0
+      ],
+      "id": "9332faf1-ea8d-4793-9899-c0249121737a",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "book_copy",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        16,
+        0
+      ],
+      "id": "7c12fccc-392a-4a75-b2a8-8165f7670771",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "book_copy"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        -128
+      ],
+      "id": "952bd863-683c-4ba2-8157-aaf892855eff",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f3693f12-5b11-4a28-aa0b-6b77f7b4edd9",
+              "name": "distinct_book_copies",
+              "value": "={{ $json.count_book_copy }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        368,
+        -128
+      ],
+      "id": "84a52c69-613b-4c6c-8a41-fda392ac452c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "book_copy"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        224,
+        128
+      ],
+      "id": "aa1b0789-3fd4-4fb2-8f72-223dfaf9da60",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f6f573df-9a3f-4c33-aaa6-a3d407a853b5",
+              "name": "book_copies",
+              "value": "={{ $json.book_copy }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        400,
+        128
+      ],
+      "id": "f3f65100-f745-4302-a1ce-a68e1d8dc214",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "book_copies"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        576,
+        128
+      ],
+      "id": "48a642c8-3414-4bd4-b144-80d1fef91e24",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        736,
+        -112
+      ],
+      "id": "8dacda5d-5034-4d7f-9d25-277ecb619fd9",
+      "name": "Merge"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "HTTP Request": [
+      {
+        "task": "The receipt printer retried. Keep one row per book_copy, even when receipt_id differs.",
+        "node_hint": "Use Remove Duplicates. Compare selected field book_copy.",
+        "rows": [
+          {
+            "receipt_id": "LIB-P1",
+            "book_copy": "COPY-42",
+            "desk": "east"
+          },
+          {
+            "receipt_id": "LIB-P2",
+            "book_copy": "COPY-17",
+            "desk": "west"
+          },
+          {
+            "receipt_id": "LIB-P3",
+            "book_copy": "COPY-42",
+            "desk": "east"
+          },
+          {
+            "receipt_id": "LIB-P4",
+            "book_copy": "COPY-65",
+            "desk": "east"
+          },
+          {
+            "receipt_id": "LIB-P5",
+            "book_copy": "COPY-17",
+            "desk": "west"
+          },
+          {
+            "receipt_id": "LIB-P6",
+            "book_copy": "COPY-83",
+            "desk": "west"
+          }
+        ],
+        "check_yourself": {
+          "distinct_book_copies": 4,
+          "book_copies": [
+            "COPY-17",
+            "COPY-42",
+            "COPY-65",
+            "COPY-83"
+          ]
+        },
+        "practice": true,
+        "lesson": "dedupe"
+      }
+    ],
+    "Remove Duplicates": [
+      {
+        "receipt_id": "LIB-P1",
+        "book_copy": "COPY-42",
+        "desk": "east"
+      },
+      {
+        "receipt_id": "LIB-P2",
+        "book_copy": "COPY-17",
+        "desk": "west"
+      },
+      {
+        "receipt_id": "LIB-P4",
+        "book_copy": "COPY-65",
+        "desk": "east"
+      },
+      {
+        "receipt_id": "LIB-P6",
+        "book_copy": "COPY-83",
+        "desk": "west"
+      }
+    ],
+    "Edit Fields": [
+      {
+        "distinct_book_copies": 4
+      }
+    ],
+    "Aggregate": [
+      {
+        "book_copies": [
+          "COPY-17",
+          "COPY-42",
+          "COPY-65",
+          "COPY-83"
+        ]
+      }
+    ],
+    "Merge": [
+      {
+        "distinct_book_copies": 4,
+        "book_copies": [
+          "COPY-17",
+          "COPY-42",
+          "COPY-65",
+          "COPY-83"
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
