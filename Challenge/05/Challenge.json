@@ -1,0 +1,971 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "d5aad438-01b5-4fcc-b581-9a64e4b28d34",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        64,
+        736
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c05a0000-0000-4000-8000-000000000002",
+              "name": "username",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "c05a0000-0000-4000-8000-000000000003",
+              "name": "key",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "c05a0000-0000-4000-8000-000000000004",
+              "name": "base",
+              "type": "string",
+              "value": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-05"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "13b4f400-3a9e-4dd6-b955-25d863e99366",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        288,
+        736
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Settings').first().json.base }}/data",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "value": "requests"
+            },
+            {
+              "name": "username",
+              "value": "={{ $('Settings').first().json.username }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $('Settings').first().json.key }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "b8a503a9-1b9d-4a9e-98fa-511bd3a54306",
+      "name": "Get requests",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        512,
+        736
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "id": "aa1cd8d7-ce60-4068-acfc-dea1da335e89",
+      "name": "Request rows",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        736,
+        736
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c05a0000-0000-4000-8000-000000000008",
+              "name": "b1",
+              "type": "number",
+              "value": "={{ $json.count_request_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e142cb7f-1666-4284-a3a5-73c121fa0429",
+      "name": "Stage 1 answer",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1792,
+        320
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Settings').first().json.base }}/check",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $('Settings').first().json.key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $('Settings').first().json.username }}"
+            },
+            {
+              "name": "stage",
+              "value": "1"
+            },
+            {
+              "name": "answer",
+              "value": "={{ $('Stage 1 answer').first().json.b1 }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "ad969773-718f-4766-a237-929eec0d9791",
+      "name": "Check stage 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2016,
+        320
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c05a0000-0000-4000-8000-000000000011",
+              "name": "b2",
+              "type": "number",
+              "value": "={{ $json.count_request_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "38840c49-3547-4839-81aa-8a9b151c07a4",
+      "name": "Stage 2 answer",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1792,
+        832
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Settings').first().json.base }}/check",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $('Settings').first().json.key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $('Settings').first().json.username }}"
+            },
+            {
+              "name": "stage",
+              "value": "2"
+            },
+            {
+              "name": "answer",
+              "value": "={{ $('Stage 2 answer').first().json.b2 }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "b4d8859e-9804-4045-80fd-dc4ce47c8548",
+      "name": "Check stage 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2016,
+        832
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c05a0000-0000-4000-8000-000000000014",
+              "name": "b3",
+              "type": "number",
+              "value": "={{ $json.count_request_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "751da0a2-5906-4660-9868-bd87a49ee81c",
+      "name": "Stage 3 answer",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1792,
+        1344
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Settings').first().json.base }}/check",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $('Settings').first().json.key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $('Settings').first().json.username }}"
+            },
+            {
+              "name": "stage",
+              "value": "3"
+            },
+            {
+              "name": "answer",
+              "value": "={{ $('Stage 3 answer').first().json.b3 }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "bd341f2b-ac5a-43c6-8bc2-ea1edaa90c0b",
+      "name": "Check stage 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2016,
+        1344
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "content": "## Challenge 05 · The Parcel Desk\n\n**Community Weekly Challenge · Season 2**\n\nA shop has **30 parcel requests**. Find the requests that need a correction, then the ones ready for express or standard delivery.\n\n**Starter, not a finished solution.** Build the missing native routing and counting nodes in the three work areas on the right. All three questions use your one personal batch.\n\n### Your dataset\n\n`request_id` · `contact_email` · `parcel_count` · `delivery`\n\nCount **requests, not parcels**. Data and checks follow Challenge 05's participation window.\n\n### Challenge links\n\n[Read Challenge 05](https://marketing.app.n8n.cloud/webhook/cwc/challenge-05) · [Register](https://marketing.app.n8n.cloud/webhook/cwc/register) · [Your account](https://marketing.app.n8n.cloud/webhook/cwc/status)\n\n[Submit](https://marketing.app.n8n.cloud/webhook/cwc/submit) · [Results](https://marketing.app.n8n.cloud/webhook/cwc/results) · [FAQ](https://marketing.app.n8n.cloud/webhook/cwc/faq)\n\n[Learn and practise](https://marketing.app.n8n.cloud/webhook/cwc/learn) · [n8n documentation](https://docs.n8n.io/)",
+        "height": 1504,
+        "width": 960
+      },
+      "id": "eb4daaa3-a0a2-4453-ac88-943e73bb8bb8",
+      "name": "0. The Parcel Desk",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 1 · Fetch your personal data\n\n[Read Challenge 05](https://marketing.app.n8n.cloud/webhook/cwc/challenge-05) and [register](https://marketing.app.n8n.cloud/webhook/cwc/register), or reuse your existing participant key. Enter your forum username and participant key in **Settings**. Keep the supplied base URL and HTTP Authentication **None**. Your key is sent in the `x-participant-key` header, never in the URL.\n\nRun **Start** when Challenge 05 is open. The first successful personal data fetch starts the timer; re-fetching does not reset it. **Request rows** gives 30 items. Fetch your personal requests first.",
+        "height": 400,
+        "width": 896,
+        "color": 4
+      },
+      "id": "6efd4f2d-f72c-408c-b49e-ecad00d8f472",
+      "name": "1. Start here",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        496
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 4 · Finish & fair play\n\n1. **Map your calculated counts** to `b1`, `b2` and `b3` as **Number**. Use a direct native Summarize count of `request_id`; no arithmetic, typed counts, grouped summaries or loops.\n2. **Check when ready.** Checks start disabled, are optional and never stop the timer.\n3. **Submit all three counts, your workflow JSON and your explanation.** Correct eligible answers enter the leaderboard immediately; the first accepted evidence stays locked.\n\n**Timing:** first successful personal fetch → first accepted final. Weekly points are **15 / 12 / 12 / 11** by competition rank.\n\n**No AI assistance of any kind**, including interpreting, planning, generating, debugging, solving or explaining this challenge. Chatbots, copilots, workflow builders and agents are included. No Code, Function, AI, Agent, MCP or Tool nodes.\n\n**Before export:** blank Settings.key, set Authentication to None and remove all credential references and pinned data.\n\nWorkflows are reviewed at season end before rewards.",
+        "height": 544,
+        "width": 896,
+        "color": 2
+      },
+      "id": "ea6a6a6e-1405-45d5-ac97-fe35e50e65c0",
+      "name": "4. Finish and fair play",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        928
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Question 1 · Needs correction\n\nCount requests with an empty contact email OR zero parcels. If both are wrong, count that request once. Delivery does not rescue an invalid request.\n\n**Your work area:** add native validation/routing and **Summarize → Count `request_id`**.\n\nMap the calculated field directly to **Stage 1 answer → b1** as **Number**. Keep enabled forward paths from Request rows through your calculation to this answer. The Check node is optional.\n\n**Build your calculation in the space below.**",
+        "height": 480,
+        "width": 1152,
+        "color": 5
+      },
+      "id": "1e4c6f1c-85d8-48e1-a501-15eff9e0c51a",
+      "name": "Stage 1: Needs correction",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        992,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Question 2 · Express ready\n\nCount valid requests whose delivery is EXPRESS. Validate before choosing the delivery queue.\n\n**Your work area:** add native validation/routing and **Summarize → Count `request_id`**.\n\nMap the calculated field directly to **Stage 2 answer → b2** as **Number**. Keep enabled forward paths from Request rows through your calculation to this answer. The Check node is optional.\n\n**Build your calculation in the space below.**",
+        "height": 480,
+        "width": 1152,
+        "color": 6
+      },
+      "id": "34797397-0af2-478d-bc41-bd38518d5f72",
+      "name": "Stage 2: Express ready",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        992,
+        512
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Question 3 · Standard ready\n\nCount valid requests whose delivery is STANDARD. The three calculated queue counts should add up to 30.\n\n**Your work area:** add native validation/routing and **Summarize → Count `request_id`**.\n\nMap the calculated field directly to **Stage 3 answer → b3** as **Number**. Keep enabled forward paths from Request rows through your calculation to this answer. The Check node is optional.\n\n**Build your calculation in the space below.**",
+        "height": 480,
+        "width": 1152,
+        "color": 3
+      },
+      "id": "cb4d3a69-b8f3-4072-a42b-9e5fe03d037d",
+      "name": "Stage 3: Standard ready",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        992,
+        1024
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "630f041e-cefd-421c-82d8-fab4607729f0",
+              "leftValue": "={{ $json.contact_email.trim().length === 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "28a3bdb2-71da-496c-a4b8-f082f631adc6",
+              "leftValue": "={{ $json.parcel_count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1024,
+        240
+      ],
+      "id": "0ceae842-69a1-4e75-a261-4c4ec03b0e12",
+      "name": "FilterCorrection"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "630f041e-cefd-421c-82d8-fab4607729f0",
+              "leftValue": "={{ $json.contact_email.trim().length === 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "28a3bdb2-71da-496c-a4b8-f082f631adc6",
+              "leftValue": "={{ $json.parcel_count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "ffa8ab43-3d5d-4c71-b300-2b204dac27cc",
+              "leftValue": "={{ $json.delivery }}",
+              "rightValue": "EXPRESS",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1072,
+        736
+      ],
+      "id": "3c326b63-eef4-42ea-84ec-8d7ebe02e5b6",
+      "name": "FilterExpress"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "630f041e-cefd-421c-82d8-fab4607729f0",
+              "leftValue": "={{ $json.contact_email.trim().length === 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "28a3bdb2-71da-496c-a4b8-f082f631adc6",
+              "leftValue": "={{ $json.parcel_count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "ffa8ab43-3d5d-4c71-b300-2b204dac27cc",
+              "leftValue": "={{ $json.delivery }}",
+              "rightValue": "STANDARD",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1088,
+        1264
+      ],
+      "id": "eb46e800-3384-473d-8e67-8e8a8ff07526",
+      "name": "FilterStandard"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "request_id"
+            }
+          ]
+        },
+        "options": {
+          "outputFormat": "singleItem"
+        }
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        1312,
+        1264
+      ],
+      "id": "0c55097c-a43d-48b5-858f-7b76dbe54fb1",
+      "name": "CountStandard"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "request_id"
+            }
+          ]
+        },
+        "options": {
+          "outputFormat": "singleItem"
+        }
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        1296,
+        736
+      ],
+      "id": "0b434760-c423-47ab-a2ea-fc3fe635612a",
+      "name": "CountExpress"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "request_id"
+            }
+          ]
+        },
+        "options": {
+          "outputFormat": "singleItem"
+        }
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        1248,
+        240
+      ],
+      "id": "85bf8fd9-f06c-4b39-98fc-8d3bd8a2b8ee",
+      "name": "CountCorrection"
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Get requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get requests": {
+      "main": [
+        [
+          {
+            "node": "Request rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request rows": {
+      "main": [
+        [
+          {
+            "node": "FilterCorrection",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "FilterExpress",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "FilterStandard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 1 answer": {
+      "main": [
+        [
+          {
+            "node": "Check stage 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 2 answer": {
+      "main": [
+        [
+          {
+            "node": "Check stage 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 3 answer": {
+      "main": [
+        [
+          {
+            "node": "Check stage 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FilterCorrection": {
+      "main": [
+        [
+          {
+            "node": "CountCorrection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FilterExpress": {
+      "main": [
+        [
+          {
+            "node": "CountExpress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FilterStandard": {
+      "main": [
+        [
+          {
+            "node": "CountStandard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CountStandard": {
+      "main": [
+        [
+          {
+            "node": "Stage 3 answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CountExpress": {
+      "main": [
+        [
+          {
+            "node": "Stage 2 answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CountCorrection": {
+      "main": [
+        [
+          {
+            "node": "Stage 1 answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Get requests": [
+      {
+        "rows": [
+          {
+            "request_id": "PK-2PDNE",
+            "contact_email": "parcel-303372@example.test",
+            "parcel_count": 3,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-EYA5L",
+            "contact_email": "parcel-899096@example.test",
+            "parcel_count": 3,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-7HGM2",
+            "contact_email": "",
+            "parcel_count": 2,
+            "delivery": "EXPRESS"
+          },
+          {
+            "request_id": "PK-Y8AJF",
+            "contact_email": "parcel-288712@example.test",
+            "parcel_count": 0,
+            "delivery": "EXPRESS"
+          },
+          {
+            "request_id": "PK-9NDS4",
+            "contact_email": "parcel-696472@example.test",
+            "parcel_count": 3,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-3E9P8",
+            "contact_email": "parcel-152993@example.test",
+            "parcel_count": 0,
+            "delivery": "EXPRESS"
+          },
+          {
+            "request_id": "PK-RQMD8",
+            "contact_email": "parcel-363398@example.test",
+            "parcel_count": 4,
+            "delivery": "EXPRESS"
+          },
+          {
+            "request_id": "PK-MT5FW",
+            "contact_email": "parcel-565331@example.test",
+            "parcel_count": 3,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-PFLBF",
+            "contact_email": "parcel-451345@example.test",
+            "parcel_count": 1,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-VDQ5Z",
+            "contact_email": "parcel-450890@example.test",
+            "parcel_count": 2,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-CB66H",
+            "contact_email": "parcel-859688@example.test",
+            "parcel_count": 1,
+            "delivery": "EXPRESS"
+          },
+          {
+            "request_id": "PK-ZGAYV",
+            "contact_email": "parcel-819643@example.test",
+            "parcel_count": 4,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-LRG3L",
+            "contact_email": "parcel-303700@example.test",
+            "parcel_count": 3,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-C627K",
+            "contact_email": "",
+            "parcel_count": 4,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-EC74J",
+            "contact_email": "parcel-678491@example.test",
+            "parcel_count": 1,
+            "delivery": "EXPRESS"
+          },
+          {
+            "request_id": "PK-935PR",
+            "contact_email": "parcel-563816@example.test",
+            "parcel_count": 3,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-QVXMJ",
+            "contact_email": "parcel-619918@example.test",
+            "parcel_count": 0,
+            "delivery": "EXPRESS"
+          },
+          {
+            "request_id": "PK-Q3W3T",
+            "contact_email": "parcel-244470@example.test",
+            "parcel_count": 3,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-Z5ASA",
+            "contact_email": "parcel-797956@example.test",
+            "parcel_count": 3,
+            "delivery": "EXPRESS"
+          },
+          {
+            "request_id": "PK-F8CEA",
+            "contact_email": "parcel-353996@example.test",
+            "parcel_count": 1,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-FJ2DB",
+            "contact_email": "",
+            "parcel_count": 0,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-DVKNK",
+            "contact_email": "parcel-591894@example.test",
+            "parcel_count": 4,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-PQVKA",
+            "contact_email": "parcel-940310@example.test",
+            "parcel_count": 3,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-KFAQT",
+            "contact_email": "parcel-980089@example.test",
+            "parcel_count": 4,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-56A8X",
+            "contact_email": "parcel-531867@example.test",
+            "parcel_count": 3,
+            "delivery": "EXPRESS"
+          },
+          {
+            "request_id": "PK-Z76C6",
+            "contact_email": "parcel-389037@example.test",
+            "parcel_count": 3,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-PU3YM",
+            "contact_email": "parcel-977245@example.test",
+            "parcel_count": 3,
+            "delivery": "STANDARD"
+          },
+          {
+            "request_id": "PK-S4V3P",
+            "contact_email": "parcel-753296@example.test",
+            "parcel_count": 0,
+            "delivery": "EXPRESS"
+          },
+          {
+            "request_id": "PK-L3WDF",
+            "contact_email": "parcel-946672@example.test",
+            "parcel_count": 2,
+            "delivery": "EXPRESS"
+          },
+          {
+            "request_id": "PK-7ANMJ",
+            "contact_email": "parcel-553579@example.test",
+            "parcel_count": 1,
+            "delivery": "EXPRESS"
+          }
+        ],
+        "fetches_remaining": 119
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
