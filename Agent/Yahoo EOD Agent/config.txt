@@ -1,0 +1,3 @@
+Makes an HTTP request and returns the response data
+
+https://query2.finance.yahoo.com/v8/finance/chart/MSFT
