@@ -1,0 +1,41 @@
+Use when the user asks to retrieve end-of-day stock data from Yahoo Finance for a given ticker symbol using the chart API endpoint. This skill uses an HTTP Request Tool to fetch EOD data from Yahoo Finance chart API.
+
+## Overview
+
+Retrieve end-of-day stock data from Yahoo Finance using the chart API v8 for a specified ticker symbol.
+
+## Inputs
+
+- Required: ticker symbol (string) provided by the user
+- Tool: HTTP Request Tool (configured in agent tools)
+
+## Steps
+
+1. Extract the ticker symbol from the user's request
+2. Construct the Yahoo Finance chart API URL: [https://query2.finance.yahoo.com/v8/finance/chart/{TICKER}](https://query2.finance.yahoo.com/v8/finance/chart/{TICKER})
+3. Add query parameters for range and interval to get end-of-day data
+4. Use the HTTP Request Tool to execute the request
+5. Parse the JSON response to extract the end-of-day price, date, open, high, low, and volume
+6. Format the response with the ticker symbol, date, EOD price, and additional data
+
+## Rules
+
+- Always verify the ticker symbol is valid (not empty)
+- Focus on extracting the official closing price and date from Yahoo Finance chart data
+- Handle cases where data might not be available by informing the user
+- Do not make up data - only report what is found in the API response
+- The HTTP Request Tool has a fixed URL structure; ticker substitution happens via node configuration
+
+## Example
+
+Input: "Get EOD data for MSFT"
+Output: "MSFT End-of-Day Data (as of 2024-01-19): $350.25"
+
+## Gotchas
+
+- Yahoo Finance chart API may return delayed data during market hours
+- Ensure you're extracting the correct data point for the end of the most recent trading day
+- Some international tickers may require different formatting (e.g., adding .L for London)
+- The chart API returns data in a specific JSON structure that needs proper parsing
+- Market holidays may affect data availability
+
