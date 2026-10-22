@@ -1,0 +1,486 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -160
+      ],
+      "id": "504523c6-1a4e-473b-aaee-a18e478face4",
+      "name": "TriggerManual"
+    },
+    {
+      "parameters": {
+        "url": "https://learn.app.n8n.cloud/webhook/course/n8n103/feedback",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Assessment-ID",
+              "value": "Your Assess ID"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        -160
+      ],
+      "id": "0b16dad2-4ebd-402e-ab82-31b7f8dc1a76",
+      "name": "GetFeedback",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "3N1NUkFdnOZIqaqY",
+          "name": "n8n Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keep": "lastItems"
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -160
+      ],
+      "id": "6a01a4e3-fa11-4970-8039-0fe0395d599c",
+      "name": "SetFeedbackItem"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Customer: {{ $json.customer_name }}\nFeedback: {{ $json.message }}\n\nClassification:\n- Sentiment: {{ $json.sentiment }}\n- Topic: {{ $json.topic }}\n- Urgency: {{ $json.urgency }}\n- Key Issue: {{ $json.key_issue }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a helpful customer service assistant.  Read the following customer feedback and write a brief, professional response acknowledging their message.  Use the classification to guide your tone: - For negative sentiment or high urgency: Be empathetic and apologetic - For positive sentiment: Be appreciative and warm - For billing or support topics: Offer specific next steps  Write a 2-3 sentence response."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1248,
+        -160
+      ],
+      "id": "9fabbb8d-c890-4d26-a8ba-156299fe6d17",
+      "name": "GenerateReply"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        80
+      ],
+      "id": "ac6b8de0-5319-47e7-b62d-de715086e15f",
+      "name": "gpt-oss-120b",
+      "credentials": {
+        "groqApi": {
+          "id": "wuehx5nH3moabcwX",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://learn.app.n8n.cloud/webhook/course/n8n103/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Assessment-ID",
+              "value": "Your Assess ID"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "feedback_id",
+              "value": "={{ $('SetClassificationResult').item.json.feedback_id }}"
+            },
+            {
+              "name": "sentiment",
+              "value": "={{ $('SetClassificationResult').item.json.sentiment }}"
+            },
+            {
+              "name": "topic",
+              "value": "={{ $('SetClassificationResult').item.json.topic }}"
+            },
+            {
+              "name": "urgency",
+              "value": "={{ $('SetClassificationResult').item.json.urgency }}"
+            },
+            {
+              "name": "key_issue",
+              "value": "={{ $('SetClassificationResult').item.json.key_issue }}"
+            },
+            {
+              "name": "generated_reply",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "model_used",
+              "value": "openai/gpt-oss-20b,openai/gpt-oss-120b"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1600,
+        -160
+      ],
+      "id": "fbaa8d10-60c0-4384-9624-f75b6f608a46",
+      "name": "SendGeneratedReply",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "3N1NUkFdnOZIqaqY",
+          "name": "n8n Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Customer: {{ $json.customer_name }}\nFeedback: {{ $json.message }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a customer feedback analyst.  Analyze the feedback and classify it by: 1. Sentiment: Is the customer positive, neutral, or negative? 2. Topic: Is this about billing, product, support, or general? 3. Urgency: Based on the tone and content, is this low, medium, or high urgency? 4. Key Issue: Summarize the main point in one sentence  Output Requirements  sentiment: Must be exactly one of: positive, neutral, or negative topic: Must be exactly one of: billing, product, support, or general urgency: Must be exactly one of: low, medium, or high key_issue: A one-sentence summary of the main issue or praise  Example output format:  {   \"sentiment\": \"positive\",   \"topic\": \"product\",   \"urgency\": \"low\",   \"key_issue\": \"Customer is satisfied with the product\" }"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        672,
+        -160
+      ],
+      "id": "e94fce13-9dd0-432d-8d47-1efb087b45e9",
+      "name": "ClassifyFeedback",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        688,
+        80
+      ],
+      "id": "b9413b22-6659-469b-9ddb-f7bb01b642ed",
+      "name": "gpt-oss-20b",
+      "credentials": {
+        "groqApi": {
+          "id": "wuehx5nH3moabcwX",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"sentiment\": \"positive\",\n  \"topic\": \"product\",\n  \"urgency\": \"low\",\n  \"key_issue\": \"Customer is satisfied with the product\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        80
+      ],
+      "id": "7481f92d-5103-4e3f-8217-1e7f9e27a1f4",
+      "name": "OutputParser"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "78faf02f-0c14-4956-b1e9-5e892d7d6157",
+              "name": "feedback_id",
+              "value": "={{ $('SetFeedbackItem').item.json.feedback_id }}",
+              "type": "string"
+            },
+            {
+              "id": "81d0dd9b-7d4c-466f-a29b-7207f12da421",
+              "name": "customer_name",
+              "value": "={{ $('SetFeedbackItem').item.json.customer_name }}",
+              "type": "string"
+            },
+            {
+              "id": "b13996ea-f429-4f45-aa7a-d38cd23e928e",
+              "name": "message",
+              "value": "={{ $('SetFeedbackItem').item.json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "c577e754-938c-442d-9b63-17abbec3ba1d",
+              "name": "sentiment",
+              "value": "={{ $('ClassifyFeedback').item.json.output.sentiment }}",
+              "type": "string"
+            },
+            {
+              "id": "d44ad929-0263-4cc7-9bd9-8db4ec00262b",
+              "name": "topic",
+              "value": "={{ $('ClassifyFeedback').item.json.output.topic }}",
+              "type": "string"
+            },
+            {
+              "id": "20ab75ad-4758-48c5-bf08-265d7520b148",
+              "name": "urgency",
+              "value": "={{ $('ClassifyFeedback').item.json.output.urgency }}",
+              "type": "string"
+            },
+            {
+              "id": "fe438c73-30eb-4cb5-8512-f0e34d409989",
+              "name": "key_issue",
+              "value": "={{ $('ClassifyFeedback').item.json.output.key_issue }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1024,
+        -160
+      ],
+      "id": "c2ebca1f-86d7-474f-b472-75378266da5c",
+      "name": "SetClassificationResult"
+    },
+    {
+      "parameters": {
+        "content": "# Feedback Pipeline\n\nOwned By: Your Name\nLast Updated: Date\n\nFetches customer feedback from the Academy API, classifies it\nusing structured output, and generates a tailored reply.\n\n## Flow\n1. GetFeedback: Fetches feedback items from Academy endpoint\n2. SetFeedbackItem: Limits to first item for processing\n3. GenerateReply: AI generates initial response\n4. ClassifyFeedback: AI classifies sentiment, topic, urgency\n5. SetClassificationResult: Extracts parsed classification\n6. GenerateReply (updated): Produces classification-aware reply\n7. SendGeneratedReply: Posts result to Academy for grading\n\n## Model\n- Groq: GPTOSS-120B/20B\n\n## Dependencies\n- Requires: n8n Academy API Key credential, Groq API credential\n\nPart of: n8n Foundations Course, Section 1",
+        "height": 544,
+        "width": 496
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        -496
+      ],
+      "id": "e2e0ca5b-fc70-41ef-9df9-ab9162a5c282",
+      "name": "Sticky Note"
+    }
+  ],
+  "connections": {
+    "TriggerManual": {
+      "main": [
+        [
+          {
+            "node": "GetFeedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetFeedback": {
+      "main": [
+        [
+          {
+            "node": "SetFeedbackItem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetFeedbackItem": {
+      "main": [
+        [
+          {
+            "node": "ClassifyFeedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GenerateReply": {
+      "main": [
+        [
+          {
+            "node": "SendGeneratedReply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-oss-120b": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "GenerateReply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ClassifyFeedback": {
+      "main": [
+        [
+          {
+            "node": "SetClassificationResult",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-oss-20b": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ClassifyFeedback",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OutputParser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "ClassifyFeedback",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetClassificationResult": {
+      "main": [
+        [
+          {
+            "node": "GenerateReply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "GetFeedback": [
+      {
+        "feedback_id": "FB-001",
+        "customer_id": "CUST-001",
+        "customer_name": "Acme Corp",
+        "channel": "email",
+        "message": "We've been using your Enterprise License for three months now and the team loves it. The onboarding was smooth and support has been responsive. Would definitely recommend to others in our industry.",
+        "received_at": "2026-01-18T14:32:00.000Z"
+      },
+      {
+        "feedback_id": "FB-002",
+        "customer_id": "CUST-002",
+        "customer_name": "TechStart Inc",
+        "channel": "support_ticket",
+        "message": "This is the third time I'm reaching out about the billing issue. I was charged twice last month and nobody has resolved it yet. Very frustrated with the lack of response. Considering switching providers.",
+        "received_at": "2026-01-19T09:15:00.000Z"
+      },
+      {
+        "feedback_id": "FB-003",
+        "customer_id": "CUST-003",
+        "customer_name": "Global Systems",
+        "channel": "survey",
+        "message": "The platform works as expected. Nothing special to report. It does what we need it to do.",
+        "received_at": "2026-01-19T11:45:00.000Z"
+      },
+      {
+        "feedback_id": "FB-004",
+        "customer_id": "CUST-004",
+        "customer_name": "DataFlow Ltd",
+        "channel": "chat",
+        "message": "Your support team is amazing! Sarah helped me solve a complex integration issue in under an hour. This level of service is why we chose your platform.",
+        "received_at": "2026-01-20T16:22:00.000Z"
+      },
+      {
+        "feedback_id": "FB-005",
+        "customer_id": "CUST-005",
+        "customer_name": "CloudNine Solutions",
+        "channel": "email",
+        "message": "The new dashboard update is confusing. Where did the execution history go? I can't find anything anymore. Please bring back the old layout.",
+        "received_at": "2026-01-20T10:08:00.000Z"
+      },
+      {
+        "feedback_id": "FB-006",
+        "customer_id": "CUST-006",
+        "customer_name": "Bright Ideas Co",
+        "channel": "survey",
+        "message": "Started using the Starter Plan last month. Still learning the ropes but so far so good. The tutorials are helpful.",
+        "received_at": "2026-01-21T13:55:00.000Z"
+      },
+      {
+        "feedback_id": "FB-007",
+        "customer_id": "CUST-007",
+        "customer_name": "Summit Enterprises",
+        "channel": "support_ticket",
+        "message": "URGENT: Our production workflows have been failing for the past 2 hours. This is costing us money. Need immediate assistance. This is unacceptable for an Enterprise customer.",
+        "received_at": "2026-01-21T08:30:00.000Z"
+      },
+      {
+        "feedback_id": "FB-008",
+        "customer_id": "CUST-008",
+        "customer_name": "Innovate LLC",
+        "channel": "email",
+        "message": "Just wanted to say thanks for the quick invoice correction. Appreciate the prompt response from the billing team.",
+        "received_at": "2026-01-22T15:40:00.000Z"
+      },
+      {
+        "feedback_id": "FB-009",
+        "customer_id": "CUST-009",
+        "customer_name": "Pioneer Tech",
+        "channel": "chat",
+        "message": "Is there documentation on the API rate limits? I couldn't find it in the help center. Not complaining, just asking.",
+        "received_at": "2026-01-22T09:12:00.000Z"
+      },
+      {
+        "feedback_id": "FB-010",
+        "customer_id": "CUST-010",
+        "customer_name": "Nexus Industries",
+        "channel": "survey",
+        "message": "The platform has transformed how our team works. We've automated over 50 processes and saved countless hours. The ROI has been incredible. Best software investment we've made this year.",
+        "received_at": "2026-01-23T11:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
