@@ -1,0 +1,160 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -48
+      ],
+      "id": "047912f5-e12a-4b45-a659-4edf3b4ee2cc",
+      "name": "TriggerError"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://learn.app.n8n.cloud/webhook/course/n8n103/error-report",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Assessment-ID",
+              "value": "Your ID"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "workflow_name",
+              "value": "={{ $json.workflow.name }}"
+            },
+            {
+              "name": "workflow_id",
+              "value": "={{ $json.workflow.id }}"
+            },
+            {
+              "name": "execution_url",
+              "value": "={{ $json.execution.url }}"
+            },
+            {
+              "name": "error_message",
+              "value": "={{ $json.execution.error.message }}"
+            },
+            {
+              "name": "failed_node",
+              "value": "={{ $json.execution.lastNodeExecuted }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -496,
+        -48
+      ],
+      "id": "4cef5f5a-661e-4fa4-bdcd-b1a9157ac6ec",
+      "name": "ReportError",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "3N1NUkFdnOZIqaqY",
+          "name": "n8n Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7d451e64-c8d6-4443-b9c0-2b561e65766e",
+              "name": "text",
+              "value": "=Workflow \"{{ $json.workflow.name }}\" failed at node \"{{ $json.execution.lastNodeExecuted }}\": {{ $json.execution.error.message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -272,
+        -48
+      ],
+      "id": "9df1bc31-0830-4a53-a6d0-815fb0eec800",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -48
+      ],
+      "id": "d005a5f6-4495-4a23-a608-0820fed5207f",
+      "name": "SendToSlack"
+    },
+    {
+      "parameters": {
+        "content": "# Section 2 - Error Handler (Error Workflow)\n\nOwned By: Your Name\nLast Updated: Date\n\nError workflow that captures failures from linked workflows and\nreports error details to the Academy endpoint.\n\n## Trigger\n- Error Trigger: Fires when a linked workflow fails in production\n\n## Data Captured\n- workflow.name: Name of failed workflow\n- workflow.id: Workflow ID\n- execution.url: Link to failed execution\n- execution.error.message: Error details\n- execution.lastNodeExecuted: Node that failed\n\n## Endpoint\n- POST /webhook/course/n8n103/error-report\n\n## Requirements\n- Must be published to be used as an error workflow\n- Only triggers on production executions, not manual tests\n\nPart of: n8n Foundations Program, N8N103 Course, Section 2",
+        "height": 656,
+        "width": 672
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        304,
+        -240
+      ],
+      "id": "1571fd74-a1ab-46fe-b170-0f472366a3d2",
+      "name": "Sticky Note"
+    }
+  ],
+  "connections": {
+    "TriggerError": {
+      "main": [
+        [
+          {
+            "node": "ReportError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReportError": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "SendToSlack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
