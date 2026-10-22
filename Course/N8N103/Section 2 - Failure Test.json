@@ -1,0 +1,75 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "path": "course/n8n103/failure-test",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b7cb3b89-9e0f-4181-bc2b-684e329994b6",
+      "name": "TriggerWebhook",
+      "webhookId": "215ac3e7-849f-4158-a346-a2eae8d06877",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "3N1NUkFdnOZIqaqY",
+          "name": "n8n Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://learn.app.n8n.cloud/webhook/course/n8n103/guaranteed-failure",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Assessment-ID",
+              "value": "Your ID"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "eee94a9f-d8fa-4987-86e7-1750d4e3d6a8",
+      "name": "CallFailingEndpoint",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "3N1NUkFdnOZIqaqY",
+          "name": "n8n Academy API Key"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "TriggerWebhook": {
+      "main": [
+        [
+          {
+            "node": "CallFailingEndpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
