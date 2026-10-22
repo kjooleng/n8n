@@ -1,0 +1,439 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "86a2a0cd-d127-4fd1-96fe-2141707281fd",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c06a0000-0000-4000-8000-000000000002",
+              "name": "username",
+              "value": "kjooleng",
+              "type": "string"
+            },
+            {
+              "id": "c06a0000-0000-4000-8000-000000000003",
+              "name": "key",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "c06a0000-0000-4000-8000-000000000004",
+              "name": "base",
+              "value": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-06",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e9150fce-483c-4dca-bc40-84adae8ece21",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -576,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Settings').first().json.base + '/data' }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "value": "tickets"
+            },
+            {
+              "name": "username",
+              "value": "={{ $('Settings').first().json.username }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $('Settings').first().json.key }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "2abb0d48-3665-4af2-b4a4-97ca977ba7b5",
+      "name": "Get tickets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -352,
+        320
+      ],
+      "notes": "Shared data source for both questions. Method: GET. Permanent URL: https://marketing.app.n8n.cloud/webhook/cwc/challenge-06/data. Query: file=tickets and username from Settings. Header: x-participant-key from Settings.key. Response: an object containing rows, split by Ticket rows. HTTP Authentication stays None. No second question-specific data request is required."
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "id": "368d87ee-8b88-46bb-be23-39f951152258",
+      "name": "Ticket rows",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c06a0000-0000-4000-8000-000000000008",
+              "name": "b1",
+              "value": "={{ $json.count_ticket_id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6cc04751-0649-49f0-883b-66a01b31f795",
+      "name": "Question 1 answer",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1088,
+        128
+      ],
+      "notes": "Output card only. Connect your Question 1 native count path from Ticket rows, map its computed Count directly to b1, and set the field type to Number. This node does not fetch tickets or calculate the answer. It is intentionally blank and disconnected in the unfinished starter."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c06a0000-0000-4000-8000-000000000010",
+              "name": "b2",
+              "value": "={{ $json.count_ticket_id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6ecb2395-897d-46bb-9939-5a305a63f384",
+      "name": "Question 2 answer",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1088,
+        912
+      ],
+      "notes": "Output card only. Connect your Question 2 native count path from the shared tickets, map its computed Count directly to b2, and set the field type to Number. This node does not call another endpoint. It is intentionally blank and disconnected in the unfinished starter."
+    },
+    {
+      "parameters": {
+        "content": "## Challenge 06 · The Support Queue\n\n**Community Weekly Challenge · Season 2**\n\nA fictional support desk has **24 tickets**. Count all open tickets, then the urgent tickets within that open queue. Build with native n8n nodes.\n\n**Starter, not a finished solution.** Add the calculation nodes in the two work areas. Both answer cards are blank.\n\n**No AI assistance**, including interpreting, planning, generating, debugging, solving or explaining this challenge.\n\n[Read Challenge 06](https://marketing.app.n8n.cloud/webhook/cwc/challenge-06) · [Your account](https://marketing.app.n8n.cloud/webhook/cwc/status) · [Register](https://marketing.app.n8n.cloud/webhook/cwc/register)\n\n[Challenge rules](https://marketing.app.n8n.cloud/webhook/cwc/challenge-06#rules) · [Untimed practice](https://marketing.app.n8n.cloud/webhook/cwc/challenge-06/practice/data) · [n8n documentation](https://docs.n8n.io/)\n\nPersonal data and submission follow Challenge 06's participation window. Importing this workflow does not open participation.",
+        "height": 400,
+        "width": 960
+      },
+      "id": "5cce3f78-f996-4aa9-a4b1-e011689c7cc1",
+      "name": "1. Start here",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        -368
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2 · One HTTP request, two questions\n\nEnter your username and key in **Settings**. Keep the supplied base URL and HTTP Authentication **None**.\n\n**Get tickets** calls `GET /data` with query `file=tickets` and your `username`, plus the `x-participant-key` header. **Ticket rows** splits its `rows` array into 24 items. Both question branches use these same items. **No second data request is needed.**\n\nRun **Start** when ready. The first successful personal fetch starts your timer. Re-fetching preserves the same tickets and original start. Use untimed practice first.",
+        "height": 448,
+        "width": 960,
+        "color": 4
+      },
+      "id": "ec1c18eb-23fb-4532-9581-d6092514986f",
+      "name": "2. Fetch your tickets",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Question 1 · How many tickets are open?\n\n**Source: Ticket rows from the shared HTTP request.** There is no separate Question 1 data endpoint.\n\nCount tickets whose `status` equals **OPEN**. Build a native Filter and Summarize Count on `ticket_id` in the empty space below. Connect an enabled path from **Ticket rows** through your calculation to **Question 1 answer**.\n\nThe Edit Fields node is an **output card**, not a fetch or calculation. Map the computed Count field directly to **b1**, set its type to **Number**, and keep it in the export. It is intentionally blank and disconnected until you build that path.\n\nDo not type a count, use arithmetic, group records or create a third answer.",
+        "height": 760,
+        "width": 1152,
+        "color": 5
+      },
+      "id": "c7bacc3d-415b-486b-b267-37e51aa9f71f",
+      "name": "3. Count open tickets",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        128,
+        -368
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Question 2 · How many open tickets are urgent?\n\n**Source: the same Ticket rows used by Question 1.** There is no separate Question 2 data endpoint.\n\nCount tickets whose `status` equals **OPEN** and `priority` equals **URGENT**. Closed urgent tickets do not count. Reuse the open-ticket branch or build a native two-condition branch, then Count `ticket_id`. Connect the Count output to **Question 2 answer**.\n\nThis Edit Fields node is the second **output card**. Map the computed Count field directly to **b2** and set its type to **Number**. It is intentionally blank and disconnected until you build that path.\n\nDo not add the answers together or create b3. All status/priority combinations occur and both counts are nonzero.",
+        "height": 760,
+        "width": 1152,
+        "color": 6
+      },
+      "id": "0bca9181-78b7-4143-abdc-885269551d2a",
+      "name": "4. Count urgent open tickets",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        128,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 5 · Finish and fair play\n\n1. Copy **both computed counts** into the Challenge 06 website form. Its optional **Check both answers** sends one paired `POST /check` with both totals and your workflow. It returns overall correctness only. There are no separate Q1/Q2 check HTTP nodes.\n2. Submit both answers, your sanitized workflow JSON and your own explanation of **40 to 2,000 characters and at least eight words**, with both rule acknowledgements.\n3. A supported correct final enters the leaderboard automatically. The server validates native calculations and the tickets contributing to each Count. The first accepted evidence and finish stay locked. **No pending replay or human approval** is part of ordinary season-time acceptance.\n\n**Clock:** first successful personal fetch to first accepted final. Practice is untimed. Weekly rank points follow **15 / 12 / 12 / 11**, with exact ties sharing rank and points. Reward review happens at season end.\n\n**No AI assistance of any kind.** No Code, Function, AI, Agent, MCP or Tool nodes, hardcoded totals or executable code hidden in expressions.\n\n**Before export:** blank Settings.key and remove all credential references and pinned data. Keep Settings.username for your account binding. Never export participant keys.\n\n[Open Challenge 06 submission](https://marketing.app.n8n.cloud/webhook/cwc/challenge-06#submit) · [Leaderboard](https://marketing.app.n8n.cloud/webhook/cwc/results) · [Rules](https://marketing.app.n8n.cloud/webhook/cwc/challenge-06#rules)\n\nData and submission are available only during Challenge 06's participation window.",
+        "height": 640,
+        "width": 960,
+        "color": 2
+      },
+      "id": "211ad840-7ce9-4c02-989a-c554593529b7",
+      "name": "5. Finish and fair play",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "66c4ca05-2d37-4b12-948b-ae5d78c44141",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "OPEN",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        176
+      ],
+      "id": "6f51283c-a117-419f-94b6-057e9861ddac",
+      "name": "IfOpen"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "ticket_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        -32
+      ],
+      "id": "11226d15-3895-4697-9f68-44e74499b6ba",
+      "name": "CountOpen"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "57fd09b6-e1dd-468e-8889-6ac61d05e986",
+              "leftValue": "={{ $json.priority }}",
+              "rightValue": "URGENT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        528,
+        720
+      ],
+      "id": "54622985-28e1-4df9-9574-9a262b51b837",
+      "name": "IfUrgent"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "ticket_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        672
+      ],
+      "id": "5d361780-a37e-4962-b43b-e159922ab16d",
+      "name": "CountUrgent"
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Get tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get tickets": {
+      "main": [
+        [
+          {
+            "node": "Ticket rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket rows": {
+      "main": [
+        [
+          {
+            "node": "IfOpen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IfOpen": {
+      "main": [
+        [
+          {
+            "node": "CountOpen",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IfUrgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CountOpen": {
+      "main": [
+        [
+          {
+            "node": "Question 1 answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IfUrgent": {
+      "main": [
+        [
+          {
+            "node": "CountUrgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CountUrgent": {
+      "main": [
+        [
+          {
+            "node": "Question 2 answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
