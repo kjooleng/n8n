@@ -1,0 +1,261 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -768,
+        -16
+      ],
+      "id": "9eb09ea1-ee6f-4457-bfca-c6e655a1fac1",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -544,
+        -16
+      ],
+      "id": "d5560f8e-c11f-45ab-a755-1c148966bcfe",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        -320,
+        -16
+      ],
+      "id": "f782e2a5-1fb7-4b28-ae48-691e202f60d7",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "66c4ca05-2d37-4b12-948b-ae5d78c44141",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "OPEN",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -96,
+        -16
+      ],
+      "id": "1cc4b7b2-e124-4e08-8fb6-ca67aa67d9c6",
+      "name": "IfOpen"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "ticket_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        128,
+        -240
+      ],
+      "id": "cb8c11f9-4d6b-4d12-a836-f1cc3758bea8",
+      "name": "CountOpen"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "57fd09b6-e1dd-468e-8889-6ac61d05e986",
+              "leftValue": "={{ $json.priority }}",
+              "rightValue": "URGENT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        -32
+      ],
+      "id": "126e94af-0f9d-4296-9ea2-d5f92b7da86a",
+      "name": "IfUrgent"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "ticket_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        -128
+      ],
+      "id": "6812c6cf-6c87-4a3f-85a7-68f52d1d0053",
+      "name": "CountUrgent"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "IfOpen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IfOpen": {
+      "main": [
+        [
+          {
+            "node": "CountOpen",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IfUrgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IfUrgent": {
+      "main": [
+        [
+          {
+            "node": "CountUrgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Edit Fields": [
+      {
+        "rows": [
+          {
+            "ticket_id": "TK-P0001",
+            "status": "OPEN",
+            "priority": "URGENT"
+          },
+          {
+            "ticket_id": "TK-P0002",
+            "status": "CLOSED",
+            "priority": "URGENT"
+          },
+          {
+            "ticket_id": "TK-P0003",
+            "status": "OPEN",
+            "priority": "NORMAL"
+          },
+          {
+            "ticket_id": "TK-P0004",
+            "status": "OPEN",
+            "priority": "URGENT"
+          },
+          {
+            "ticket_id": "TK-P0005",
+            "status": "CLOSED",
+            "priority": "NORMAL"
+          },
+          {
+            "ticket_id": "TK-P0006",
+            "status": "OPEN",
+            "priority": "NORMAL"
+          },
+          {
+            "ticket_id": "TK-P0007",
+            "status": "OPEN",
+            "priority": "NORMAL"
+          },
+          {
+            "ticket_id": "TK-P0008",
+            "status": "CLOSED",
+            "priority": "NORMAL"
+          }
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
