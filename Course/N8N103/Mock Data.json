@@ -1,0 +1,325 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        1008
+      ],
+      "id": "5f1e3f55-8def-4ee4-bea5-54ef8fbdacee",
+      "name": "ManualTrigger"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"products\": [\n    { \"item_name\": \"Laptop\", \"category\": \"electronics\", \"price\": 899 },\n    { \"item_name\": \"T-Shirt\", \"category\": \"clothing\", \"price\": 25 },\n    { \"item_name\": \"Headphones\", \"category\": \"Electronics\", \"price\": 150 },\n    { \"item_name\": \"Coffee Mug\", \"category\": \"homeware\", \"price\": 12 },\n    { \"item_name\": \"Monitor\", \"category\": \"electronics\", \"price\": 320 }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -336,
+        1008
+      ],
+      "id": "099c7e7f-d8c7-4b14-b9c6-7c0cd3f63509",
+      "name": "Mock Product Catalog"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "products",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        1008
+      ],
+      "id": "2216f596-5794-4ea4-825f-d398633a1645",
+      "name": "Split Into Items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f012",
+              "name": "final_price",
+              "type": "number",
+              "value": "={{ $json.price }}"
+            },
+            {
+              "id": "f013",
+              "name": "note",
+              "type": "string",
+              "value": "No discount for this category"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        928
+      ],
+      "id": "c7dcac87-39e6-4235-8e2c-dc86976fe156",
+      "name": "Keep Full Price"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f014",
+              "name": "batch_number",
+              "type": "number",
+              "value": "={{ $runIndex + 1 }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        1328
+      ],
+      "id": "e05f48b7-e16b-413c-83a5-173173cd2988",
+      "name": "Tag With Batch Number"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        464,
+        1136
+      ],
+      "id": "1bdd02b2-b321-4d1f-b8ab-82078717234f",
+      "name": "All Batches Done"
+    },
+    {
+      "parameters": {
+        "content": "## Mock data\n\nOne Set node holds the whole test catalog as raw JSON. Split Out turns that single item into five items.\n\nEdit the JSON here to change your test data, or pin the output of Split Into Items and edit items directly in the output panel.",
+        "height": 260,
+        "width": 640,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        704
+      ],
+      "id": "b9e069c8-c020-48f0-be24-a52f4d3339c6",
+      "name": "Sticky Mock Data"
+    },
+    {
+      "parameters": {
+        "content": "## Path 1: n8n loops for you\n\nNo loop node here. The If node runs once and evaluates all five items, sending each one down the true or false branch. This is how most multi-item processing should be built.\n\nCheck the item counts on each branch after running.",
+        "height": 300,
+        "width": 520,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        176,
+        384
+      ],
+      "id": "245e69b2-8afa-4e24-b50a-156c7140cf44",
+      "name": "Sticky Implicit"
+    },
+    {
+      "parameters": {
+        "content": "## Path 2: when you need an explicit loop\n\nBatch size is 2, so this runs three times. Output 1 (loop) feeds the batch into Tag With Batch Number, which connects back into the loop node. Without that return wire the loop never iterates.\n\nOutput 0 (done) fires once at the end with all five items collected.",
+        "height": 360,
+        "width": 520,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        144,
+        1536
+      ],
+      "id": "ea92eb52-2231-4e2c-aafe-55377492757b",
+      "name": "Sticky Explicit"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c001",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "electronics",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        816
+      ],
+      "id": "60a87ae3-3865-4629-b18d-26aa9653d1c4",
+      "name": "Is Electronics?2"
+    },
+    {
+      "parameters": {
+        "batchSize": 2,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        192,
+        1216
+      ],
+      "id": "214966a1-39db-4d6c-bd5a-f19b0873459f",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f010",
+              "name": "final_price",
+              "type": "number",
+              "value": "={{ Math.round($json.price * 0.9 * 100) / 100 }}"
+            },
+            {
+              "id": "f011",
+              "name": "note",
+              "type": "string",
+              "value": "10 percent electronics discount applied"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        720
+      ],
+      "id": "e09e17dc-4d19-4711-931a-2a018e622e55",
+      "name": "Apply Discount2"
+    }
+  ],
+  "connections": {
+    "ManualTrigger": {
+      "main": [
+        [
+          {
+            "node": "Mock Product Catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock Product Catalog": {
+      "main": [
+        [
+          {
+            "node": "Split Into Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Into Items": {
+      "main": [
+        [
+          {
+            "node": "Is Electronics?2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag With Batch Number": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Electronics?2": {
+      "main": [
+        [
+          {
+            "node": "Apply Discount2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Keep Full Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [
+          {
+            "node": "All Batches Done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tag With Batch Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
