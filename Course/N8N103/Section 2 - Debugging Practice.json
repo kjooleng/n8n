@@ -100,7 +100,7 @@
     },
     {
       "parameters": {
-        "content": "# Section 2 - Debugging Practice\n\nOwned By: JL Kang\nLast Updated: 9 Oct 2026\n\nMain workflow for Section 2 exercises. Tests retry configuration\nagainst a flaky API endpoint.\n\n## Nodes\n- TriggerManual: Starts the workflow\n- GetUnreliableData: Calls 50% failure rate API (retry configured)\n- SendRetryResult: Submits successful retry data\n\n## Key Configurations\n- GetUnreliableData has Retry On Fail enabled (5 tries, 1000ms wait)\n\n## Dependencies\n- Requires: n8n Academy API Key credential\n\nPart of: n8n Foundations Program, N8N103 Course - Section 2",
+        "content": "# Section 2 - Debugging Practice\n\nOwned By: Your Name\nLast Updated: Date\n\nMain workflow for Section 2 exercises. Tests retry configuration\nagainst a flaky API endpoint.\n\n## Nodes\n- TriggerManual: Starts the workflow\n- GetUnreliableData: Calls 50% failure rate API (retry configured)\n- SendRetryResult: Submits successful retry data\n\n## Key Configurations\n- GetUnreliableData has Retry On Fail enabled (5 tries, 1000ms wait)\n\n## Dependencies\n- Requires: n8n Academy API Key credential\n\nPart of: n8n Foundations Program, N8N103 Course - Section 2",
         "height": 496,
         "width": 496
       },
