@@ -1,0 +1,183 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "31e4acdf-fb67-4b19-b55b-d961d5905c82",
+      "name": "Run offline practice",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"practice_contract\": \"c07-editor-practice-v1\",\n  \"practice_only\": true,\n  \"timer\": \"none\",\n  \"instruction\": \"Keep in-stock supplies. Report available_skus and available_quantity. This is not a ranked assignment.\",\n  \"practice_items\": [\n    {\n      \"sku\": \"SAMPLE-BOX-S\",\n      \"label\": \"Small boxes\",\n      \"in_stock\": true,\n      \"quantity\": 12\n    },\n    {\n      \"sku\": \"SAMPLE-TAPE\",\n      \"label\": \"Paper tape\",\n      \"in_stock\": true,\n      \"quantity\": 4\n    },\n    {\n      \"sku\": \"SAMPLE-LABEL\",\n      \"label\": \"Labels\",\n      \"in_stock\": false,\n      \"quantity\": 0\n    },\n    {\n      \"sku\": \"SAMPLE-WRAP\",\n      \"label\": \"Packing paper\",\n      \"in_stock\": true,\n      \"quantity\": 10\n    },\n    {\n      \"sku\": \"SAMPLE-ENV\",\n      \"label\": \"Envelopes\",\n      \"in_stock\": false,\n      \"quantity\": 0\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "0c6d64a0-27e9-4103-92a5-db54b2440d56",
+      "name": "Practice supplies",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -96,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "practice_items",
+        "options": {}
+      },
+      "id": "1adf3242-d5d6-44e1-8faf-56b0d23116ff",
+      "name": "Split practice supplies",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        176,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Offline editor practice\nRun this path to get five fictional supplies. No login, HTTP request or participant key is needed. It cannot start the ranked clock.\n\nExercise: keep in_stock = true. Count the remaining SKUs and sum quantity. Build your own native nodes after Split practice supplies.\n\nExpected practice outputs: **available_skus = 3**, **available_quantity = 26**.\n\nThis file supplies setup and sample input, not a completed calculation.",
+        "height": 600,
+        "width": 776,
+        "color": 5
+      },
+      "id": "84ef5dd7-9687-4a5e-b9a4-94f0eb7c8414",
+      "name": "Offline practice guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Separate from ranked C07\nThis stock exercise has different fields, values and rules. It has no parcel history, scan order, desk or personal variant. Practice values are not ranked answers.\n\nWhen ready, use the separate ranked starter. Its /data request issues your personal assignment and starts the original timer.\n\nNative setup can be reused, but this practice file contains no ranked selection or aggregation solution. Different data cannot guarantee that a general workflow is impossible to copy.",
+        "height": 600,
+        "width": 640,
+        "color": 6
+      },
+      "id": "06e8dd53-9f41-4997-902f-c90a0ccd1504",
+      "name": "Practice boundary",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "beb8c3e5-b77a-49d7-aa96-00486a0bdd1d",
+              "leftValue": "={{ $json.in_stock }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        400,
+        192
+      ],
+      "id": "37ea6a07-aee6-46a7-8e54-2ae2266f0399",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "sku"
+            },
+            {
+              "aggregation": "sum",
+              "field": "quantity"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        96
+      ],
+      "id": "8db614c5-54e6-409f-9624-74feb50fd613",
+      "name": "Summarize"
+    }
+  ],
+  "connections": {
+    "Run offline practice": {
+      "main": [
+        [
+          {
+            "node": "Practice supplies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Practice supplies": {
+      "main": [
+        [
+          {
+            "node": "Split practice supplies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split practice supplies": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
