@@ -1,0 +1,421 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1c35f059-6b88-4d1c-be60-90d0d57eec15",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c08-public-username",
+              "name": "username",
+              "value": "kjooleng",
+              "type": "string"
+            },
+            {
+              "id": "c08-public-key",
+              "name": "participantKey",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3f53fa10-c659-4abf-a48f-1db738085262",
+      "name": "My settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://marketing.app.n8n.cloud/webhook/cwc/challenge-08/data",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $json.username }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $json.participantKey }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "f0b990be-58e9-4987-bbbf-286e24b3acbe",
+      "name": "Fetch my products",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -64,
+        656
+      ],
+      "notesInFlow": false,
+      "notes": "The first successful personal data request starts your original timer. Re-fetching returns your saved assignment and original start. No HTTP Basic Auth credential is required."
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "assignment.items",
+        "options": {}
+      },
+      "id": "e09911b3-400e-4c22-bc18-b03f61167a1a",
+      "name": "Split products",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        224,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# The Restock Desk\n**Challenge 08 | Season 3**\n\nFetch eight personal products, then build your own restock calculation with native n8n nodes. This starter prepares the data. It does not contain the completed solution.\n\n## Before you start\n1. Read the task and deadline on the website.\n2. Have your community username and current participant key ready.\n3. Import this starter and prepare your workspace before fetching data.\n\n**Reading, importing and connecting are untimed. Your first personal data fetch starts the clock.**\n\n## Useful links\n- [Read the challenge](https://marketing.app.n8n.cloud/webhook/cwc/site)\n- [Full rules and FAQ](https://marketing.app.n8n.cloud/webhook/cwc/site?view=faq)\n- [Create an account](https://marketing.app.n8n.cloud/webhook/cwc/site?view=register)\n- [Recover a participant key](https://marketing.app.n8n.cloud/webhook/cwc/site?view=reset)",
+        "height": 704,
+        "width": 576,
+        "color": 6
+      },
+      "id": "18be4e24-355f-4337-9e38-85eb48ea5892",
+      "name": "Read first: C08 and useful links",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# 1. Fetch your personal data\n\n## Configure My settings\n- **username:** your community username.\n- **participantKey:** your current private key.\n\nRun **Start** after both fields are filled. **Fetch my products** makes the personal data request. **Split products** turns the eight products into separate items.\n\n## Why one HTTP request?\nBoth answers come from the **same packet**. You calculate them inside your workflow. There is no separate Question 1 or Question 2 endpoint.\n\n## Access and timing\nThe data endpoint opens with Challenge 08. Before opening, a refused request is expected. Check the [challenge status](https://marketing.app.n8n.cloud/webhook/cwc/site); do not add organiser credentials.\n\nAfter opening, your username and participant key are sufficient. The first successful personal data issue starts your timer. Fetching again keeps the same assignment and original start.",
+        "height": 704,
+        "width": 576,
+        "color": 5
+      },
+      "id": "ad8bb52c-c14b-481f-ba55-2cdcd3ffebc9",
+      "name": "1. Set up and fetch your products",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# 2. Build your calculation\nContinue after **Split products**. Read the field-name mapping in your assignment: participants can receive different stock, incoming and target field names.\n\n## Apply the task rules\n1. Keep products where **enabled is true**.\n2. Calculate **target minus stock minus incoming**.\n3. Keep only positive shortfalls.\n4. Count the qualifying products and add their shortfalls.\n\n## Produce two whole-number answers\n- **items_to_restock:** the number of qualifying products.\n- **total_units_to_order:** their total units to order.\n\nEquality, surplus and disabled products contribute nothing. If nothing qualifies, both answers are **0**.\n\nUse native nodes and your own reasoning. AI assistance and Code, Function or Function Item nodes are not allowed, including disabled or disconnected copies.\n\n[Read the complete task and worked example](https://marketing.app.n8n.cloud/webhook/cwc/site) | [Rules and FAQ](https://marketing.app.n8n.cloud/webhook/cwc/site?view=faq)",
+        "height": 704,
+        "width": 736,
+        "color": 4
+      },
+      "id": "6b0cfb40-3f63-4dc9-9603-38936a2ca751",
+      "name": "2. Build the restock calculation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        624,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# 3. Export and submit\n\n## Make a clean copy\nKeep your working original. In the copy you will upload:\n1. Clear **participantKey** in **My settings**.\n2. Remove any passwords or credential references.\n3. Remove pinned data and saved execution data.\n4. Export the cleaned workflow as JSON.\n\n## Submit on the website\n[Open the submission page](https://marketing.app.n8n.cloud/webhook/cwc/site?view=submit)\n\nEnter **items_to_restock** and **total_units_to_order**, choose the clean JSON file and confirm the declarations. An explanation is optional, up to 2,000 characters.\n\nNo submission HTTP node is needed in this starter. The website receives your answers and uploaded workflow together.\n\nCorrect eligible entries are accepted automatically. The first accepted final is immutable. Keep your receipt.\n\nIf a response is lost, [check My result](https://marketing.app.n8n.cloud/webhook/cwc/site?view=status) before creating a different final request.",
+        "height": 736,
+        "width": 576,
+        "color": 3
+      },
+      "id": "f22a6305-9c36-46ea-baa0-308d29c23924",
+      "name": "3. Clean the export and submit",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        912
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# Timing, results and help\n\n## Your clock\nReading and importing this starter do not start a run. The first personal data issue starts it. Refetching does not reset it. A correct accepted final is required to finish.\n\nThe [FAQ](https://marketing.app.n8n.cloud/webhook/cwc/site?view=faq) explains the server timing breakdown, retries and rankings.\n\n## Check your result\n- [My result and saved receipt](https://marketing.app.n8n.cloud/webhook/cwc/site?view=status)\n- [Weekly leaderboard](https://marketing.app.n8n.cloud/webhook/cwc/site?view=results&scope=week)\n- [Season 3 leaderboard](https://marketing.app.n8n.cloud/webhook/cwc/site?view=results&scope=season)\n\nRankings use elapsed completion time. Weekly bonuses are provisional while participation is open.\n\n## If something is unclear\n- Check the website's current participation status and deadline.\n- For a key problem, [recover your current key](https://marketing.app.n8n.cloud/webhook/cwc/site?view=reset).\n- For an error, keep the reference shown on screen.\n- [Questions and announcements](https://marketing.app.n8n.cloud/webhook/cwc/site?view=community)\n\nKeep your participant key and full solution private.",
+        "height": 736,
+        "width": 576,
+        "color": 2
+      },
+      "id": "e5a7fd2b-ede4-475d-8605-101a48d8415c",
+      "name": "Timing, results and troubleshooting",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        912
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "f7c4a48d-bb38-4573-b7b5-505c51e34043",
+              "leftValue": "={{ $json.enabled }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        464,
+        656
+      ],
+      "id": "457315f7-f609-4cf4-89c8-46e93b8ca3b8",
+      "name": "FilterEnable"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "35189bf4-7fa5-4a45-b3e1-0d51dbbc35f2",
+              "name": "total_units_to_order",
+              "value": "={{ $json.goal_units - $json.on_hand_units - $json.due_units}}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        688,
+        656
+      ],
+      "id": "0a938b65-e009-4b35-9963-1af898e4a1c0",
+      "name": "UnitsToOrder"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "f60443f8-8bb2-46b0-8f22-7fec38bf776e",
+              "leftValue": "={{ $json.total_units_to_order }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        912,
+        656
+      ],
+      "id": "f2286dcc-cbeb-48b8-8dd2-6489b65c2e87",
+      "name": "FilterPositiveShortfall",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "product"
+            },
+            {
+              "aggregation": "sum",
+              "field": "total_units_to_order"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        1136,
+        656
+      ],
+      "id": "e92521b7-4dd7-409b-a24d-2834d47a7565",
+      "name": "GetInfo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1d68758d-d502-4e58-9a6a-b948c9db1372",
+              "name": "items_to_restock",
+              "value": "={{ $json.count_product }}",
+              "type": "number"
+            },
+            {
+              "id": "272d26eb-06d0-4eb0-8647-3ca829534f0e",
+              "name": "total_units_to_order",
+              "value": "={{ $json.sum_total_units_to_order }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1360,
+        656
+      ],
+      "id": "26c558a9-4b9e-4d37-aef3-b30c3aba7699",
+      "name": "Edit Fields1"
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "My settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "My settings": {
+      "main": [
+        [
+          {
+            "node": "Fetch my products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch my products": {
+      "main": [
+        [
+          {
+            "node": "Split products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split products": {
+      "main": [
+        [
+          {
+            "node": "FilterEnable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FilterEnable": {
+      "main": [
+        [
+          {
+            "node": "UnitsToOrder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UnitsToOrder": {
+      "main": [
+        [
+          {
+            "node": "FilterPositiveShortfall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FilterPositiveShortfall": {
+      "main": [
+        [
+          {
+            "node": "GetInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetInfo": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
