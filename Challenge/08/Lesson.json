@@ -1,0 +1,298 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -16
+      ],
+      "id": "c99558c2-5d79-4c53-a54b-16d4efba24bd",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f90e831c-9bcf-4a85-ac1b-8f09ee657399",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -256,
+        -16
+      ],
+      "id": "41c47e73-1e4f-4dbc-804f-0f526007eb43",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "f7c4a48d-bb38-4573-b7b5-505c51e34043",
+              "leftValue": "={{ $json.enabled }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        -32,
+        -16
+      ],
+      "id": "f4867056-35a5-4f6b-a406-d4bfd14cc4d1",
+      "name": "FilterEnable"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "35189bf4-7fa5-4a45-b3e1-0d51dbbc35f2",
+              "name": "total_units_to_order",
+              "value": "={{ $json.target -$json.stock - $json.incoming }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        192,
+        -16
+      ],
+      "id": "e78ee2e2-e94d-47ca-80f2-315b2330e5e1",
+      "name": "UnitsToOrder"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "f60443f8-8bb2-46b0-8f22-7fec38bf776e",
+              "leftValue": "={{ $json.total_units_to_order }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        416,
+        -16
+      ],
+      "id": "84065884-9ad7-419a-b59a-1a46fc0b9758",
+      "name": "FilterPositiveShortfall"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "product"
+            },
+            {
+              "aggregation": "sum",
+              "field": "total_units_to_order"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        -16
+      ],
+      "id": "8dfb970c-0d61-4865-b9f3-144c87130ab1",
+      "name": "GetInfo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1d68758d-d502-4e58-9a6a-b948c9db1372",
+              "name": "items_to_restock",
+              "value": "={{ $json.count_product }}",
+              "type": "number"
+            },
+            {
+              "id": "272d26eb-06d0-4eb0-8647-3ca829534f0e",
+              "name": "total_units_to_order",
+              "value": "={{ $json.sum_total_units_to_order }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        864,
+        -16
+      ],
+      "id": "0046df63-0632-4759-a1b5-7dfe3c27a7ad",
+      "name": "Edit Fields1"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "FilterEnable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FilterEnable": {
+      "main": [
+        [
+          {
+            "node": "UnitsToOrder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UnitsToOrder": {
+      "main": [
+        [
+          {
+            "node": "FilterPositiveShortfall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FilterPositiveShortfall": {
+      "main": [
+        [
+          {
+            "node": "GetInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetInfo": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Edit Fields": [
+      {
+        "product": "EXAMPLE-A1",
+        "enabled": true,
+        "stock": 4,
+        "incoming": 3,
+        "target": 12
+      },
+      {
+        "product": "EXAMPLE-A2",
+        "enabled": true,
+        "stock": 8,
+        "incoming": 2,
+        "target": 10
+      },
+      {
+        "product": "EXAMPLE-A3",
+        "enabled": false,
+        "stock": 1,
+        "incoming": 0,
+        "target": 20
+      },
+      {
+        "product": "EXAMPLE-A4",
+        "enabled": true,
+        "stock": 14,
+        "incoming": 1,
+        "target": 12
+      },
+      {
+        "product": "EXAMPLE-A5",
+        "enabled": true,
+        "stock": 0,
+        "incoming": 2,
+        "target": 12
+      },
+      {
+        "product": "EXAMPLE-A6",
+        "enabled": false,
+        "stock": 6,
+        "incoming": 2,
+        "target": 15
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
