@@ -85,7 +85,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const articles = $input.first().json.articles;\n\nconst lignes = articles.map((a, i) => {\n  const titre = (a.title || '')\n    .replace(/[^\\x20-\\x7E]/g, '')\n    .replace(/[\"\\\\]/g, '')\n    .replace(/:/g, '-')\n    .substring(0, 70)\n    .trim();\n  const lien = (a.link || '').trim();\n  return (i + 1) + '. ' + titre + ' >>> ' + lien;\n});\n\nconst texte = lignes.join(' ||| ');\n\nreturn [{ json: { texte, count: articles.length } }];"
+        "jsCode": "const articles = $input.first().json.articles;\n\nconst lignes = articles.map((a, i) => {\n  const titre = (a.title || '')\n    .replace(/[^\\x20-\\x7E]/g, '')\n    .replace(/[\"\\\\]/g, '')\n    .replace(/:/g, '-')\n    //.substring(0, 70)\n    .trim();\n  const lien = (a.link || '').trim();\n  const content = (a.output || '').trim();\n  return (i + 1) + '. ' + titre + ' >>> ' + lien  + ' >>> ' + content;\n});\n\nconst texte = lignes.join(' ||| ');\n\nreturn [{ json: { texte, count: articles.length } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -497,7 +497,11 @@
         384
       ],
       "id": "b9d62a33-3fb8-4652-a995-f44a3edee6f6",
-      "name": "AI Agent1"
+      "name": "AI Agent1",
+      "alwaysOutputData": false,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 5
     },
     {
       "parameters": {
@@ -589,21 +593,27 @@
               "type": "string"
             },
             {
-              "id": "35996b07-6f3d-4c8f-8a0c-bb9fd4e4f2e2",
+              "id": "53d6f525-7c8f-47ee-89ae-10b5704dd920",
               "name": "output",
               "value": "={{ $json.output }}",
               "type": "string"
             },
             {
-              "id": "53d6f525-7c8f-47ee-89ae-10b5704dd920",
+              "id": "d17666bd-0ca9-4213-b42a-65f799000c52",
               "name": "guid",
-              "value": "={{ $json.guid }}",
+              "value": "={{ $json.guid }}\n",
               "type": "string"
             },
             {
-              "id": "d17666bd-0ca9-4213-b42a-65f799000c52",
+              "id": "b4e33623-e5c1-4b2c-9e4a-1fe4e1bfdd24",
               "name": "isoDate",
               "value": "={{ $json.isoDate }}",
+              "type": "string"
+            },
+            {
+              "id": "50bf5cee-529b-4e56-bcfb-bf3d17190dbf",
+              "name": "",
+              "value": "",
               "type": "string"
             }
           ]
@@ -951,7 +961,23 @@
       ]
     }
   },
-  "pinData": {},
+  "pinData": {
+    "Schedule Trigger (Daily 0910AM SGT)": [
+      {
+        "timestamp": "2026-11-03T07:10:13.012+08:00",
+        "Readable date": "November 3rd 2026, 7:10:13 am",
+        "Readable time": "7:10:13 am",
+        "Day of week": "Tuesday",
+        "Year": "2026",
+        "Month": "November",
+        "Day of month": "03",
+        "Hour": "07",
+        "Minute": "10",
+        "Second": "13",
+        "Timezone": "Asia/Singapore (UTC+08:00)"
+      }
+    ]
+  },
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
