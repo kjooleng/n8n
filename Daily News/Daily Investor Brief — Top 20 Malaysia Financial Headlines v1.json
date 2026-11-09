@@ -1,0 +1,848 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        -112
+      ],
+      "id": "5df7d3b0-5fc6-4e39-a88f-541c2d1b25a2",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://www.malaymail.com/feed/rss/malaysia",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        112,
+        -112
+      ],
+      "id": "9782e131-fea6-40ce-be96-77cb04a5f6ae",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "url": "https://www.malaymail.com/feed/rss/money",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        112,
+        80
+      ],
+      "id": "ba66a689-b4cc-4ab8-9b73-ce4c1bf0232b",
+      "name": "RSS Read1"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        416,
+        64
+      ],
+      "id": "e106be04-977b-4cea-8582-8b3455125711",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f81c1fd6-f405-4c89-8e40-c61d535d20b3",
+              "leftValue": "={{ new Date($json.isoDate).getTime() }}",
+              "rightValue": "={{ $now.minus(1, 'days').toMillis() }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        592,
+        80
+      ],
+      "id": "e46263d2-4162-4717-876c-32761f5d305b",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "jsCode": "const articles = $input.first().json.articles;\n\nconst lignes = articles.map((a, i) => {\n  const titre = (a.title || '')\n    .replace(/[^\\x20-\\x7E]/g, '')\n    .replace(/[\"\\\\]/g, '')\n    .replace(/:/g, '-')\n    //.substring(0, 70)\n    .trim();\n  const lien = (a.link || '').trim();\n  const content = (a.output || '').trim();\n  return (i + 1) + '. ' + titre + ' >>> ' + lien  + ' >>> ' + content;\n});\n\nconst texte = lignes.join(' ||| ');\n\nreturn [{ json: { texte, count: articles.length } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        80
+      ],
+      "id": "aae2c56a-b758-4b63-8157-8084788b069a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "maxItems": 60
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        752,
+        80
+      ],
+      "id": "c24d8e4b-0fc9-4a9a-b541-a3f76c888fbf",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "articles",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        80
+      ],
+      "id": "30715886-2bab-4e79-b793-3ed697d253a5",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Today:{{ $today.toFormat('dd-MMM-yyyy') }}\nLatest news:{{ $json.texte }}\n ",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "You are a **Daily Investor News Analyst**.\nYour role is to generate the **top 20 most important financial and economic news headlines\nfrom the past 24 hours**, focusing on developments that directly or indirectly impact the\n**Malaysia**  economy, stock market, currency, or investor sentiment.\nYour output will serve as a professional daily brief for fund managers, analysts, financial\ncontent creators, and investor communities.\n\n---\n### 🔑 Core Instructions\n\n1. **News Scope & Coverage**\n* Prioritise **Malaysia** market developments.\n* Include **international stories** (e.g. China, Singapore, Japan, Europe, OPEC, Fed, or global tech/AI) **only if** they have material implications for Malaysia market,\ntrade, or monetary policy.\n* Exclude minor local stories or human-interest pieces **unless** they have clear market or economic significance.\n\n2. **Investor Relevance**\n* Prioritise headlines that affect:\n* Monetary policy (Fed, MAS)\n* Inflation and interest rate expectations\n* Corporate earnings and equity valuations\n* Trade flows and commodities\n* AI/tech sector developments\n* Geopolitical risks and capital movement\n* Always explain how each item could **influence Malaysia market or\ninvestor sentiment**.\n\n---\n### 📈 Output Format (for each of the 20 items)\n**1⃣ Headline**\nShort, factual, and impactful title of the news item.\n**2⃣ Core Thesis**\nA concise paragraph summarising the event and explaining its relevance to Malaysia investors.\n**3⃣ Key Insights**\n2–4 bullet points highlighting financial or economic implications.\n**4⃣ Key Definitions**\nDefine any financial, economic, or technical terms used (e.g. CPI, GDP, PMI, Fed Funds Rate).\n**5⃣ Direct Statements & Statistics**\nInclude notable quotes, figures, or data points from official sources or the cited article.\n**6⃣ Macro Linkages**\nExplain how the news connects to broader macro themes such as inflation, interest rates,\ntrade, commodities, AI/tech, or geopolitics — and its likely market impact.\n**7⃣ Source URL**\nInclude the original article link (from reputable sources only).\n\n---\n\n### 🧭 Example Output Structure (Abbreviated)\n**Headline:**\nFed officials signal caution on rate cuts amid resilient U.S. labour data\n**Core Thesis:**\nThe Federal Reserve hinted at maintaining higher interest rates longer after October’s jobs\nreport showed sustained hiring, dampening hopes of near-term monetary easing.\n**Key Insights:**\n* Non-farm payrolls rose by 180k vs. 150k expected.\n* Unemployment rate steady at 3.9%.\n* Fed funds futures now pricing <20% chance of December cut.\n**Key Definitions:**\n*Fed Funds Rate* – The target interest rate range set by the Federal Reserve that influences\nborrowing costs across the U.S. economy.\n**Direct Statements & Statistics:**\n“Inflation remains above our target, and we must stay the course,” – Fed Chair Jerome\nPowell.\n**Macro Linkages:**\nHigher-for-longer rates could dampen equity valuations in U.S. tech and moderate risk\nappetite in Singapore’s bond markets.\n**Source URL:**\n[https://www.reuters.com/markets/us-fed-policy-oct-2025](https://www.reuters.com/markets/u\ns-fed-policy-oct-2025)\n\n---\n\n### 🧩 Notes\n* Always generate **20 complete items** in one output.\n* Present the content as a **professional daily investor brief**, ready for inclusion in research\nnotes or LinkedIn/YouTube commentary.\n* Prioritise **accuracy, data integrity, and clarity** over verbosity.\n* Emphasise **Malaysia-U.S. or Malaysia-Singaporeeconomic interlinkages** — trade, policy, capital flows, and\nsector trends."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1488,
+        80
+      ],
+      "id": "f4c81046-980b-42e5-b859-1625967cc939",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sendTo": "Receiver Email",
+        "subject": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 20 Malaysia Financial Headlines",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false,
+          "bccList": "Receiver Email"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1888,
+        -96
+      ],
+      "id": "1cc26a8f-30ef-4a20-8578-39ec3cfca833",
+      "name": "Send Daily Brief via Gmail",
+      "webhookId": "f1741971-d720-43a1-af70-f00bbce8a03b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U4v1W1uZ3ABwcgps",
+          "name": "Sender Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-output-length",
+              "leftValue": "={{ $json.output.length() }}",
+              "rightValue": 2000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1824,
+        192
+      ],
+      "id": "f7bf160a-79ae-4971-9a70-e8e7952e3ce8",
+      "name": "Output > 2000 chars?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recursive Text Splitter for Notion page blocks\nconst CHUNK_SIZE = 1900;\nconst SEPARATORS = ['\\n\\n', '\\n', '. ', ' '];\n\nconst inputText = $input.first().json.output || '';\n\nfunction splitText(text, separators, chunkSize) {\n  if (text.length <= chunkSize) return [text];\n  const results = [];\n  let remaining = text;\n  while (remaining.length > chunkSize) {\n    let splitAt = -1;\n    for (const sep of separators) {\n      const idx = remaining.lastIndexOf(sep, chunkSize);\n      if (idx > 0) { splitAt = idx + sep.length; break; }\n    }\n    if (splitAt <= 0) splitAt = chunkSize;\n    results.push(remaining.slice(0, splitAt));\n    remaining = remaining.slice(splitAt);\n  }\n  if (remaining.length > 0) results.push(remaining);\n  return results;\n}\n\nconst chunks = splitText(inputText, SEPARATORS, CHUNK_SIZE);\nreturn chunks.map((chunk, index) => ({\n  json: {\n    chunkIndex: index + 1,\n    totalChunks: chunks.length,\n    text: chunk.trim(),\n    firstBlock: index === 0\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2096,
+        176
+      ],
+      "id": "806b484b-9eb9-4a37-892d-454adc74d767",
+      "name": "Recursive Text Splitter"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-first-block",
+              "leftValue": "={{ $json.firstBlock }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2320,
+        176
+      ],
+      "id": "17779d34-5f14-4bce-8520-d0bad14bdced",
+      "name": "Is First Block?"
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "34e30e12316d80cf90b8d6154984128c",
+          "mode": "id"
+        },
+        "title": "={{ $today.toFormat('dd-MMM-yyyy') }} | Daily Investor Brief — Top 20 Malaysia Financial Headlines",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2528,
+        48
+      ],
+      "id": "04f144e3-7bf4-46a4-8dd3-aa458bd98ed5",
+      "name": "Create Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "iTRjDS4HWnXmTg8a",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-url",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2736,
+        48
+      ],
+      "id": "303f6087-2798-4494-bead-f9f6dd2397db",
+      "name": "Store Page URL"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2784,
+        368
+      ],
+      "id": "d9228479-183f-451b-b5e9-637e616958ec",
+      "name": "Merge Chunks"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $json.url }}",
+          "mode": "url"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2960,
+        368
+      ],
+      "id": "b3eb3e89-3296-4ec4-b082-25e318b48b90",
+      "name": "Append Block to Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "iTRjDS4HWnXmTg8a",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "34e30e12316d80cf90b8d6154984128c",
+          "mode": "id"
+        },
+        "title": "={{ $today.toFormat('dd-MMM-yyyy') }} | Daily Investor Brief — Top 20 Malaysia Financial Headlines",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2144,
+        -80
+      ],
+      "id": "47cd9d74-1dc5-4d3b-b117-48aa23417180",
+      "name": "Create Notion Page (Short Output)",
+      "credentials": {
+        "notionApi": {
+          "id": "iTRjDS4HWnXmTg8a",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.malaymail.com/feed/rss/world",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        112,
+        272
+      ],
+      "id": "11d0eef6-3fb4-46f7-9cb0-6ce06b736779",
+      "name": "RSS Read2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0
+              ],
+              "triggerAtHour": 7,
+              "triggerAtMinute": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -112,
+        272
+      ],
+      "id": "eab22d76-8cbf-4b0a-94fe-2c4fdd6f6d3d",
+      "name": "Schedule Trigger (Daily 0920AM SGT)"
+    },
+    {
+      "parameters": {
+        "chatId": "725170628",
+        "text": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 20 Malaysia Financial Headlines \nRead here \n{{ $('Store Page URL').item.json.url }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3056,
+        48
+      ],
+      "id": "9414db31-cf98-4a0a-8a25-1312a845f51c",
+      "name": "Send a text message",
+      "webhookId": "2b9f6321-632d-450f-bd7f-8381570bb14a",
+      "credentials": {
+        "telegramApi": {
+          "id": "6CRaMZ1moVJREQ2J",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gemini-3.5-flash-lite2",
+          "mode": "list",
+          "cachedResultName": "gemini-3.5-flash-lite2"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1360,
+        416
+      ],
+      "id": "8e087782-eeaa-40c7-b8c0-d87e5888ed92",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "hWi7swKVPh1dLEZq",
+          "name": "LLM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gemini-3.6-flash2",
+          "mode": "list",
+          "cachedResultName": "gemini-3.6-flash2"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1536,
+        416
+      ],
+      "id": "aa2773d4-837f-4b9a-868e-011ff4ddb606",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "hWi7swKVPh1dLEZq",
+          "name": "LLM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eaf28614-10f4-4bb3-84c5-a1473b8b45e5",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "d914ea58-f237-441a-be61-a89ffeee5422",
+              "name": "link",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            },
+            {
+              "id": "7dc11ffa-53c2-4087-9e84-6ce1f0f4ecbb",
+              "name": "pubDate",
+              "value": "={{ $json.pubDate }}",
+              "type": "string"
+            },
+            {
+              "id": "35996b07-6f3d-4c8f-8a0c-bb9fd4e4f2e2",
+              "name": "output",
+              "value": "={{ $json['content:encoded'] }}",
+              "type": "string"
+            },
+            {
+              "id": "53d6f525-7c8f-47ee-89ae-10b5704dd920",
+              "name": "guid",
+              "value": "={{ $json.guid }}",
+              "type": "string"
+            },
+            {
+              "id": "d17666bd-0ca9-4213-b42a-65f799000c52",
+              "name": "isoDate",
+              "value": "={{ $json.isoDate }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        944,
+        80
+      ],
+      "id": "4de1e7ab-3126-4c79-8ed2-0e58cc6ae316",
+      "name": "Edit Fields"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Brief via Gmail",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Output > 2000 chars?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output > 2000 chars?": {
+      "main": [
+        [
+          {
+            "node": "Recursive Text Splitter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Notion Page (Short Output)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Text Splitter": {
+      "main": [
+        [
+          {
+            "node": "Is First Block?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is First Block?": {
+      "main": [
+        [
+          {
+            "node": "Create Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create Notion Page": {
+      "main": [
+        [
+          {
+            "node": "Store Page URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Page URL": {
+      "main": [
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Chunks": {
+      "main": [
+        [
+          {
+            "node": "Append Block to Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger (Daily 0920AM SGT)": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Schedule Trigger (Daily 0920AM SGT)": [
+      {
+        "timestamp": "2026-11-09T07:20:12.000+08:00",
+        "Readable date": "November 9th 2026, 7:20:12 am",
+        "Readable time": "7:20:12 am",
+        "Day of week": "Monday",
+        "Year": "2026",
+        "Month": "November",
+        "Day of month": "09",
+        "Hour": "07",
+        "Minute": "20",
+        "Second": "12",
+        "Timezone": "Asia/Singapore (UTC+08:00)"
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
