@@ -8,7 +8,7 @@
       "typeVersion": 1,
       "position": [
         -608,
-        352
+        336
       ]
     },
     {
@@ -36,8 +36,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        -448,
-        352
+        -384,
+        336
       ],
       "notes": "Enter your community username and current participant key in these two empty fields. The HTTP node checks them locally before sending a request. Clear the key in your upload copy."
     },
@@ -85,8 +85,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        -304,
-        352
+        -160,
+        336
       ],
       "retryOnFail": false,
       "notes": "One permanent GET returns both personal lists. The first successful personal issuance starts your clock. Empty or placeholder account fields stop locally. Before C09 opens this endpoint stays protected; never add organiser credentials."
@@ -101,7 +101,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1.1,
       "position": [
-        -128,
+        288,
         240
       ],
       "notes": "Each output item is one invoice. Continue with your own native nodes."
@@ -116,8 +116,8 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1.1,
       "position": [
-        -144,
-        528
+        64,
+        432
       ],
       "notes": "Each output item is one payment. Continue with your own native nodes."
     },
@@ -253,8 +253,8 @@
               }
             },
             {
-              "id": "dd4bbe6d-e8fa-4bf4-8870-f0458706b47d",
-              "leftValue": "",
+              "id": "594c6be4-b9fc-446a-9b2a-4170659d5480",
+              "leftValue": "={{ $json.total_cents }}",
               "rightValue": 0,
               "operator": {
                 "type": "number",
@@ -269,7 +269,7 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.4,
       "position": [
-        16,
+        512,
         240
       ],
       "id": "0fd7f499-00b5-4cf0-9c41-4e457a552671",
@@ -302,8 +302,8 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.4,
       "position": [
-        32,
-        528
+        288,
+        432
       ],
       "id": "fcb75415-5a23-4489-98ab-123b75b58ce7",
       "name": "Filter1"
@@ -324,8 +324,8 @@
       "type": "n8n-nodes-base.summarize",
       "typeVersion": 1.1,
       "position": [
-        192,
-        528
+        512,
+        432
       ],
       "id": "711064aa-90c8-423e-b91e-68291bf0c268",
       "name": "Summarize"
@@ -340,8 +340,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        208,
-        256
+        736,
+        336
       ],
       "id": "822bd069-90c7-40f2-9797-47c538316719",
       "name": "Merge"
@@ -373,8 +373,8 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.4,
       "position": [
-        352,
-        256
+        960,
+        336
       ],
       "id": "8067fb22-9f2b-404b-b7af-40fc47637c6c",
       "name": "Filter2"
@@ -397,8 +397,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        496,
-        256
+        1184,
+        336
       ],
       "id": "1742dc2e-4290-4976-8d47-605c0a705ff4",
       "name": "Edit Fields"
@@ -421,8 +421,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        688,
-        352
+        1408,
+        336
       ],
       "id": "9566ebe0-bc7d-4ff7-948d-e05ca1414556",
       "name": "Edit Fields1"
@@ -454,8 +454,8 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.4,
       "position": [
-        400,
-        576
+        1632,
+        336
       ],
       "id": "bda1bff8-e7df-49be-8045-cdc323016c54",
       "name": "Filter3"
@@ -478,8 +478,8 @@
       "type": "n8n-nodes-base.summarize",
       "typeVersion": 1.1,
       "position": [
-        560,
-        672
+        1856,
+        336
       ],
       "id": "5a4ccb75-8d56-4812-835a-5a88825b3a09",
       "name": "Summarize1"
@@ -507,8 +507,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        784,
-        672
+        2080,
+        336
       ],
       "id": "ee12fb51-1f12-466f-822c-23912caf3705",
       "name": "Edit Fields2"
