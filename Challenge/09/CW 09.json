@@ -1,0 +1,682 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "7c8eef8d-a315-476c-85ba-2b41a3408452",
+      "name": "Start here",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c09-user",
+              "name": "username",
+              "value": "kjooleng",
+              "type": "string"
+            },
+            {
+              "id": "c09-key",
+              "name": "participantKey",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e27cc501-2bc6-48cd-8b84-cee7e78412c6",
+      "name": "Your account",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -448,
+        352
+      ],
+      "notes": "Enter your community username and current participant key in these two empty fields. The HTTP node checks them locally before sending a request. Clear the key in your upload copy."
+    },
+    {
+      "parameters": {
+        "url": "={{ (function c09StarterDataUrl(settings) {\n  const username = typeof settings?.username === 'string' ? settings.username.trim().toLowerCase() : '';\n  const key = typeof settings?.participantKey === 'string' ? settings.participantKey.trim().toUpperCase() : '';\n  if (!/^[a-z0-9_.-]{2,40}$/.test(username)\n    || ['your_username', 'your_community_username', 'community_username'].includes(username)) {\n    return 'Open Your account and enter your community username without @ before running';\n  }\n  if (!key || key.length > 128 || ['YOUR_PARTICIPANT_KEY', 'YOUR_KEY', 'REPLACE_ME'].includes(key)) {\n    return 'Open Your account and enter your current participant key before running';\n  }\n  return 'https://marketing.app.n8n.cloud/webhook/cwc/challenge-09/data';\n})($json) }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $json.username.trim().toLowerCase() }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-participant-key",
+              "value": "={{ $json.participantKey.trim().toUpperCase() }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "ea10793c-f453-4ab9-8046-36f0ad241052",
+      "name": "Fetch invoices and payments",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -304,
+        352
+      ],
+      "retryOnFail": false,
+      "notes": "One permanent GET returns both personal lists. The first successful personal issuance starts your clock. Empty or placeholder account fields stop locally. Before C09 opens this endpoint stays protected; never add organiser credentials."
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "assignment.invoices",
+        "options": {}
+      },
+      "id": "aaa6996a-977e-4b78-8f55-063505261f9f",
+      "name": "Split invoices",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        -128,
+        240
+      ],
+      "notes": "Each output item is one invoice. Continue with your own native nodes."
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "assignment.payments",
+        "options": {}
+      },
+      "id": "3875162e-f1fa-48c2-badc-bc034baee076",
+      "name": "Split payments",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        -144,
+        528
+      ],
+      "notes": "Each output item is one payment. Continue with your own native nodes."
+    },
+    {
+      "parameters": {
+        "content": "# The Balance Check\n**Community Weekly Challenge 09 | Season 3**\n\nMatch payments to invoices. Work out how many active invoices still need payment and the total amount outstanding. Build the calculation yourself with native n8n nodes.\n\n## Your personal packet\n- **8 invoices**\n- **12 payments**\n- **2 final answers**\n\nThis starter fetches and splits the lists. It does not calculate the answers.\n\n[Read the challenge](https://marketing.app.n8n.cloud/webhook/cwc/site) · [Full FAQ](https://marketing.app.n8n.cloud/webhook/cwc/site?view=faq) · [Leaderboard](https://marketing.app.n8n.cloud/webhook/cwc/site?view=results)",
+        "height": 400,
+        "width": 896,
+        "color": 6
+      },
+      "id": "7bd7a2eb-26bd-40a0-8389-9c88a0233def",
+      "name": "The Balance Check",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        -368
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# 1. Enter your account, then run\nOpen **Your account** and fill the two empty fields:\n\n- `username`: your community username, without `@`\n- `participantKey`: your current weekly-challenge key\n\nThe empty starter stops locally before making a request. Once the fields are filled, click **Execute workflow**. One HTTP request returns both lists.\n\n**The first successful personal data issuance starts your clock.** Importing this file does not start it.\n\n[Create an account](https://marketing.app.n8n.cloud/webhook/cwc/site?view=register) · [Recover your key](https://marketing.app.n8n.cloud/webhook/cwc/site?view=reset)\n\nThe endpoint is permanent. It stays protected until C09 opens. Wait for opening; do not add organiser authentication.",
+        "height": 400,
+        "width": 1024,
+        "color": 5
+      },
+      "id": "0bb3d317-f1ec-448b-80ee-fdd71725ac67",
+      "name": "1. Connect your own account",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        272,
+        -368
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# Invoice lane\nContinue from **Split invoices**. Each item contains:\n\n- `invoice_id`: the exact match key\n- `status`: `active` or `cancelled`\n- `total_cents`: the original invoice amount\n\nAll invoices are still present. Add your own selection and calculation nodes.",
+        "height": 288,
+        "width": 640,
+        "color": 4
+      },
+      "id": "f3a041f5-c4ad-4590-be4e-0e8efbce8899",
+      "name": "Invoice lane",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        656,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# Payment lane\nContinue from **Split payments**. Each item contains:\n\n- `payment_id`: the payment reference\n- `invoice_id`: the invoice it belongs to\n- `status`: `posted` or `pending`\n- `amount_cents`: the payment amount\n\nNo payment has been filtered or grouped yet.",
+        "height": 288,
+        "width": 640,
+        "color": 4
+      },
+      "id": "15a10aa0-60a1-43b7-83f0-55db4adc385d",
+      "name": "Payment lane",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        656,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# 2. Build your calculation\n1. Use only **active** invoices. Ignore cancelled invoices.\n2. Add only **posted** payments for the exact same `invoice_id`. Ignore pending payments.\n3. Subtract that invoice's posted total from `total_cents`. No matching posted payments means zero paid.\n4. Keep a minimum outstanding balance of zero. Overpayment cannot pay another invoice.\n5. Count the positive balances and add those balances. Keep all amounts in whole cents.\n\n## Final answer fields\n- `unpaid_invoice_count`\n- `total_outstanding_cents`\n\nYour ranked packet has at least one unpaid active invoice. Individual balances can still be zero.\n\nNative Filter, Summarize, Merge and Edit Fields are useful choices. No calculation nodes or solved balance expressions are supplied.",
+        "height": 576,
+        "width": 608,
+        "color": 4
+      },
+      "id": "d034c711-6961-4657-910e-1a1dd54252f0",
+      "name": "2. Build the balance check",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# 3. Export and submit\nKeep your working original. Make a **separate clean copy** for upload.\n\n- Clear `participantKey` and any passwords or secret headers.\n- Remove credential references.\n- Remove pinned data and saved execution data.\n- Export the clean copy as workflow JSON.\n\n[Submit both answers and your clean JSON](https://marketing.app.n8n.cloud/webhook/cwc/site?view=submit). The website handles submission; a submission HTTP node is not needed here.\n\n## Participation rules\nBuild your own workflow without AI-generated or AI-assisted solving. Do not include Code, Function or Function Item nodes, even if disabled or disconnected.\n\nCorrect eligible submissions are accepted automatically. [Read the full rules and FAQ](https://marketing.app.n8n.cloud/webhook/cwc/site?view=faq).",
+        "height": 576,
+        "width": 640,
+        "color": 3
+      },
+      "id": "98956fc2-0b73-4412-9fe9-c21640cc0cfb",
+      "name": "3. Export a clean copy",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# Timing and retries\nYour first successful personal data issuance starts the clock. Re-fetching returns the same assignment and original start. A key reset does not restart the challenge.\n\nThe recorded complete final that is accepted sets the finish. Confirmation processing is shown separately.\n\nIf an upload or response is uncertain, check **My result** before creating another final. Keep the same request while its outcome is being confirmed.\n\n[My result](https://marketing.app.n8n.cloud/webhook/cwc/site?view=status) · [Submit](https://marketing.app.n8n.cloud/webhook/cwc/site?view=submit)\n\n[Full FAQ](https://marketing.app.n8n.cloud/webhook/cwc/site?view=faq) · [Leaderboard](https://marketing.app.n8n.cloud/webhook/cwc/site?view=results)\n\nKeep your participant key and complete solution private.",
+        "height": 576,
+        "width": 640,
+        "color": 2
+      },
+      "id": "b87c34fc-55c7-4eb6-acb8-4b8fcf178901",
+      "name": "Timing and saved results",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        656,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "e943d848-68a8-4a2a-9bdb-109f194e4493",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "active",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "dd4bbe6d-e8fa-4bf4-8870-f0458706b47d",
+              "leftValue": "",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        16,
+        240
+      ],
+      "id": "0fd7f499-00b5-4cf0-9c41-4e457a552671",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "b0c27e1d-146d-47de-96dc-4d5f2d5191cf",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "posted",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        32,
+        528
+      ],
+      "id": "fcb75415-5a23-4489-98ab-123b75b58ce7",
+      "name": "Filter1"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "sum",
+              "field": "amount_cents"
+            }
+          ]
+        },
+        "fieldsToSplitBy": "invoice_id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        528
+      ],
+      "id": "711064aa-90c8-423e-b91e-68291bf0c268",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "invoice_id",
+        "joinMode": "keepEverything",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        208,
+        256
+      ],
+      "id": "822bd069-90c7-40f2-9797-47c538316719",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "0e7fb748-14ca-4cef-9d7b-1d6948b66428",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "active",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        352,
+        256
+      ],
+      "id": "8067fb22-9f2b-404b-b7af-40fc47637c6c",
+      "name": "Filter2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0e293bc1-3560-4023-bcd2-5245e16dc9ac",
+              "name": "paid_amount",
+              "value": "={{ $json.sum_amount_cents ?? 0 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        496,
+        256
+      ],
+      "id": "1742dc2e-4290-4976-8d47-605c0a705ff4",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a7cdd196-1f91-437a-b57a-5d2bca7401e1",
+              "name": "outstanding",
+              "value": "={{ $json.total_cents - $json.paid_amount}}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        688,
+        352
+      ],
+      "id": "9566ebe0-bc7d-4ff7-948d-e05ca1414556",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "ba5ebaf7-e060-4ede-bef3-d4ec06b81aba",
+              "leftValue": "={{ $json.outstanding }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        400,
+        576
+      ],
+      "id": "bda1bff8-e7df-49be-8045-cdc323016c54",
+      "name": "Filter3"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "invoice_id"
+            },
+            {
+              "aggregation": "sum",
+              "field": "outstanding"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        672
+      ],
+      "id": "5a4ccb75-8d56-4812-835a-5a88825b3a09",
+      "name": "Summarize1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "916e9b8a-97be-4341-b341-dc23b463ef4e",
+              "name": "unpaid_invoice_count",
+              "value": "={{ $json.count_invoice_id }}",
+              "type": "number"
+            },
+            {
+              "id": "612879f4-606b-4236-8592-59448b3747fb",
+              "name": "total_outstanding_cents",
+              "value": "={{ $json.sum_outstanding }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        784,
+        672
+      ],
+      "id": "ee12fb51-1f12-466f-822c-23912caf3705",
+      "name": "Edit Fields2"
+    }
+  ],
+  "connections": {
+    "Start here": {
+      "main": [
+        [
+          {
+            "node": "Your account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Your account": {
+      "main": [
+        [
+          {
+            "node": "Fetch invoices and payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch invoices and payments": {
+      "main": [
+        [
+          {
+            "node": "Split invoices",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split invoices": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split payments": {
+      "main": [
+        [
+          {
+            "node": "Filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter1": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Filter2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Filter3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter3": {
+      "main": [
+        [
+          {
+            "node": "Summarize1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
