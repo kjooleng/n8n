@@ -77,8 +77,8 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.3,
       "position": [
-        736,
-        80
+        544,
+        64
       ],
       "id": "68333fa9-15c3-439d-853d-f5f98871cf0e",
       "name": "Filter"
@@ -90,7 +90,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        688,
+        544,
         336
       ],
       "id": "01a3f796-f116-48cb-ac49-d4c541f6bdf0",
@@ -103,8 +103,8 @@
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        912,
-        80
+        704,
+        64
       ],
       "id": "adf0a5e0-ea74-4aaa-bb1c-0713f7ab438c",
       "name": "Limit"
@@ -118,7 +118,7 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        528,
+        368,
         336
       ],
       "id": "d64b8910-bff2-4598-9e7c-78cd04c73fd1",
@@ -137,13 +137,14 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        864,
+        704,
         336
       ],
       "id": "8d35702b-a3e3-40c9-9959-1f645a7eb715",
       "name": "AI Agent",
       "retryOnFail": true,
-      "waitBetweenTries": 4000
+      "waitBetweenTries": 4000,
+      "maxTries": 4
     },
     {
       "parameters": {
@@ -159,8 +160,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        1168,
-        48
+        1264,
+        64
       ],
       "id": "d0cb6502-d109-4196-892b-22894c422977",
       "name": "Send Daily Brief via Gmail",
@@ -199,7 +200,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1232,
+        1072,
         336
       ],
       "id": "08964ea2-c1c5-4e85-aeb2-7294f6f13d9b",
@@ -376,8 +377,8 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        1408,
-        32
+        1504,
+        64
       ],
       "id": "f2c355eb-0aac-42f2-b45d-b0b603702f54",
       "name": "Create Notion Page (Short Output)",
@@ -449,25 +450,27 @@
       "parameters": {
         "model": {
           "__rl": true,
-          "value": "gemini-3.5-flash-lite1",
+          "value": "models/gemini-3.5-flash-lite",
           "mode": "list",
-          "cachedResultName": "gemini-3.5-flash-lite1"
+          "cachedResultName": "models/gemini-3.5-flash-lite"
         },
         "responsesApiEnabled": false,
-        "options": {}
+        "options": {
+          "maxRetries": 3
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        640,
-        560
+        336,
+        688
       ],
       "id": "541bbd37-a7b4-4a35-97df-af265e7f7a8b",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "hWi7swKVPh1dLEZq",
-          "name": "LLM"
+          "id": "ramCaZCWD6nsCWPn",
+          "name": "Gemini US News"
         }
       }
     },
@@ -573,7 +576,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        144,
+        -32,
         336
       ],
       "id": "a4dd0edb-22d5-49ad-9dc9-98c5a35f47c2",
@@ -632,7 +635,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        320,
+        176,
         336
       ],
       "id": "db96a324-9594-4e4b-acf5-ccf18e54c77d",
@@ -642,25 +645,27 @@
       "parameters": {
         "model": {
           "__rl": true,
-          "value": "gemini-3.7-flash1",
+          "value": "models/gemini-3.8-flash",
           "mode": "list",
-          "cachedResultName": "gemini-3.7-flash1"
+          "cachedResultName": "models/gemini-3.8-flash"
         },
         "responsesApiEnabled": false,
-        "options": {}
+        "options": {
+          "maxRetries": 2
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        896,
+        752,
         608
       ],
       "id": "32c8b0a4-c564-4e3a-8b2d-774f1355c86d",
       "name": "OpenAI Chat Model1",
       "credentials": {
         "openAiApi": {
-          "id": "hWi7swKVPh1dLEZq",
-          "name": "LLM"
+          "id": "ramCaZCWD6nsCWPn",
+          "name": "Gemini US News"
         }
       }
     },
@@ -700,11 +705,31 @@
       "type": "n8n-nodes-base.html",
       "typeVersion": 1.2,
       "position": [
-        -176,
+        -224,
         352
       ],
       "id": "fff6aa43-520f-429a-af01-efd73ff66a93",
       "name": "HTML"
+    },
+    {
+      "parameters": {
+        "model": "nvidia/nemotron-3.5-super-vl:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        560,
+        608
+      ],
+      "id": "b4fc66d9-21fa-407e-a8eb-582c8d70535b",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "O0m5e0zK3B5Hbz7P",
+          "name": "KJL"
+        }
+      }
     }
   ],
   "connections": {
@@ -810,11 +835,6 @@
       "main": [
         [
           {
-            "node": "Send Daily Brief via Gmail",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Output > 2000 chars?",
             "type": "main",
             "index": 0
@@ -829,11 +849,16 @@
             "node": "Recursive Text Splitter",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Send Daily Brief via Gmail",
+            "type": "main",
+            "index": 0
           }
         ],
         [
           {
-            "node": "Create Notion Page (Short Output)",
+            "node": "Aggregate",
             "type": "main",
             "index": 0
           }
@@ -925,13 +950,7 @@
     },
     "OpenAI Chat Model": {
       "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "MCP Client": {
@@ -1023,6 +1042,17 @@
             "node": "Merge1",
             "type": "main",
             "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
           }
         ]
       ]
