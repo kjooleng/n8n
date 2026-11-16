@@ -161,8 +161,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        768,
-        544
+        720,
+        560
       ],
       "id": "015a4827-59c4-44c5-8d5a-63146871670e",
       "name": "Send Daily Brief via Gmail",
@@ -201,8 +201,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        784,
-        784
+        560,
+        800
       ],
       "id": "e774c42b-c5bb-4b34-9a77-4313230ae500",
       "name": "Output > 2000 chars?"
@@ -374,8 +374,8 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        944,
-        544
+        992,
+        576
       ],
       "id": "ada465a5-a0a9-480f-b28b-4dabdbb9584d",
       "name": "Create Notion Page (Short Output)",
@@ -753,39 +753,6 @@
           "name": "KJL"
         }
       }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 4
-          },
-          "conditions": [
-            {
-              "id": "c33de949-1b5b-44aa-baab-a17adbc34f29",
-              "leftValue": "={{ $json.output.length() }}",
-              "rightValue": 0,
-              "operator": {
-                "type": "number",
-                "operation": "gt"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.4,
-      "position": [
-        480,
-        752
-      ],
-      "id": "2db084ce-1809-4b32-be67-3a5c5de495bb",
-      "name": "If"
     }
   ],
   "connections": {
@@ -906,7 +873,7 @@
       "main": [
         [
           {
-            "node": "If",
+            "node": "Output > 2000 chars?",
             "type": "main",
             "index": 0
           }
@@ -920,11 +887,16 @@
             "node": "Recursive Text Splitter",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Send Daily Brief via Gmail",
+            "type": "main",
+            "index": 0
           }
         ],
         [
           {
-            "node": "Create Notion Page (Short Output)",
+            "node": "Aggregate",
             "type": "main",
             "index": 0
           }
@@ -1166,29 +1138,6 @@
           {
             "node": "AI Agent",
             "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If": {
-      "main": [
-        [
-          {
-            "node": "Send Daily Brief via Gmail",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Output > 2000 chars?",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Aggregate",
-            "type": "main",
             "index": 0
           }
         ]
