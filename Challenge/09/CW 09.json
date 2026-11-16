@@ -2,13 +2,13 @@
   "nodes": [
     {
       "parameters": {},
-      "id": "e45f653a-faa3-4253-b6d6-0d2378e1d3bc",
+      "id": "914a1ecc-bded-4ecc-b46a-755eba51507f",
       "name": "Start here",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -624,
-        384
+        96,
+        592
       ]
     },
     {
@@ -18,7 +18,7 @@
             {
               "id": "c09-user",
               "name": "username",
-              "value": "kjooleng",
+              "value": "",
               "type": "string"
             },
             {
@@ -31,13 +31,13 @@
         },
         "options": {}
       },
-      "id": "585b845c-4c94-46a2-aac6-9659d3590740",
+      "id": "0a2a486e-4718-472b-a7bf-5fe5a52e6542",
       "name": "Your account",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        -464,
-        384
+        256,
+        592
       ],
       "notes": "Enter your community username and current participant key in these two empty fields. The HTTP node checks them locally before sending a request. Clear the key in your upload copy."
     },
@@ -80,13 +80,13 @@
           "timeout": 30000
         }
       },
-      "id": "d6356783-06c2-4cb3-8d03-9c1ebed95688",
+      "id": "c04c18ac-a96f-487c-a4a4-dfbbaca46112",
       "name": "Fetch invoices and payments",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        -320,
-        384
+        400,
+        592
       ],
       "retryOnFail": false,
       "notes": "One permanent GET returns both personal lists. The first successful personal issuance starts your clock. Empty or placeholder account fields stop locally. Before C09 opens this endpoint stays protected; never add organiser credentials."
@@ -96,13 +96,13 @@
         "fieldToSplitOut": "assignment.invoices",
         "options": {}
       },
-      "id": "130710c2-52ac-434a-9cfd-895356e28b2f",
+      "id": "361a9dfb-492b-4cef-94f6-8dc359a8dc8a",
       "name": "Split invoices",
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1.1,
       "position": [
-        -144,
-        272
+        576,
+        480
       ],
       "notes": "Each output item is one invoice. Continue with your own native nodes."
     },
@@ -111,13 +111,13 @@
         "fieldToSplitOut": "assignment.payments",
         "options": {}
       },
-      "id": "7efc998e-522f-4f22-96da-03bea14a914b",
+      "id": "4e5bbe78-5297-4c54-a760-2bcf59251e48",
       "name": "Split payments",
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1.1,
       "position": [
-        -160,
-        560
+        560,
+        768
       ],
       "notes": "Each output item is one payment. Continue with your own native nodes."
     },
@@ -128,13 +128,13 @@
         "width": 896,
         "color": 6
       },
-      "id": "dda75e01-310e-41fb-a916-872f0b860015",
+      "id": "c4e7db99-223a-469c-9d53-fd6d7df9f79f",
       "name": "The Balance Check",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -672,
-        -336
+        48,
+        -128
       ]
     },
     {
@@ -144,13 +144,13 @@
         "width": 1024,
         "color": 5
       },
-      "id": "d210015c-0372-4f7b-8edf-5ca9a4fc984f",
+      "id": "5fec55f3-a983-4954-9c93-74b25ca58221",
       "name": "1. Connect your own account",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        256,
-        -336
+        976,
+        -128
       ]
     },
     {
@@ -160,13 +160,13 @@
         "width": 640,
         "color": 4
       },
-      "id": "d0c21882-c764-4737-a8f3-cbd1c0901b66",
+      "id": "f1b07b49-8eef-49a9-b00e-0ed5e8465874",
       "name": "Invoice lane",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        640,
-        160
+        1360,
+        368
       ]
     },
     {
@@ -176,13 +176,13 @@
         "width": 640,
         "color": 4
       },
-      "id": "d845d809-c1ce-435d-98dc-d8fb747b2d59",
+      "id": "b9b9e5f1-6287-43d9-95e6-cb290c52af03",
       "name": "Payment lane",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        640,
-        496
+        1360,
+        704
       ]
     },
     {
@@ -192,13 +192,13 @@
         "width": 608,
         "color": 4
       },
-      "id": "70dc11e2-a927-4970-8675-135ff7c78719",
+      "id": "6f1840e1-6a86-454c-b0b5-ec461eb3ad0e",
       "name": "2. Build the balance check",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -672,
-        832
+        48,
+        1040
       ]
     },
     {
@@ -208,13 +208,13 @@
         "width": 640,
         "color": 3
       },
-      "id": "346d22ab-7796-4223-b976-c872d7f1bc36",
+      "id": "a7d3c6ba-40b3-4fc7-b0e3-d678bcc21d60",
       "name": "3. Export a clean copy",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -32,
-        832
+        688,
+        1040
       ]
     },
     {
@@ -224,13 +224,13 @@
         "width": 640,
         "color": 2
       },
-      "id": "76ed764c-3ae2-411a-b6f2-1b66be72d1f2",
+      "id": "87a0e523-3cd7-44a1-aa56-a3518c89d3c6",
       "name": "Timing and saved results",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        640,
-        832
+        1360,
+        1040
       ]
     },
     {
@@ -269,10 +269,10 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.4,
       "position": [
-        0,
-        272
+        720,
+        480
       ],
-      "id": "1c935296-f05e-4d8e-9f56-9258ae73e71f",
+      "id": "4bada117-fc52-4d13-9f89-7099f29cbbe1",
       "name": "Filter"
     },
     {
@@ -302,10 +302,10 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.4,
       "position": [
-        16,
-        560
+        736,
+        768
       ],
-      "id": "2ffce457-689b-4f42-943b-c329ce816c90",
+      "id": "b11f6c89-6a94-43bf-ab4d-15486dd1b5e8",
       "name": "Filter1"
     },
     {
@@ -324,10 +324,10 @@
       "type": "n8n-nodes-base.summarize",
       "typeVersion": 1.1,
       "position": [
-        176,
-        560
+        896,
+        768
       ],
-      "id": "83471dda-bf58-435c-9186-fd79cff8b19a",
+      "id": "443ac7fb-0951-45ec-97a9-11acdfef2758",
       "name": "Summarize"
     },
     {
@@ -340,10 +340,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        192,
-        288
+        912,
+        496
       ],
-      "id": "89410bcf-ab95-4566-8824-cca5ecb818cc",
+      "id": "9f113b72-b3ff-46e7-bd3e-45a8f3be08be",
       "name": "Merge"
     },
     {
@@ -373,10 +373,10 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.4,
       "position": [
-        336,
-        288
+        1056,
+        496
       ],
-      "id": "6a60fad3-f593-4c42-9dc2-5e7c2aa624ed",
+      "id": "f451f250-c5fc-4952-b301-8f94af3ef13d",
       "name": "Filter2"
     },
     {
@@ -397,10 +397,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        480,
-        288
+        1200,
+        496
       ],
-      "id": "540f02b4-5bda-410a-a775-7fabade2e4f8",
+      "id": "527f3e54-19fb-40f1-a00e-866385a889d3",
       "name": "Edit Fields"
     },
     {
@@ -421,10 +421,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        672,
-        384
+        1392,
+        592
       ],
-      "id": "8ad437c4-6c2d-46eb-82e7-f3f03734f6b6",
+      "id": "3e471ae3-4c22-46fe-88a4-90ce8b219a5f",
       "name": "Edit Fields1"
     },
     {
@@ -454,10 +454,10 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.4,
       "position": [
-        384,
-        608
+        1104,
+        816
       ],
-      "id": "bd6ed7fd-2018-4c2d-8825-270c7ea6f0ab",
+      "id": "f4cd7299-c11c-4116-a347-53cde13b53b0",
       "name": "Filter3"
     },
     {
@@ -478,11 +478,40 @@
       "type": "n8n-nodes-base.summarize",
       "typeVersion": 1.1,
       "position": [
-        608,
-        608
+        1328,
+        816
       ],
-      "id": "008f4cb0-5e30-41f6-88a1-aa5d2b172f16",
+      "id": "05cef4cb-eb6b-48ee-8604-5d64a443bfb2",
       "name": "Summarize1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "09d3cbbb-1329-47c2-932e-c93ad09c0442",
+              "name": "unpaid_invoice_count",
+              "value": "={{ $json.count_invoice_id }}",
+              "type": "number"
+            },
+            {
+              "id": "f3cd26f1-0b7a-4881-811b-6cb1ca7058d7",
+              "name": "total_outstanding_cents",
+              "value": "={{ $json.sum_outstanding }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1552,
+        816
+      ],
+      "id": "18f73cfa-38dd-4e43-8708-1b89395e7842",
+      "name": "Edit Fields2"
     }
   ],
   "connections": {
@@ -628,6 +657,17 @@
         [
           {
             "node": "Summarize1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
             "type": "main",
             "index": 0
           }
