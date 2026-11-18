@@ -2,45 +2,6 @@
   "nodes": [
     {
       "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        -240,
-        -240
-      ],
-      "id": "4867306a-9940-42a4-9c00-1651931e7208",
-      "name": "When clicking ‘Execute workflow’"
-    },
-    {
-      "parameters": {
-        "url": "https://www.straitstimes.com/news/world/rss.xml",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.rssFeedRead",
-      "typeVersion": 1.2,
-      "position": [
-        96,
-        -240
-      ],
-      "id": "8110e69a-383c-47dd-bf24-318234632bb9",
-      "name": "RSS Read"
-    },
-    {
-      "parameters": {
-        "url": "https://www.straitstimes.com/news/business/rss.xml",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.rssFeedRead",
-      "typeVersion": 1.2,
-      "position": [
-        96,
-        -48
-      ],
-      "id": "098671cc-8031-456f-8ed3-10e6903a9818",
-      "name": "RSS Read1"
-    },
-    {
-      "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
@@ -172,39 +133,6 @@
           "name": "Sender Email"
         }
       }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "check-output-length",
-              "leftValue": "={{ $json.output.length() }}",
-              "rightValue": 2000,
-              "operator": {
-                "type": "number",
-                "operation": "gt"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        1072,
-        336
-      ],
-      "id": "08964ea2-c1c5-4e85-aeb2-7294f6f13d9b",
-      "name": "Output > 2000 chars?"
     },
     {
       "parameters": {
@@ -388,36 +316,6 @@
           "name": "Notion account"
         }
       }
-    },
-    {
-      "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "weeks",
-              "triggerAtDay": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                0
-              ],
-              "triggerAtHour": 7,
-              "triggerAtMinute": 10
-            }
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.3,
-      "position": [
-        -240,
-        -48
-      ],
-      "id": "c3f28fdb-04da-4c97-9fd6-4a11b34f8a14",
-      "name": "Schedule Trigger (Daily 0910AM SGT)"
     },
     {
       "parameters": {
@@ -657,8 +555,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        752,
-        608
+        320,
+        848
       ],
       "id": "32c8b0a4-c564-4e3a-8b2d-774f1355c86d",
       "name": "OpenAI Chat Model1",
@@ -713,7 +611,7 @@
     },
     {
       "parameters": {
-        "model": "nvidia/nemotron-3.5-super-vl:free",
+        "model": "particle-ai/particle-1:free",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
@@ -726,51 +624,130 @@
       "name": "OpenRouter Chat Model",
       "credentials": {
         "openRouterApi": {
-          "id": "O0m5e0zK3B5Hbz7P",
-          "name": "KJL"
+          "id": "fkHuVVBRHJVHdY6r",
+          "name": "KJL YH"
         }
       }
+    },
+    {
+      "parameters": {
+        "model": "baidu/ernie-5.5-flash-preview:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        752,
+        672
+      ],
+      "id": "5bbab4f7-dc60-4175-b6ca-e63ad37a75d2",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "O0m5e0zK3B5Hbz7P",
+          "name": "KJL GM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-output-length",
+              "leftValue": "={{ $json.output.length() }}",
+              "rightValue": 5000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1072,
+        336
+      ],
+      "id": "08964ea2-c1c5-4e85-aeb2-7294f6f13d9b",
+      "name": "Output > 5000 chars?"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0
+              ],
+              "triggerAtHour": 7,
+              "triggerAtMinute": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -208,
+        -144
+      ],
+      "id": "c3f28fdb-04da-4c97-9fd6-4a11b34f8a14",
+      "name": "Schedule Trigger (Daily 0710AM SGT)"
+    },
+    {
+      "parameters": {
+        "url": "https://www.straitstimes.com/news/world/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        -240
+      ],
+      "id": "8110e69a-383c-47dd-bf24-318234632bb9",
+      "name": "RSS ST World",
+      "retryOnFail": true,
+      "waitBetweenTries": 4000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.straitstimes.com/news/business/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        -48
+      ],
+      "id": "098671cc-8031-456f-8ed3-10e6903a9818",
+      "name": "RSS ST Business",
+      "retryOnFail": true,
+      "waitBetweenTries": 4000,
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
-    "When clicking ‘Execute workflow’": {
-      "main": [
-        [
-          {
-            "node": "RSS Read",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "RSS Read1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "RSS Read": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "RSS Read1": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
     "Merge": {
       "main": [
         [
@@ -835,30 +812,7 @@
       "main": [
         [
           {
-            "node": "Output > 2000 chars?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Output > 2000 chars?": {
-      "main": [
-        [
-          {
-            "node": "Recursive Text Splitter",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Send Daily Brief via Gmail",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Aggregate",
+            "node": "Output > 5000 chars?",
             "type": "main",
             "index": 0
           }
@@ -932,22 +886,6 @@
         ]
       ]
     },
-    "Schedule Trigger (Daily 0910AM SGT)": {
-      "main": [
-        [
-          {
-            "node": "RSS Read",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "RSS Read1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "OpenAI Chat Model": {
       "ai_languageModel": [
         []
@@ -1015,13 +953,7 @@
     },
     "OpenAI Chat Model1": {
       "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 1
-          }
-        ]
+        []
       ]
     },
     "HTTP Request": {
@@ -1056,25 +988,81 @@
           }
         ]
       ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Output > 5000 chars?": {
+      "main": [
+        [
+          {
+            "node": "Recursive Text Splitter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Daily Brief via Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger (Daily 0710AM SGT)": {
+      "main": [
+        [
+          {
+            "node": "RSS ST World",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS ST Business",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS ST World": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS ST Business": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
     }
   },
-  "pinData": {
-    "Schedule Trigger (Daily 0910AM SGT)": [
-      {
-        "timestamp": "2026-11-09T07:10:13.000+08:00",
-        "Readable date": "November 9th 2026, 7:10:13 am",
-        "Readable time": "7:10:13 am",
-        "Day of week": "Monday",
-        "Year": "2026",
-        "Month": "November",
-        "Day of month": "09",
-        "Hour": "07",
-        "Minute": "10",
-        "Second": "13",
-        "Timezone": "Asia/Singapore (UTC+08:00)"
-      }
-    ]
-  },
+  "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
