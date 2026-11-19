@@ -105,7 +105,9 @@
       "name": "AI Agent",
       "retryOnFail": true,
       "waitBetweenTries": 4000,
-      "maxTries": 4
+      "maxTries": 4,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -360,8 +362,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        336,
-        688
+        464,
+        832
       ],
       "id": "541bbd37-a7b4-4a35-97df-af265e7f7a8b",
       "name": "OpenAI Chat Model",
@@ -555,8 +557,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        320,
-        848
+        304,
+        832
       ],
       "id": "32c8b0a4-c564-4e3a-8b2d-774f1355c86d",
       "name": "OpenAI Chat Model1",
@@ -617,8 +619,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        560,
-        608
+        528,
+        544
       ],
       "id": "b4fc66d9-21fa-407e-a8eb-582c8d70535b",
       "name": "OpenRouter Chat Model",
@@ -637,8 +639,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        752,
-        672
+        688,
+        544
       ],
       "id": "5bbab4f7-dc60-4175-b6ca-e63ad37a75d2",
       "name": "OpenRouter Chat Model1",
@@ -745,6 +747,21 @@
       "retryOnFail": true,
       "waitBetweenTries": 4000,
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1264,
+        496
+      ],
+      "id": "1420b9f7-d5e0-40da-a40e-0d4e3deaf562",
+      "name": "Wait",
+      "webhookId": "2beb219f-cf94-4279-8d97-e4002b120250"
     }
   ],
   "connections": {
@@ -1016,7 +1033,7 @@
         ],
         [
           {
-            "node": "Aggregate",
+            "node": "Wait",
             "type": "main",
             "index": 0
           }
@@ -1057,6 +1074,17 @@
             "node": "Merge",
             "type": "main",
             "index": 1
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
