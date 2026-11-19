@@ -106,7 +106,9 @@
       "name": "AI Agent",
       "retryOnFail": true,
       "maxTries": 4,
-      "waitBetweenTries": 4000
+      "waitBetweenTries": 4000,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -406,8 +408,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        240,
-        1024
+        224,
+        944
       ],
       "id": "703ab7cb-f49a-4734-8110-43690f1b7b14",
       "name": "OpenRouter Chat Model",
@@ -628,8 +630,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        96,
-        1024
+        80,
+        944
       ],
       "id": "051df31e-38e5-4455-8888-aa5f5dc42821",
       "name": "OpenRouter Chat Model1",
@@ -757,6 +759,21 @@
       "retryOnFail": true,
       "waitBetweenTries": 4000,
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        944
+      ],
+      "id": "72c9d18e-f3fd-4498-a634-2c7407a98d2d",
+      "name": "Wait",
+      "webhookId": "d571ff5a-6383-44aa-a378-e48f46d2cf7e"
     }
   ],
   "connections": {
@@ -1054,7 +1071,7 @@
         ],
         [
           {
-            "node": "Aggregate",
+            "node": "Wait",
             "type": "main",
             "index": 0
           }
@@ -1112,6 +1129,17 @@
             "node": "Merge",
             "type": "main",
             "index": 4
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
