@@ -70,7 +70,9 @@
         80
       ],
       "id": "f4c81046-980b-42e5-b859-1625967cc939",
-      "name": "AI Agent"
+      "name": "AI Agent",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -592,6 +594,21 @@
       ],
       "id": "e46263d2-4162-4717-876c-32761f5d305b",
       "name": "Filter24Hrs"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        464
+      ],
+      "id": "3c1dda03-1c68-4ad9-b202-6aeb7cc8d674",
+      "name": "Wait",
+      "webhookId": "52ba1d94-63f2-42b0-a758-7c48ad44a4ab"
     }
   ],
   "connections": {
@@ -766,7 +783,7 @@
         ],
         [
           {
-            "node": "Aggregate",
+            "node": "Wait",
             "type": "main",
             "index": 0
           }
@@ -864,6 +881,17 @@
         [
           {
             "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
             "type": "main",
             "index": 0
           }
