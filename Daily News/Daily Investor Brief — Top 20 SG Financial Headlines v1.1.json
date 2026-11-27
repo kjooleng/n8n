@@ -1,0 +1,1233 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -560,
+        48
+      ],
+      "id": "a2f9cc6c-ba21-45bd-b286-36eb4d569894",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f81c1fd6-f405-4c89-8e40-c61d535d20b3",
+              "leftValue": "={{ new Date($json.isoDate).getTime() }}",
+              "rightValue": "={{ $now.minus(1, 'days').toMillis() }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -80,
+        96
+      ],
+      "id": "d4c2262e-1a3f-48a3-a7e9-e887144494f4",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "jsCode": "const articles = $input.first().json.articles;\n\nconst lignes = articles.map((a, i) => {\n  const titre = (a.title || '')\n    .replace(/[^\\x20-\\x7E]/g, '')\n    .replace(/[\"\\\\]/g, '')\n    .replace(/:/g, '-')\n    //.substring(0, 70)\n    .trim();\n  const lien = (a.link || '').trim();\n  const content = (a.output || '').trim();\n  return (i + 1) + '. ' + titre + ' >>> ' + lien  + ' >>> ' + content;\n});\n\nconst texte = lignes.join(' ||| ');\n\nreturn [{ json: { texte, count: articles.length } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        656
+      ],
+      "id": "01815a42-b860-4d70-89d4-2dc01efd44cd",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "maxItems": 50
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        96,
+        96
+      ],
+      "id": "891df6f1-3e24-4030-949a-227d6fb4c300",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "articles",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        656
+      ],
+      "id": "7f2eb4d2-55c8-4caa-a06e-53b60394cbb8",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Today:{{ $today.toFormat('dd-MMM-yyyy') }}\nLatest news:{{ $('Code in JavaScript').first(0, 0).json.texte }}\n ",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "You are a **Daily Investor News Analyst**.\nYour role is to generate the **top 20 most important financial and economic news headlines from the past 24 hours**, focusing on developments that directly or indirectly impact the **Singapore**  economy, stock market, currency, or investor sentiment. Your output will serve as a professional daily brief for fund managers, analysts, financial content creators, and investor communities.\n\n---\n### 🔑 Core Instructions\n\n1. **News Scope & Coverage**\n* Prioritise **Singapore** market developments.\n* Include **international stories** (e.g. China, Malaysia, Japan, Europe, OPEC, Fed, or global tech/AI) **only if** they have material implications for Singaporean market, trade, or monetary policy.\n* Exclude minor local stories or human-interest pieces **unless** they have clear market or economic significance.\n\n2. **Investor Relevance**\n* Prioritise headlines that affect:\n* Monetary policy (Fed, MAS)\n* Inflation and interest rate expectations\n* Corporate earnings and equity valuations\n* Trade flows and commodities\n* AI/tech sector developments\n* Geopolitical risks and capital movement\n* Always explain how each item could **influence Singapore’s markets or investor sentiment**.\n\n---\n### 📈 Output Format (for each of the 20 items)\n**1⃣ Headline**\nShort, factual, and impactful title of the news item.\n**2⃣ Core Thesis**\nA concise paragraph summarising the event and explaining its relevance to Singaporean investors.\n**3⃣ Key Insights**\n2–4 bullet points highlighting financial or economic implications.\n**4⃣ Key Definitions**\nDefine any financial, economic, or technical terms used (e.g. CPI, GDP, PMI, Fed Funds Rate).\n**5⃣ Direct Statements & Statistics**\nInclude notable quotes, figures, or data points from official sources or the cited article.\n**6⃣ Macro Linkages**\nExplain how the news connects to broader macro themes such as inflation, interest rates, trade, commodities, AI/tech, or geopolitics — and its likely market impact.\n**7⃣ Source URL**\nInclude the original article link (from reputable sources only).\n\n---\n\n### 🧭 Example Output Structure (Abbreviated)\n**Headline:**\nFed officials signal caution on rate cuts amid resilient U.S. labour data\n**Core Thesis:**\nThe Federal Reserve hinted at maintaining higher interest rates longer after October’s jobs report showed sustained hiring, dampening hopes of near-term monetary easing.\n**Key Insights:**\n* Non-farm payrolls rose by 180k vs. 150k expected.\n* Unemployment rate steady at 3.9%.\n* Fed funds futures now pricing <20% chance of December cut.\n**Key Definitions:**\n*Fed Funds Rate* – The target interest rate range set by the Federal Reserve that influences borrowing costs across the U.S. economy.\n**Direct Statements & Statistics:**\n“Inflation remains above our target, and we must stay the course,” – Fed Chair Jerome Powell.\n**Macro Linkages:**\nHigher-for-longer rates could dampen equity valuations in U.S. tech and moderate risk appetite in Singapore’s bond markets.\n**Source URL:**\n[https://www.reuters.com/markets/us-fed-policy-oct-2025](https://www.reuters.com/markets/us-fed-policy-oct-2025)\n\n---\n\n### 🧩 Notes\n* Always generate **20 complete items** in one output.\n* Present the content as a **professional daily investor brief**, ready for inclusion in research notes or LinkedIn/YouTube commentary.\n* Prioritise **accuracy, data integrity, and clarity** over verbosity.\n* Emphasise **Singapore-U.S. economic interlinkages** — trade, policy, capital flows, and sector trends."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        240,
+        656
+      ],
+      "id": "00aebd0f-234e-4e6d-b71d-33bc2cdc7548",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "maxTries": 4,
+      "waitBetweenTries": 4000,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "Receiver Email",
+        "subject": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 20 SG Financial Headlines",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false,
+          "bccList": "Receiver Email"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        560
+      ],
+      "id": "015a4827-59c4-44c5-8d5a-63146871670e",
+      "name": "Send Daily Brief via Gmail",
+      "webhookId": "f1741971-d720-43a1-af70-f00bbce8a03b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U4v1W1uZ3ABwcgps",
+          "name": "Sender Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recursive Text Splitter for Notion page blocks\nconst CHUNK_SIZE = 1900;\nconst SEPARATORS = ['\\n\\n', '\\n', '. ', ' '];\n\nconst inputText = $input.first().json.output || '';\n\nfunction splitText(text, separators, chunkSize) {\n  if (text.length <= chunkSize) return [text];\n  const results = [];\n  let remaining = text;\n  while (remaining.length > chunkSize) {\n    let splitAt = -1;\n    for (const sep of separators) {\n      const idx = remaining.lastIndexOf(sep, chunkSize);\n      if (idx > 0) { splitAt = idx + sep.length; break; }\n    }\n    if (splitAt <= 0) splitAt = chunkSize;\n    results.push(remaining.slice(0, splitAt));\n    remaining = remaining.slice(splitAt);\n  }\n  if (remaining.length > 0) results.push(remaining);\n  return results;\n}\n\nconst chunks = splitText(inputText, SEPARATORS, CHUNK_SIZE);\nreturn chunks.map((chunk, index) => ({\n  json: {\n    chunkIndex: index + 1,\n    totalChunks: chunks.length,\n    text: chunk.trim(),\n    firstBlock: index === 0\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        784
+      ],
+      "id": "6af5c707-1739-404d-b81b-a973d87c8682",
+      "name": "Recursive Text Splitter"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-first-block",
+              "leftValue": "={{ $json.firstBlock }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1104,
+        784
+      ],
+      "id": "c135adc9-e712-4589-aa9b-53699e43af71",
+      "name": "Is First Block?"
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "34e30e12316d80cf90b8d6154984128c",
+          "mode": "id"
+        },
+        "title": "={{ $today.toFormat('dd-MMM-yyyy') }} | Daily Investor Brief — Top 20 SG Financial Headlines",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        656
+      ],
+      "id": "66fdaadb-e886-4f56-8536-a5dfaeb0bccd",
+      "name": "Create Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "iTRjDS4HWnXmTg8a",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-url",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1424,
+        656
+      ],
+      "id": "ba17c31e-5bb9-42b6-bd36-7e1cd3f96189",
+      "name": "Store Page URL"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1424,
+        864
+      ],
+      "id": "0303d310-44b3-4c14-b935-f1c3273b9482",
+      "name": "Merge Chunks"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $json.url }}",
+          "mode": "url"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1584,
+        864
+      ],
+      "id": "d39ffa22-21b5-4384-a360-3536d6a83e19",
+      "name": "Append Block to Notion Page",
+      "credentials": {
+        "notionApi": {
+          "id": "iTRjDS4HWnXmTg8a",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "725170628",
+        "text": "={{ $today.toFormat('dd-MMM-yyyy') }} | 📰 Daily Investor Brief — Top 20 Singapore Financial Headlines \nRead here \n{{ $('Store Page URL').item.json.url }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1616,
+        656
+      ],
+      "id": "3cf04a8b-1e43-45f1-8154-3abf3eb971e0",
+      "name": "Send a text message",
+      "webhookId": "2b9f6321-632d-450f-bd7f-8381570bb14a",
+      "credentials": {
+        "telegramApi": {
+          "id": "6CRaMZ1moVJREQ2J",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        336,
+        912
+      ],
+      "id": "703ab7cb-f49a-4734-8110-43690f1b7b14",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "O0m5e0zK3B5Hbz7P",
+          "name": "KJL GM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://web-search:3000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "fetchWebContent"
+        ],
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        992
+      ],
+      "id": "cefa1ea0-76a9-4d8c-a93f-05b8d06ba6cd",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Fetch contents from {{ $json.link }} . ",
+        "needsFallback": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -656,
+        816
+      ],
+      "id": "0b041c28-2e5b-4b20-967e-2397dc9ca4e8",
+      "name": "AI Agent1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gemma-4-31b",
+          "mode": "list",
+          "cachedResultName": "gemma-4-31b"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -624,
+        1008
+      ],
+      "id": "f4dc026c-f9a9-44f6-b2b6-c00c6965f953",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "hWi7swKVPh1dLEZq",
+          "name": "LLM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -448,
+        656
+      ],
+      "id": "08b07928-233a-4481-a1ba-8722e472a4d6",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eaf28614-10f4-4bb3-84c5-a1473b8b45e5",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "d914ea58-f237-441a-be61-a89ffeee5422",
+              "name": "link",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            },
+            {
+              "id": "7dc11ffa-53c2-4087-9e84-6ce1f0f4ecbb",
+              "name": "pubDate",
+              "value": "={{ $json.pubDate }}",
+              "type": "string"
+            },
+            {
+              "id": "35996b07-6f3d-4c8f-8a0c-bb9fd4e4f2e2",
+              "name": "output",
+              "value": "={{ $json.website }}",
+              "type": "string"
+            },
+            {
+              "id": "53d6f525-7c8f-47ee-89ae-10b5704dd920",
+              "name": "guid",
+              "value": "={{ $json.guid }}",
+              "type": "string"
+            },
+            {
+              "id": "d17666bd-0ca9-4213-b42a-65f799000c52",
+              "name": "isoDate",
+              "value": "={{ $json.isoDate }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -288,
+        656
+      ],
+      "id": "8638091f-56c8-45da-8441-a586e6afe357",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gemma-4-26b",
+          "mode": "list",
+          "cachedResultName": "gemma-4-26b"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -768,
+        1008
+      ],
+      "id": "2c34bcee-dcc8-4c9f-a7e7-1ad5e5693fe5",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "hWi7swKVPh1dLEZq",
+          "name": "LLM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.link }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -1024,
+        672
+      ],
+      "id": "a7b0ad92-94f0-4c4e-813a-d278f88e4887",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "website",
+              "cssSelector": "body"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -800,
+        672
+      ],
+      "id": "ee1b03b8-daec-4f4b-854a-d0aa34a42c0d",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "model": "baidu/ernie-5.5-flash-preview:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        224,
+        912
+      ],
+      "id": "051df31e-38e5-4455-8888-aa5f5dc42821",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "O0m5e0zK3B5Hbz7P",
+          "name": "KJL GM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-output-length",
+              "leftValue": "={{ $json.output.length() }}",
+              "rightValue": 5000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        560,
+        800
+      ],
+      "id": "e774c42b-c5bb-4b34-9a77-4313230ae500",
+      "name": "Output > 5000 chars?"
+    },
+    {
+      "parameters": {
+        "url": "https://www.straitstimes.com/news/singapore/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        -192
+      ],
+      "id": "9adb7a85-d32a-4bbf-aded-a11db4b11866",
+      "name": "RSS ST SG",
+      "retryOnFail": true,
+      "waitBetweenTries": 4000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.straitstimes.com/news/business/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        -48
+      ],
+      "id": "d5212b1c-0ffb-48a4-a510-49d46b092fbf",
+      "name": "RSS ST Business",
+      "retryOnFail": true,
+      "waitBetweenTries": 4000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.businesstimes.com.sg/rss/economy-policy",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        96
+      ],
+      "id": "9b656217-cd7b-4d25-b9cb-2ac356ab5c6c",
+      "name": "RSS BT Economy",
+      "retryOnFail": true,
+      "waitBetweenTries": 4000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.businesstimes.com.sg/rss/companies-markets",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        240
+      ],
+      "id": "cb7177cd-dc09-4125-bc04-27da0b3e2723",
+      "name": "RSS BT Company",
+      "retryOnFail": true,
+      "waitBetweenTries": 4000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.straitstimes.com/news/world/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        384
+      ],
+      "id": "ecd4150d-9dd7-4d90-8772-126f08467a8f",
+      "name": "RSS ST World",
+      "retryOnFail": true,
+      "waitBetweenTries": 4000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1264,
+        1056
+      ],
+      "id": "72c9d18e-f3fd-4498-a634-2c7407a98d2d",
+      "name": "Wait",
+      "webhookId": "d571ff5a-6383-44aa-a378-e48f46d2cf7e"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "link",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        96
+      ],
+      "id": "45e109c4-c02e-48f3-8433-7d2ee707cc19",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "isoDate",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        96
+      ],
+      "id": "8f83fcca-56aa-4586-a5a9-c8dea8cd953f",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "d8a76d3a-dc16-4580-ae31-fc198e405da2",
+              "leftValue": "={{ $json.attempt }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        816,
+        1072
+      ],
+      "id": "10d05723-9aa7-48b6-8a11-1f3e3710064f",
+      "name": "Attempts left?"
+    },
+    {
+      "parameters": {
+        "errorMessage": "=SG brief failed after {{ $json.attempt }} generation attempts"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        960
+      ],
+      "id": "48b5276f-6ac6-462d-9670-71383af16554",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "jsCode": "const attempt = $runIndex + 1; // This validator runs once per generation: 1, 2, 3.\n\n\nreturn [{ json: { attempt } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        1072
+      ],
+      "id": "da4e3093-21fd-44ef-a598-cbf66b6c2ad5",
+      "name": "CountAttempt"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                0
+              ],
+              "triggerAtHour": 7,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1136,
+        96
+      ],
+      "id": "3c784dda-0448-4223-a658-f14519924dc4",
+      "name": "Schedule Trigger (Daily 0730AM SGT)"
+    }
+  ],
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Output > 5000 chars?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Text Splitter": {
+      "main": [
+        [
+          {
+            "node": "Is First Block?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is First Block?": {
+      "main": [
+        [
+          {
+            "node": "Create Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create Notion Page": {
+      "main": [
+        [
+          {
+            "node": "Store Page URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Page URL": {
+      "main": [
+        [
+          {
+            "node": "Merge Chunks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Chunks": {
+      "main": [
+        [
+          {
+            "node": "Append Block to Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output > 5000 chars?": {
+      "main": [
+        [
+          {
+            "node": "Recursive Text Splitter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Daily Brief via Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CountAttempt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS ST SG": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS ST Business": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "RSS BT Economy": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "RSS BT Company": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "RSS ST World": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attempts left?": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CountAttempt": {
+      "main": [
+        [
+          {
+            "node": "Attempts left?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger (Daily 0730AM SGT)": {
+      "main": [
+        [
+          {
+            "node": "RSS ST SG",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS ST Business",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS BT Economy",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS BT Company",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS ST World",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a1f57ec2a2da833e112999d86f7d337d8347efc10e2e2a4dab8d5b310dec682"
+  }
+}
