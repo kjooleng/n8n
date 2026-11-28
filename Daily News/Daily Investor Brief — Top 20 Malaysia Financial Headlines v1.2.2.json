@@ -334,8 +334,8 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        928,
-        -336
+        960,
+        -208
       ],
       "id": "77414c3e-ac22-44b9-8681-2cc87fc5e5f6",
       "name": "RSS freemalaysiatoday.com",
@@ -481,8 +481,8 @@
       "name": "OpenRouter Chat Model",
       "credentials": {
         "openRouterApi": {
-          "id": "YDaHIQUxpmODxnTd",
-          "name": "TA01"
+          "id": "O0m5e0zK3B5Hbz7P",
+          "name": "KJL GM"
         }
       }
     },
@@ -551,19 +551,6 @@
       ],
       "id": "640713b3-66eb-4975-80e5-ec24210f4537",
       "name": "Sort"
-    },
-    {
-      "parameters": {
-        "jsCode": "const attempt = $runIndex + 1;\nconst item = $input.first()?.json ?? {};\n\nfunction fail(reason) {\n  return [{ json: { valid: false, attempt, reason } }];\n}\n\nconst error = item.error;\nif (error) {\n  const reason = typeof error === 'string'\n    ? error\n    : error.message || error.description || JSON.stringify(error);\n\n  return fail(reason);\n}\n\nconst raw = item.output;\nconst output = typeof raw === 'string'\n  ? raw.trim().replace(/\\r\\n?/g, '\\n')\n  : '';\n\nif (!output) return fail('The model returned no brief.');\n\n// Read the original RSS records, not URLs supplied by the model.\nconst articles = $('Aggregate').first(0, 0).json.articles;\nconst allowed = new Map();\nfor (const article of articles) {\n  const url = (article.link || '').trim();\n  if (/^https?:\\/\\/\\S+$/i.test(url)) allowed.set(`[${url}](${url})`, url);\n}\n\n// Split on level-2 story headings, not level-3 section headings.\nconst [preamble, ...stories] = output.split(/^##[ \\t]+/m);\nif (preamble.trim() || stories.length !== 20) {\n  return fail(`Expected 20 story headings and no preamble; found ${stories.length}.`);\n}\n\nconst seen = new Set();\nfor (const [i, story] of stories.entries()) {\n  const n = i + 1;\n  const [heading, ...lines] = story.split('\\n');\n if (!new RegExp(`^${n}\\\\.?[ \\\\t]+\\\\S`).test(heading)) {\n  return fail(`Story ${n} must start with \"## ${n} Headline\" or \"## ${n}. Headline\".`);\n}\n\n  const parts = lines.join('\\n').split(/^### Source URL[ \\t]*$/m);\n  if (parts.length !== 2 || !parts[0].trim()) {\n    return fail(`Story ${n} needs a body followed by one Source URL section.`);\n  }\n\n  const sourceLines = parts[1].split('\\n').map(line => line.trim()).filter(Boolean);\n\n// Ignore one optional Markdown divider after the source link.\nif (sourceLines[sourceLines.length - 1] === '---') sourceLines.pop();\n\nif (sourceLines.length !== 1) {\n  return fail(`Story ${n}: expected exactly one source link.`);\n}\n\nconst url = allowed.get(sourceLines[0]);\nif (!url) {\n  return fail(`Story ${n}: source link does not exactly match an input URL.`);\n}\nif (seen.has(url)) {\n  return fail(`Story ${n}: source URL was already used.`);\n}\nseen.add(url);\n}\n\nreturn [{ json: { valid: true, attempt, output } }];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1472,
-        112
-      ],
-      "id": "eac5027d-b374-4c7e-abce-8c3ef98612b5",
-      "name": "Validate Brief"
     },
     {
       "parameters": {
@@ -666,6 +653,19 @@
           "name": "KJL GM"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "const attempt = $runIndex + 1;\nconst item = $input.first()?.json ?? {};\n\nfunction fail(reason) {\n  return [{ json: { valid: false, attempt, reason } }];\n}\n\nconst error = item.error;\nif (error) {\n  const reason = typeof error === 'string'\n    ? error\n    : error.message || error.description || JSON.stringify(error);\n\n  return fail(reason);\n}\n\nconst raw = item.output;\nconst output = typeof raw === 'string'\n  ? raw.trim().replace(/\\r\\n?/g, '\\n')\n  : '';\n\nif (!output) return fail('The model returned no brief.');\n\n// Read the original RSS records, not URLs supplied by the model.\nconst articles = $('Aggregate').first(0, 0).json.articles;\nconst allowed = new Map();\nfor (const article of articles) {\n  const url = (article.link || '').trim();\n  /*if (/^https?:\\/\\/\\S+$/i.test(url)) allowed.set(`[${url}](${url})`, url);*/\n  if (/^https?:\\/\\/\\S+$/i.test(url)) {\n  allowed.set(url, url);\n  allowed.set(`[${url}](${url})`, url);\n}\n}\n\n// Split on level-2 story headings, not level-3 section headings.\nconst [preamble, ...stories] = output.split(/^##[ \\t]+/m);\n/*if (preamble.trim() || stories.length !== 20) {\n  return fail(`Expected 20 story headings and no preamble; found ${stories.length}.`);\n}*/\nif (stories.length !== 20) {\n  return fail(`Expected 20 story headings; found ${stories.length}.`);\n}\nif (preamble.trim() && !/^#[ \\t]+\\S[^\\n]*$/.test(preamble.trim())) {\n  return fail('Only one optional level-1 title is allowed before Story 1.');\n}\n\nconst seen = new Set();\nfor (const [i, story] of stories.entries()) {\n  const n = i + 1;\n  const [heading, ...lines] = story.split('\\n');\n if (!new RegExp(`^${n}\\\\.?[ \\\\t]+\\\\S`).test(heading)) {\n  return fail(`Story ${n} must start with \"## ${n} Headline\" or \"## ${n}. Headline\".`);\n}\n\n  const parts = lines.join('\\n').split(/^### Source URL[ \\t]*$/m);\n  if (parts.length !== 2 || !parts[0].trim()) {\n    return fail(`Story ${n} needs a body followed by one Source URL section.`);\n  }\n\n  const sourceLines = parts[1].split('\\n').map(line => line.trim()).filter(Boolean);\n\n// Ignore one optional Markdown divider after the source link.\nif (sourceLines[sourceLines.length - 1] === '---') sourceLines.pop();\n\nif (sourceLines.length !== 1) {\n  return fail(`Story ${n}: expected exactly one source link.`);\n}\n\nconst url = allowed.get(sourceLines[0]);\nif (!url) {\n  return fail(`Story ${n}: source link does not exactly match an input URL.`);\n}\nif (seen.has(url)) {\n  return fail(`Story ${n}: source URL was already used.`);\n}\nseen.add(url);\n}\n\nreturn [{ json: { valid: true, attempt, output } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        112
+      ],
+      "id": "48ca8218-4457-4de4-a2a5-33259120ccf0",
+      "name": "Validate Brief"
     }
   ],
   "connections": {
@@ -932,17 +932,6 @@
         ]
       ]
     },
-    "Validate Brief": {
-      "main": [
-        [
-          {
-            "node": "Brief valid?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Brief valid?": {
       "main": [
         [
@@ -991,6 +980,17 @@
             "node": "AI Agent",
             "type": "ai_languageModel",
             "index": 1
+          }
+        ]
+      ]
+    },
+    "Validate Brief": {
+      "main": [
+        [
+          {
+            "node": "Brief valid?",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
